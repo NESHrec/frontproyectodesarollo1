@@ -1,26 +1,36 @@
+/**
+ * Tipos del catálogo público según `docs/openapi.yaml` del backend
+ * (esquemas Specialty, Practitioner y AvailabilitySlot).
+ */
 export type Especialidad = {
   id: string;
-  nombre: string;
-  categoria: "medica" | "odontologica";
-  descripcion: string;
+  name: string;
+  description?: string;
 };
 
 export type Medico = {
   id: string;
-  nombre: string;
-  especialidadId: string;
-  especialidad: string;
-  enfoque: string;
-  experiencia: string;
-  ubicacion: string;
-  disponibilidad: string;
-  biografia: string;
+  fullName: string;
+  specialtyId: string;
+  specialtyName?: string;
+  licenseNumber?: string;
 };
 
-export type HorarioDisponible = {
-  medicoId: string;
+export type BloqueDisponibilidad = {
+  id: string;
+  practitionerId: string;
+  /** ISO 8601; se muestra convertido a America/Guatemala. */
+  startAt: string;
+  /** ISO 8601; se muestra convertido a America/Guatemala. */
+  endAt: string;
+};
+
+/** Bloque de disponibilidad ya formateado para mostrarse en la interfaz. */
+export type BloqueHorarioVista = {
+  id: string;
   fecha: string;
-  bloques: string[];
+  horaInicio: string;
+  horaFin: string;
 };
 
 export type ClinicaInfo = {

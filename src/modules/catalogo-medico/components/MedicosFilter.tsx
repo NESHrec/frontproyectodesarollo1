@@ -1,33 +1,60 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
-import { Card, EmptyState, StatusBadge, buttonLinkClasses } from "@/shared/components";
+import { useRouter } from "next/navigation";
+import { Button, Card, EmptyState, StatusBadge, buttonLinkClasses } from "@/shared/components";
 import type { Especialidad, Medico } from "@/shared/types/catalogo-medico";
 
 type MedicosFilterProps = {
   especialidades: Especialidad[];
   medicos: Medico[];
+  /** Especialidad aplicada en la URL; cadena vacía equivale a todas. */
+  especialidadId: string;
 };
 
-export function MedicosFilter({ especialidades, medicos }: MedicosFilterProps) {
-  const [especialidadId, setEspecialidadId] = useState("todas");
+export function MedicosFilter({ especialidades, medicos, especialidadId }: MedicosFilterProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [especialidadSeleccionada, setEspecialidadSeleccionada] = useOptimistic(especialidadId);
   const [busqueda, setBusqueda] = useState("");
+
+  const nombresEspecialidad = useMemo(
+    () => new Map(especialidades.map((especialidad) => [especialidad.id, especialidad.name])),
+    [especialidades],
+  );
 
   const medicosFiltrados = useMemo(() => {
     const busquedaNormalizada = busqueda.trim().toLocaleLowerCase("es-GT");
 
-    return medicos.filter((medico) => {
-      const coincideEspecialidad =
-        especialidadId === "todas" || medico.especialidadId === especialidadId;
-      const coincideBusqueda =
-        !busquedaNormalizada ||
-        medico.nombre.toLocaleLowerCase("es-GT").includes(busquedaNormalizada) ||
-        medico.especialidad.toLocaleLowerCase("es-GT").includes(busquedaNormalizada);
+    if (!busquedaNormalizada) {
+      return medicos;
+    }
 
-      return coincideEspecialidad && coincideBusqueda;
+    return medicos.filter((medico) => {
+      const especialidad = medico.specialtyName ?? nombresEspecialidad.get(medico.specialtyId) ?? "";
+
+      return (
+        medico.fullName.toLocaleLowerCase("es-GT").includes(busquedaNormalizada) ||
+        especialidad.toLocaleLowerCase("es-GT").includes(busquedaNormalizada)
+      );
     });
-  }, [busqueda, especialidadId, medicos]);
+  }, [busqueda, medicos, nombresEspecialidad]);
+
+  function aplicarEspecialidad(nuevaEspecialidadId: string) {
+    const params = new URLSearchParams();
+
+    if (nuevaEspecialidadId) {
+      params.set("specialtyId", nuevaEspecialidadId);
+    }
+
+    const query = params.toString();
+
+    startTransition(() => {
+      setEspecialidadSeleccionada(nuevaEspecialidadId);
+      router.push(query ? `/medicos?${query}` : "/medicos", { scroll: false });
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -52,44 +79,70 @@ export function MedicosFilter({ especialidades, medicos }: MedicosFilterProps) {
           <select
             className="w-full rounded-md border border-[#62727B]/20 bg-[#FBFCFA] px-4 py-3 text-sm text-[#62727B] outline-none transition focus:border-[#62727B] focus:bg-[#DDF3F1]"
             id="especialidad-medico"
-            onChange={(event) => setEspecialidadId(event.target.value)}
-            value={especialidadId}
+            onChange={(event) => aplicarEspecialidad(event.target.value)}
+            value={especialidadSeleccionada}
           >
-            <option value="todas">Todas las especialidades</option>
+            <option value="">Todas las especialidades</option>
             {especialidades.map((especialidad) => (
               <option key={especialidad.id} value={especialidad.id}>
-                {especialidad.nombre}
+                {especialidad.name}
               </option>
             ))}
           </select>
         </div>
       </Card>
 
-      {medicosFiltrados.length > 0 ? (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {medicosFiltrados.map((medico) => (
-            <Card className="flex flex-col gap-4" key={medico.id}>
-              <div>
-                <StatusBadge tone="pistacho">{medico.especialidad}</StatusBadge>
-                <h2 className="mt-4 text-xl font-bold text-[#62727B]">{medico.nombre}</h2>
-                <p className="mt-2 text-sm leading-6 text-[#62727B]/80">{medico.enfoque}</p>
-              </div>
-              <div className="mt-auto space-y-2 text-sm text-[#62727B]">
-                <p>{medico.experiencia}</p>
-                <p>{medico.disponibilidad}</p>
-              </div>
-              <Link className={buttonLinkClasses} href={`/medicos/${medico.id}`}>
-                Ver perfil
-              </Link>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <EmptyState
-          description="Prueba con otra búsqueda o revisa una categoría de especialidad distinta."
-          title="No hay médicos para este filtro"
-        />
-      )}
+      {isPending ? (
+        <p className="text-sm font-semibold text-[#62727B]" role="status">
+          Actualizando profesionales...
+        </p>
+      ) : null}
+
+      <div aria-busy={isPending} className={isPending ? "opacity-60 transition-opacity" : undefined}>
+        {medicosFiltrados.length > 0 ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {medicosFiltrados.map((medico) => {
+              const especialidad =
+                medico.specialtyName ?? nombresEspecialidad.get(medico.specialtyId);
+
+              return (
+                <Card className="flex flex-col gap-4" key={medico.id}>
+                  <div>
+                    {especialidad ? (
+                      <StatusBadge tone="pistacho">{especialidad}</StatusBadge>
+                    ) : null}
+                    <h2 className="mt-4 text-xl font-bold text-[#62727B]">{medico.fullName}</h2>
+                    {medico.licenseNumber ? (
+                      <p className="mt-2 text-sm text-[#62727B]/80">
+                        Colegiado: {medico.licenseNumber}
+                      </p>
+                    ) : null}
+                  </div>
+                  <Link className={`${buttonLinkClasses} mt-auto`} href={`/medicos/${encodeURIComponent(medico.id)}`}>
+                    Ver perfil y horarios
+                  </Link>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <EmptyState
+            action={
+              especialidadSeleccionada ? (
+                <Button onClick={() => aplicarEspecialidad("")} variant="secondary">
+                  Ver todos los profesionales
+                </Button>
+              ) : null
+            }
+            description={
+              medicos.length === 0
+                ? "No hay profesionales registrados para esta especialidad por ahora."
+                : "Ningún profesional coincide con tu búsqueda. Prueba con otro nombre o especialidad."
+            }
+            title="No encontramos profesionales"
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,13 +1,17 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { clinicaInfo, especialidades, medicos } from "@/modules/catalogo-medico/data";
-import { Card, PageHeader, StatusBadge, buttonLinkClasses } from "@/shared/components";
+import { clinicaInfo } from "@/modules/catalogo-medico/data";
+import { getEspecialidades, getMedicos } from "@/modules/catalogo-medico/api";
+import {
+  ApiErrorState,
+  Card,
+  LoadingState,
+  PageHeader,
+  StatusBadge,
+  buttonLinkClasses,
+} from "@/shared/components";
 
 export default function HomePage() {
-  const especialidadesMedicas = especialidades.filter(
-    (especialidad) => especialidad.categoria === "medica",
-  ).length;
-  const especialidadesOdontologicas = especialidades.length - especialidadesMedicas;
-
   return (
     <>
       <PageHeader
@@ -21,8 +25,9 @@ export default function HomePage() {
             <StatusBadge tone="agua">Proyecto Desarrollo Web</StatusBadge>
             <h2 className="mt-5 text-2xl font-bold text-[#62727B]">{clinicaInfo.lema}</h2>
             <p className="mt-4 max-w-2xl leading-7 text-[#62727B]/85">
-              Consulta información general, revisa especialidades, encuentra médicos
-              disponibles y recorre un flujo visual de pre-agendamiento sin guardar datos reales.
+              Consulta información general, revisa especialidades, encuentra médicos y
+              revisa sus horarios disponibles. El envío de solicitudes de cita se habilitará
+              en una próxima fase.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link className={buttonLinkClasses} href="/medicos">
@@ -33,19 +38,16 @@ export default function HomePage() {
               </Link>
             </div>
           </Card>
-          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-            <Card>
-              <p className="text-3xl font-bold text-[#62727B]">{medicos.length}</p>
-              <p className="mt-2 text-sm text-[#62727B]/80">Profesionales simulados</p>
-            </Card>
-            <Card>
-              <p className="text-3xl font-bold text-[#62727B]">{especialidadesMedicas}</p>
-              <p className="mt-2 text-sm text-[#62727B]/80">Especialidades médicas</p>
-            </Card>
-            <Card>
-              <p className="text-3xl font-bold text-[#62727B]">{especialidadesOdontologicas}</p>
-              <p className="mt-2 text-sm text-[#62727B]/80">Especialidades odontológicas</p>
-            </Card>
+          <div className="grid content-start gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <Suspense
+              fallback={
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <LoadingState message="Cargando resumen del catálogo..." />
+                </div>
+              }
+            >
+              <ResumenCatalogo />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -54,7 +56,7 @@ export default function HomePage() {
           {[
             "Información clara de clínica y servicios",
             "Búsqueda de médicos por especialidad",
-            "Horarios simulados para pre-agendamiento",
+            "Horarios disponibles consultados en línea",
           ].map((item) => (
             <Card className="bg-[#FBFCFA]" key={item}>
               <StatusBadge tone="pistacho">Disponible</StatusBadge>
@@ -63,6 +65,34 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+    </>
+  );
+}
+
+async function ResumenCatalogo() {
+  const [especialidades, medicos] = await Promise.all([getEspecialidades(), getMedicos()]);
+
+  if (!especialidades.ok || !medicos.ok) {
+    return (
+      <div className="sm:col-span-2 lg:col-span-1">
+        <ApiErrorState
+          description="No fue posible obtener el resumen del catálogo en este momento."
+          title="Resumen no disponible"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Card>
+        <p className="text-3xl font-bold text-[#62727B]">{medicos.data.length}</p>
+        <p className="mt-2 text-sm text-[#62727B]/80">Profesionales registrados</p>
+      </Card>
+      <Card>
+        <p className="text-3xl font-bold text-[#62727B]">{especialidades.data.length}</p>
+        <p className="mt-2 text-sm text-[#62727B]/80">Especialidades disponibles</p>
+      </Card>
     </>
   );
 }
