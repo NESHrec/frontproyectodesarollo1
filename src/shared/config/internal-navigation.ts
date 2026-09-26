@@ -50,5 +50,6 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
 export function getRoleFromPathname(pathname: string): InternalRole {
   if (pathname.startsWith("/recepcion")) return "recepcion";
   if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/paciente")) return "paciente";
   return "medico";
 }

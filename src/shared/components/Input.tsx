@@ -43,7 +43,7 @@ export function Input({
         </p>
       ) : null}
       {error ? (
-        <p className="rounded-md bg-[#F8E2E8] px-3 py-2 text-sm text-[#62727B]" id={`${inputId}-error`}>
+        <p className="rounded-md bg-[#F8E2E8] px-3 py-2 text-sm text-[#62727B]" id={`${inputId}-error`} role="alert">
           {error}
         </p>
       ) : null}

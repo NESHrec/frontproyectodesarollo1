@@ -25,7 +25,7 @@ function SimulatedResponse({ children }: { children: React.ReactNode }) {
 }
 
 export function LoginForm() {
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "unavailable">("idle");
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -36,17 +36,15 @@ export function LoginForm() {
   });
 
   function onSubmit() {
-    setMessage(
-      "Inicio de sesión validado visualmente. No se creó sesión ni se guardaron credenciales.",
-    );
+    setStatus("unavailable");
   }
 
   return (
     <Card className="w-full max-w-md">
-      <StatusBadge tone="agua">Autenticación visual</StatusBadge>
+      <StatusBadge tone="crema">Acceso pendiente</StatusBadge>
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Iniciar sesión</h1>
       <p className="mt-3 text-sm leading-6 text-[#62727B]/80">
-        Formulario simulado para representar el acceso futuro a Clínica Serena.
+        Puedes validar el formato de entrada, pero el backend todavía no publica autenticación funcional para identificar a un paciente.
       </p>
       <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
@@ -62,9 +60,13 @@ export function LoginForm() {
           {...register("password")}
         />
         <Button disabled={isSubmitting} type="submit">
-          Validar acceso visual
+          Inicio de sesión no disponible
         </Button>
-        {message ? <SimulatedResponse>{message}</SimulatedResponse> : null}
+        {status === "unavailable" ? (
+          <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold leading-6 text-[#62727B]" role="status">
+            El inicio de sesión aún no está disponible: el backend no tiene un endpoint funcional de autenticación. No se inició sesión, no se identificó a ningún paciente y no se guardaron credenciales.
+          </p>
+        ) : null}
       </form>
       <div className="mt-6 flex flex-col gap-2 text-sm text-[#62727B]">
         <Link className="font-semibold hover:underline" href="/recuperar-contrasena">
