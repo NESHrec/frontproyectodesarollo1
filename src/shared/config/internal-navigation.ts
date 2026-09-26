@@ -40,9 +40,13 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
   paciente: {
     role: "paciente",
     label: "Paciente",
-    description: "Referencia para una fase futura",
+    description: "Portal visual de demostración",
     items: [
-      { href: "#", label: "Portal futuro", shortLabel: "F" },
+      { href: "/paciente", label: "Resumen", shortLabel: "R" },
+      { href: "/paciente/citas", label: "Mis citas", shortLabel: "C" },
+      { href: "/paciente/recetas", label: "Recetas", shortLabel: "Rx" },
+      { href: "/paciente/chequeos", label: "Chequeos", shortLabel: "Ch" },
+      { href: "/paciente/perfil", label: "Mi perfil", shortLabel: "P" },
     ],
   },
 };
