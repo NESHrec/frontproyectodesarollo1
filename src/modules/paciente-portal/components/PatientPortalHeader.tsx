@@ -16,7 +16,7 @@ export function PatientPortalHeader({
     <InternalPageHeader
       actions={actions}
       description={description}
-      eyebrow={`Demostración · ${eyebrow}`}
+      eyebrow={`Paciente · ${eyebrow}`}
       title={title}
     />
   );

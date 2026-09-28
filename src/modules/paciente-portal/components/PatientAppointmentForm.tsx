@@ -65,7 +65,7 @@ export function PatientAppointmentForm({
     router.push(`/paciente/citas/nueva?especialidadId=${encodeURIComponent(nextSpecialtyId)}&medicoId=${encodeURIComponent(nextProfessionalId)}`);
   }
 
-  function onSubmit(values: PatientAppointmentFormValues) {
+  async function onSubmit(values: PatientAppointmentFormValues) {
     const professional = filteredProfessionals.find((item) => item.id === values.professionalId);
     const professionalIsVisible = professional?.specialtyId === specialtyId && professional.id === selectedProfessionalId;
     const slotIsVisible = values.slotId === selectedSlotId && visibleSlots.some((slot) => slot.id === values.slotId);
@@ -77,7 +77,22 @@ export function PatientAppointmentForm({
       setError("slotId", { type: "validate", message: "Selecciona un horario visible para este profesional." });
       return;
     }
-    setMessage("Solicitud validada como demostración. No se confirmó ni guardó ninguna cita.");
+    const slot = visibleSlots.find((item) => item.id === values.slotId);
+    const csrf = document.cookie.split("; ").find((item) => item.startsWith("clinica_serena_csrf="))?.split("=")[1];
+    if (!slot || !csrf) {
+      setMessage("Tu sesión no está disponible. Inicia sesión nuevamente para confirmar una cita.");
+      return;
+    }
+    try {
+      const response = await fetch("/api/patient/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-csrf-token": decodeURIComponent(csrf) },
+        body: JSON.stringify({ practitionerId: values.professionalId, specialtyId: values.specialtyId, scheduledAt: slot.startAt }),
+      });
+      if (response.status === 401) { router.replace("/iniciar-sesion"); return; }
+      if (response.status === 201) { router.replace("/paciente/citas?created=1"); router.refresh(); return; }
+      setMessage(response.status === 409 ? "Ese horario ya no está disponible. Elige otro." : "No pudimos confirmar la cita. Inténtalo más tarde.");
+    } catch { setMessage("No pudimos conectar con el servicio para confirmar la cita."); }
   }
 
   return (
@@ -106,8 +121,8 @@ export function PatientAppointmentForm({
         {errors.slotId ? <p className="mt-3 rounded-md bg-[#F8E2E8] px-3 py-2 text-sm" role="alert">{errors.slotId.message}</p> : null}
       </Card>
       <div className="flex flex-col items-start gap-3">
-        <Button disabled={isSubmitting || visibleSlots.length === 0} type="submit">Validar solicitud de demostración</Button>
-        <p className="rounded-md bg-[#F8E2E8] px-4 py-3 text-sm text-[#62727B]">No existe autenticación ni un endpoint de creación de citas. Este formulario nunca persiste ni confirma una reserva.</p>
+        <Button disabled={isSubmitting || visibleSlots.length === 0} type="submit">{isSubmitting ? "Confirmando…" : "Confirmar cita"}</Button>
+        <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm text-[#62727B]">La cita se confirma solo cuando el backend la persiste para tu sesión verificada.</p>
         {message ? <SimulatedFormNotice>{message}</SimulatedFormNotice> : null}
       </div>
     </form>

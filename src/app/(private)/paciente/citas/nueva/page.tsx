@@ -23,5 +23,5 @@ export default async function NewPatientAppointmentPage({ searchParams }: { sear
   if (availability && !availability.ok) return <ApiErrorState title="No pudimos cargar los horarios de demostración" />;
   const slots = availability ? ordenarBloques(availability.data).map(toBloqueHorarioVista) : [];
   const formKey = `${selectedSpecialtyId}:${selectedProfessional?.id ?? ""}:${slots.map((slot) => slot.id).join("|")}`;
-  return <div className="space-y-7"><PatientPortalHeader description="Selecciona datos del catálogo público real para visualizar una solicitud. La autenticación y la creación de citas aún no existen." eyebrow="Nueva cita" title="Solicitar una cita visual" /><PatientAppointmentForm key={formKey} professionals={professionals.data} selectedSpecialtyId={selectedSpecialtyId} selectedProfessionalId={selectedProfessional?.id ?? ""} slots={slots} specialties={specialties.data} /></div>;
+  return <div className="space-y-7"><PatientPortalHeader description="Selecciona un bloque disponible. La confirmación se atribuirá a tu identidad verificada por el backend." eyebrow="Nueva cita" title="Reservar una cita" /><PatientAppointmentForm key={formKey} professionals={professionals.data} selectedSpecialtyId={selectedSpecialtyId} selectedProfessionalId={selectedProfessional?.id ?? ""} slots={slots} specialties={specialties.data} /></div>;
 }

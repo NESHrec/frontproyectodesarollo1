@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button, Card, Input, StatusBadge } from "@/shared/components";
@@ -25,7 +26,8 @@ function SimulatedResponse({ children }: { children: React.ReactNode }) {
 }
 
 export function LoginForm() {
-  const [status, setStatus] = useState<"idle" | "unavailable">("idle");
+  const router = useRouter();
+  const [status, setStatus] = useState<"idle" | "credentials" | "service">("idle");
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -35,16 +37,31 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  function onSubmit() {
-    setStatus("unavailable");
+  async function onSubmit(values: LoginFormValues) {
+    setStatus("idle");
+    try {
+      const csrfResponse = await fetch("/api/session/csrf", { cache: "no-store" });
+      const csrfBody = await csrfResponse.json() as { csrfToken?: unknown };
+      if (!csrfResponse.ok || typeof csrfBody.csrfToken !== "string") {
+        setStatus("service");
+        return;
+      }
+      const response = await fetch("/api/session/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-csrf-token": csrfBody.csrfToken },
+        body: JSON.stringify(values),
+      });
+      if (response.ok) { router.replace("/paciente"); router.refresh(); return; }
+      setStatus(response.status === 401 ? "credentials" : "service");
+    } catch { setStatus("service"); }
   }
 
   return (
     <Card className="w-full max-w-md">
-      <StatusBadge tone="crema">Acceso pendiente</StatusBadge>
+      <StatusBadge tone="pistacho">Acceso de paciente</StatusBadge>
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Iniciar sesión</h1>
       <p className="mt-3 text-sm leading-6 text-[#62727B]/80">
-        Puedes validar el formato de entrada, pero el backend todavía no publica autenticación funcional para identificar a un paciente.
+        Ingresa con tu cuenta de paciente. La sesión se verifica antes de abrir el portal y las credenciales no se almacenan en el navegador.
       </p>
       <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
@@ -60,13 +77,14 @@ export function LoginForm() {
           {...register("password")}
         />
         <Button disabled={isSubmitting} type="submit">
-          Inicio de sesión no disponible
+          {isSubmitting ? "Verificando…" : "Iniciar sesión"}
         </Button>
-        {status === "unavailable" ? (
+        {status === "credentials" ? (
           <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold leading-6 text-[#62727B]" role="status">
-            El inicio de sesión aún no está disponible: el backend no tiene un endpoint funcional de autenticación. No se inició sesión, no se identificó a ningún paciente y no se guardaron credenciales.
+            No pudimos validar el correo o la contraseña. Revisa los datos e inténtalo de nuevo.
           </p>
         ) : null}
+        {status === "service" ? <p className="rounded-md bg-[#F8E2E8] px-4 py-3 text-sm font-semibold leading-6 text-[#62727B]" role="status">El servicio no está disponible en este momento. No se inició sesión.</p> : null}
       </form>
       <div className="mt-6 flex flex-col gap-2 text-sm text-[#62727B]">
         <Link className="font-semibold hover:underline" href="/recuperar-contrasena">

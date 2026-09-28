@@ -28,6 +28,7 @@ export type BloqueDisponibilidad = {
 /** Bloque de disponibilidad ya formateado para mostrarse en la interfaz. */
 export type BloqueHorarioVista = {
   id: string;
+  startAt: string;
   fecha: string;
   horaInicio: string;
   horaFin: string;

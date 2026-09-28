@@ -1,18 +1,14 @@
 import Link from "next/link";
-import { Card, ModalDialog, SimulatedFormNotice, StatusBadge, buttonLinkClasses } from "@/shared/components";
-import { formatCurrency, formatDate } from "@/modules/paciente-portal/format";
-import { demoAppointments } from "@/modules/paciente-portal/data";
-import { PatientPortalHeader, SectionTitle } from "@/modules/paciente-portal/components/PatientPortalHeader";
+import { Card, EmptyState, StatusBadge, buttonLinkClasses } from "@/shared/components";
+import { getOwnAppointments } from "@/modules/auth/server-session";
+import { PatientPortalHeader } from "@/modules/paciente-portal/components/PatientPortalHeader";
+import { firstSearchParam, type PageSearchParams } from "@/shared/lib/search-params";
 
-const statusLabels = { confirmed: "Confirmada", pending: "Pendiente", completed: "Completada", cancelled: "Cancelada" } as const;
-const statusTones = { confirmed: "pistacho", pending: "crema", completed: "agua", cancelled: "rosa" } as const;
+const tones = { PENDIENTE: "crema", CONFIRMADA: "pistacho", CANCELADA: "rosa", COMPLETADA: "agua" } as const;
 
-export default function PatientAppointmentsPage() {
-  const upcoming = demoAppointments.filter((appointment) => appointment.status === "confirmed" || appointment.status === "pending");
-  const history = demoAppointments.filter((appointment) => appointment.status === "completed" || appointment.status === "cancelled");
-  return <div className="space-y-7"><PatientPortalHeader actions={<Link className={buttonLinkClasses} href="/paciente/citas/nueva">+ Solicitar cita visual</Link>} description="Listado ficticio de atenciones; las acciones solo muestran estados de demostración." eyebrow="Agenda" title="Mis citas" /><section><SectionTitle title="Próximas citas ficticias" /><div className="grid gap-5 lg:grid-cols-2">{upcoming.map((appointment) => <AppointmentCard appointment={appointment} key={appointment.id} />)}</div></section><section><SectionTitle title="Historial de demostración" /><div className="grid gap-5 lg:grid-cols-2">{history.map((appointment) => <AppointmentCard appointment={appointment} key={appointment.id} />)}</div></section></div>;
-}
-
-function AppointmentCard({ appointment }: { appointment: (typeof demoAppointments)[number] }) {
-  return <Card><div className="flex flex-wrap items-start justify-between gap-3"><div><StatusBadge tone={statusTones[appointment.status]}>{statusLabels[appointment.status]} · demo</StatusBadge><h2 className="mt-4 text-xl font-bold text-[#62727B]">{appointment.specialty}</h2><p className="mt-1 text-sm text-[#62727B]/75">{appointment.professional}</p></div><p className="text-right text-sm font-bold text-[#62727B]">{formatDate(appointment.date)}<br />{appointment.time}</p></div><p className="mt-5 text-sm text-[#62727B]/75">Costo ficticio: {formatCurrency(appointment.cost)}</p>{appointment.status === "confirmed" || appointment.status === "pending" ? <div className="mt-5 flex flex-wrap gap-3"><ModalDialog description="Esta acción solo abre una demostración visual. No se envía ni se modifica ninguna cita." title="Acción de demostración" triggerLabel="Solicitar cambio visual" triggerVariant="ghost"><SimulatedFormNotice>No se envió una solicitud real ni se modificó la agenda.</SimulatedFormNotice></ModalDialog><ModalDialog description="La cancelación solo se representa en pantalla." title="Cancelar visualmente" triggerLabel="Cancelar visualmente" triggerVariant="accent"><SimulatedFormNotice>No se canceló ninguna cita real.</SimulatedFormNotice></ModalDialog></div> : null}</Card>;
+export default async function PatientAppointmentsPage({ searchParams }: { searchParams: PageSearchParams }) {
+  const created = firstSearchParam((await searchParams).created) === "1";
+  const appointments = await getOwnAppointments();
+  if (!appointments) return <EmptyState title="Sesión no disponible" description="No pudimos consultar tus citas. Inicia sesión nuevamente." />;
+  return <div className="space-y-7"><PatientPortalHeader actions={<Link className={buttonLinkClasses} href="/paciente/citas/nueva">+ Reservar cita</Link>} description="Estas citas se consultan únicamente para el paciente autenticado." eyebrow="Agenda" title="Mis citas" />{created ? <p className="rounded-md bg-[#E5F1D8] px-4 py-3 text-sm font-semibold text-[#62727B]" role="status">Tu cita fue creada correctamente.</p> : null}{appointments.length === 0 ? <EmptyState title="Aún no tienes citas" description="Elige un horario disponible para crear tu primera cita." /> : <div className="grid gap-5 lg:grid-cols-2">{appointments.map((appointment) => <Card key={appointment.id}><StatusBadge tone={tones[appointment.status]}>{appointment.status}</StatusBadge><h2 className="mt-4 text-xl font-bold text-[#62727B]">Cita programada</h2><p className="mt-2 text-sm text-[#62727B]/75">{new Intl.DateTimeFormat("es-GT", { dateStyle: "full", timeStyle: "short", timeZone: "America/Guatemala" }).format(new Date(appointment.scheduledAt))}</p><p className="mt-3 text-sm text-[#62727B]/75">Profesional: {appointment.practitionerId}</p></Card>)}</div>}</div>;
 }

@@ -34,6 +34,7 @@ export function toBloqueHorarioVista(bloque: BloqueDisponibilidad): BloqueHorari
 
   return {
     id: bloque.id,
+    startAt: bloque.startAt,
     fecha: capitalizar(fechaFormatter.format(inicio)),
     horaInicio: horaFormatter.format(inicio),
     horaFin: horaFormatter.format(fin),
