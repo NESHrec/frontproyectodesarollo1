@@ -33,7 +33,7 @@ type ApiGetOptions<Schema extends z.ZodType> = {
 const REQUEST_TIMEOUT_MS = 8000;
 
 function getApiBaseUrl(): string | null {
-  const value = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  const value = process.env.BACKEND_API_BASE_URL?.trim();
 
   if (!value) {
     return null;

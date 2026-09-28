@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clinica Serena - Frontend
+
+Frontend Next.js 16 con BFF, CSRF y sesion de paciente en cookie HttpOnly.
 
 ## Getting Started
 
@@ -15,6 +17,12 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Configura `BACKEND_API_BASE_URL=http://localhost:8080/api/v1` en `.env.local`.
+Registro, verificacion, login, reserva, Mis citas, logout y recuperacion estan
+conectados. Credenciales y tokens no se guardan en `localStorage` ni `sessionStorage`.
+Los enlaces usan `#token=`; el cliente lo conserva solamente en memoria, elimina el
+fragmento inmediatamente y lo envia al BFF mediante POST con CSRF y `no-store`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
