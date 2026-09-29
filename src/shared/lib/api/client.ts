@@ -4,7 +4,7 @@ import type { z } from "zod";
 /**
  * Cliente HTTP centralizado para el API de Clínica Serena.
  *
- * - La URL base sale únicamente de NEXT_PUBLIC_API_BASE_URL.
+ * - La URL base sale de BACKEND_API_BASE_URL o, en el entorno local, de NEXT_PUBLIC_API_BASE_URL.
  * - Toda respuesta se valida con un esquema Zod antes de usarse.
  * - Los fallos se devuelven como resultado (no como excepción) y nunca incluyen
  *   el cuerpo crudo del backend; el detalle técnico solo se registra en el
@@ -33,7 +33,7 @@ type ApiGetOptions<Schema extends z.ZodType> = {
 const REQUEST_TIMEOUT_MS = 8000;
 
 function getApiBaseUrl(): string | null {
-  const value = process.env.BACKEND_API_BASE_URL?.trim();
+  const value = process.env.BACKEND_API_BASE_URL?.trim() ?? process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 
   if (!value) {
     return null;
@@ -75,7 +75,7 @@ export async function apiGet<Schema extends z.ZodType>(
   const baseUrl = getApiBaseUrl();
 
   if (!baseUrl) {
-    console.error("[api] NEXT_PUBLIC_API_BASE_URL no está configurada o no es una URL válida.");
+    console.error("[api] No hay una URL de backend válida configurada.");
     return { ok: false, reason: "config" };
   }
 
