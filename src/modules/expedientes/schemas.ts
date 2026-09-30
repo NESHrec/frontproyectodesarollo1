@@ -1,11 +1,14 @@
 import { z } from "zod";
 
+import { MAX_PRESCRIPTION_ITEMS, prescriptionItemSchema } from "@/modules/recetas/schemas";
+
+/** Datos clínicos mínimos de la atención; paciente y profesional provienen de la cita. */
 export const consultationSchema = z.object({
-  patient: z.string().trim().min(3, "Selecciona un paciente ficticio."),
-  reason: z.string().trim().min(5, "Describe el motivo de consulta."),
-  symptoms: z.string().trim().min(5, "Describe síntomas ficticios."),
-  diagnosis: z.string().trim().min(5, "Ingresa un diagnóstico ficticio."),
-  observations: z.string().trim().min(5, "Agrega observaciones ficticias."),
-  nextCheckup: z.string().min(1, "Selecciona la fecha del próximo chequeo."),
+  reason: z.string().trim().min(3, "Describe el motivo de consulta.").max(1000, "Máximo 1000 caracteres."),
+  findings: z.string().trim().max(2000, "Máximo 2000 caracteres."),
+  diagnosis: z.string().trim().min(3, "Ingresa el diagnóstico.").max(1000, "Máximo 1000 caracteres."),
+  treatmentPlan: z.string().trim().max(2000, "Máximo 2000 caracteres."),
+  prescription: z.array(prescriptionItemSchema).max(MAX_PRESCRIPTION_ITEMS, `Máximo ${MAX_PRESCRIPTION_ITEMS} medicamentos.`),
 });
+
 export type ConsultationFormValues = z.infer<typeof consultationSchema>;

@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 
+import { getCsrfToken as csrfToken } from "@/modules/auth/csrf-client";
 import { Button, Input, SelectField } from "@/shared/components";
-
-async function csrfToken() {
-  const response = await fetch("/api/session/csrf", { cache: "no-store" });
-  const body = await response.json().catch(() => null) as { csrfToken?: unknown } | null;
-  if (!response.ok || typeof body?.csrfToken !== "string") throw new Error("csrf");
-  return body.csrfToken;
-}
 
 export function StaffAccountForm() {
   const [status, setStatus] = useState<"idle" | "success" | "error" | "forbidden">("idle");

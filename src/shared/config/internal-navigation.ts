@@ -15,7 +15,7 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
   medico: {
     role: "medico",
     label: "Médico / Odontólogo",
-    description: "Atención clínica visual",
+    description: "Citas propias y expediente",
     items: [
       { href: "/medico", label: "Resumen", shortLabel: "R" },
       { href: "/medico/agenda", label: "Mi agenda", shortLabel: "A" },

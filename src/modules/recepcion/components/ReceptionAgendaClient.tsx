@@ -4,17 +4,12 @@ import { useEffect, useState } from "react";
 
 import { Button, EmptyState, InternalPageHeader, LoadingState, StatusBadge } from "@/shared/components";
 import type { ReceptionAppointment } from "@/modules/auth/staff-session";
+import { getCsrfToken as csrfToken } from "@/modules/auth/csrf-client";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
-async function csrfToken() {
-  const response = await fetch("/api/session/csrf", { cache: "no-store" });
-  const body = await response.json().catch(() => null) as { csrfToken?: unknown } | null;
-  if (!response.ok || typeof body?.csrfToken !== "string") throw new Error("csrf");
-  return body.csrfToken;
-}
 
 export function ReceptionAgendaClient() {
   const [appointments, setAppointments] = useState<ReceptionAppointment[] | null>(null);

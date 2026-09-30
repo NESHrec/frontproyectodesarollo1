@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
 
-import { getAuthenticatedStaff } from "@/modules/auth/staff-session";
+import { StaffAreaGuard } from "@/modules/auth/components/StaffAreaGuard";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const identity = await getAuthenticatedStaff();
-  if (!identity) redirect("/iniciar-sesion?next=/admin");
-  if (identity.role !== "ADMIN") redirect("/recepcion");
-  return children;
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return <StaffAreaGuard allowedRoles={["ADMIN"]} area="/admin" fallback="/recepcion">{children}</StaffAreaGuard>;
 }

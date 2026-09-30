@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
 
-import { getAuthenticatedStaff } from "@/modules/auth/staff-session";
+import { StaffAreaGuard } from "@/modules/auth/components/StaffAreaGuard";
 
-export default async function MedicalLayout({ children }: { children: ReactNode }) {
-  const identity = await getAuthenticatedStaff();
-  if (!identity) redirect("/iniciar-sesion?next=/medico");
-  if (identity.role !== "MEDICO") redirect("/recepcion");
-  return children;
+export default function MedicalLayout({ children }: { children: ReactNode }) {
+  return <StaffAreaGuard allowedRoles={["MEDICO"]} area="/medico" fallback="/recepcion">{children}</StaffAreaGuard>;
 }

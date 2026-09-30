@@ -1,33 +1,27 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { getCsrfToken } from "@/modules/auth/csrf-client";
 import { Button } from "@/shared/components";
 
 export function StaffLogoutButton() {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
   async function logout() {
     setBusy(true);
     setError(false);
-    const csrf = document.cookie
-      .split("; ")
-      .find((item) => item.startsWith("clinica_serena_csrf="))
-      ?.split("=")[1];
-
     try {
       const response = await fetch("/api/staff/session/logout", {
         method: "POST",
-        headers: { "x-csrf-token": csrf ? decodeURIComponent(csrf) : "" },
+        cache: "no-store",
+        headers: { "x-csrf-token": await getCsrfToken() },
       });
-      if (response.ok) {
-        router.replace("/");
-        router.refresh();
-        return;
-      }
+      // Navegación completa: descarta la caché del router con segmentos privados y evita
+      // que las precargas de la barra lateral se reintenten después de cerrar sesión.
+      if (response.ok) { window.location.replace("/"); return; }
+      if (response.status === 401) { window.location.replace("/iniciar-sesion?sesion=expirada"); return; }
       setError(true);
     } catch {
       setError(true);
@@ -41,7 +35,7 @@ export function StaffLogoutButton() {
       <Button disabled={busy} onClick={logout} type="button" variant="ghost">
         {busy ? "Cerrando…" : "Cerrar sesión"}
       </Button>
-      {error ? <p className="text-xs font-semibold text-[#8D4154]" role="alert">No pudimos cerrar la sesión.</p> : null}
+      {error ? <p className="text-xs font-semibold text-[#8D4154]" role="alert">No pudimos cerrar la sesión. Intenta nuevamente.</p> : null}
     </div>
   );
 }

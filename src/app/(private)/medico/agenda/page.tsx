@@ -1,14 +1,34 @@
 import Link from "next/link";
-import { appointments, type Appointment } from "@/modules/agenda-citas/data";
-import { DataTable, Input, InternalPageHeader, SearchFilters, StatusBadge, buttonLinkClasses, type DataTableColumn } from "@/shared/components";
 
-const columns: DataTableColumn<Appointment>[] = [
-  { key: "datetime", label: "Fecha y hora", render: (item) => <div><p className="font-semibold">{item.date}</p><p>{item.time}</p></div> },
-  { key: "patient", label: "Paciente", render: (item) => <div><p className="font-semibold">{item.patient}</p><p className="text-xs">{item.patientId}</p></div> },
-  { key: "specialty", label: "Tipo", render: (item) => item.specialty },
-  { key: "status", label: "Estado", render: (item) => <StatusBadge tone="agua">{item.status}</StatusBadge> },
-  { key: "record", label: "Acceso clínico", render: (item) => <Link className="font-bold underline-offset-4 hover:underline" href={`/medico/pacientes/${item.patientId}/expediente`}>Ver resumen</Link> },
-];
-export default function DoctorAgendaPage() {
-  return <div className="space-y-7"><InternalPageHeader actions={<Link className={buttonLinkClasses} href="/medico/horarios">Consultar horarios</Link>} description="Agenda personal del profesional con acceso visual a resúmenes clínicos ficticios." eyebrow="Médico / Odontólogo" title="Mi agenda" /><SearchFilters><Input defaultValue="2026-09-16" label="Fecha" type="date" /><Input label="Buscar paciente" placeholder="Nombre o código" type="search" /></SearchFilters><DataTable caption="Agenda personal" columns={columns} getRowKey={(item) => item.id} rows={appointments.filter((item) => item.status !== "Cancelada")} /></div>;
+import { AppointmentsTable } from "@/modules/atencion-medica/components/AppointmentsTable";
+import { MedicalFailureNotice } from "@/modules/atencion-medica/components/MedicalFailureNotice";
+import { appointmentStatusLabel } from "@/modules/atencion-medica/format";
+import { getOwnAppointments } from "@/modules/atencion-medica/server";
+import { Button, EmptyState, InternalPageHeader, SearchFilters, SelectField, buttonLinkClasses } from "@/shared/components";
+import { firstSearchParam, type PageSearchParams } from "@/shared/lib/search-params";
+
+const STATUSES = ["PENDIENTE", "CONFIRMADA", "COMPLETADA", "CANCELADA"] as const;
+
+export default async function DoctorAgendaPage({ searchParams }: { searchParams: PageSearchParams }) {
+  const requested = firstSearchParam((await searchParams).estado);
+  const status = STATUSES.find((item) => item === requested);
+  const result = await getOwnAppointments(status);
+
+  return (
+    <div className="space-y-7">
+      <InternalPageHeader actions={<Link className={buttonLinkClasses} href="/medico/horarios">Consultar horarios</Link>} description="Solo se muestran citas persistidas asignadas a tu profesional vinculado (desde 7 días atrás hasta 60 días adelante)." eyebrow="Médico / Odontólogo" title="Mi agenda" />
+      <form action="/medico/agenda">
+        <SearchFilters>
+          <SelectField defaultValue={status ?? ""} id="estado" label="Estado" name="estado">
+            <option value="">Todos</option>
+            {STATUSES.map((item) => <option key={item} value={item}>{appointmentStatusLabel[item]}</option>)}
+          </SelectField>
+          <div className="flex items-end"><Button type="submit">Filtrar</Button></div>
+        </SearchFilters>
+      </form>
+      {!result.ok ? <MedicalFailureNotice reason={result.reason} /> : result.data.length === 0
+        ? <EmptyState description="No hay citas asignadas a tu agenda en el rango y estado seleccionados." title="Agenda vacía" />
+        : <AppointmentsTable appointments={result.data} caption="Agenda personal" />}
+    </div>
+  );
 }
