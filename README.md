@@ -23,6 +23,35 @@ Registro, verificacion, login, reserva, Mis citas, logout y recuperacion estan
 conectados. Credenciales y tokens no se guardan en `localStorage` ni `sessionStorage`.
 Los enlaces usan `#token=`; el cliente lo conserva solamente en memoria, elimina el
 fragmento inmediatamente y lo envia al BFF mediante POST con CSRF y `no-store`.
+Recepcion usa la sesion de personal en cookie HttpOnly y Route Handlers para agenda
+y cobros reales: `/recepcion/cobros` consulta citas atendidas, fija cargo si falta y
+registra constancias internas de pago contra el backend; no procesa pagos bancarios
+ni emite factura fiscal electronica.
+
+Antes de registrar un pago, el formulario crea en el backend una intencion ligada a
+la cuenta de recepcion, la cita, el importe, el metodo, la referencia y la clave de
+idempotencia. Si se pierde la respuesta, esa intencion sobrevive una recarga completa:
+el formulario recupera sus datos, bloquea cualquier cambio y solo permite consultar
+o reintentar exactamente la misma operacion. Una intencion se libera unicamente
+cuando el backend aporta evidencia del pago persistido. No se guardan intenciones,
+datos clinicos, Bearer ni credenciales en `localStorage` o `sessionStorage`.
+
+Validaciones locales (Node 20 o posterior):
+
+```powershell
+npm.cmd run test:billing-client
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run build
+```
+
+`typecheck` ejecuta primero `next typegen`, por lo que debe correrse con las
+dependencias instaladas. Para comprobar el servidor real de produccion, ejecuta
+primero `npm.cmd run build` y despues `npm.cmd run start`; no mantengas a la vez un
+servidor de desarrollo en el mismo puerto. Las pruebas de navegador de entrega usan
+Playwright con un navegador del sistema y reciben las credenciales sinteticas por
+variables de proceso; nunca deben escribirse en el repositorio ni pasarse como
+argumentos de linea de comandos.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

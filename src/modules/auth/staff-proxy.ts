@@ -19,6 +19,9 @@ export async function forwardStaffRequest(
   if (!(await getStaffSessionToken())) return jsonNoStore({ ok: false, reason: "expired" }, { status: 401 });
   const response = await staffBackendFetch(path, init);
   if (!response) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
+  if (response.status === 204) {
+    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  }
   const body = await response.json().catch(() => ({ ok: false, reason: "service" }));
   return jsonNoStore(body, { status: response.status });
 }
