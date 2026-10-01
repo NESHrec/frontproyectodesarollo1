@@ -14,21 +14,26 @@ export function PatientAppointmentForm({
   selectedSpecialtyId,
   selectedProfessionalId,
   slots,
+  initialSlotId,
+  initialSlotUnavailable,
 }: {
   specialties: Especialidad[];
   professionals: Medico[];
   selectedSpecialtyId: string;
   selectedProfessionalId: string;
   slots: BloqueHorarioVista[];
+  initialSlotId: string;
+  initialSlotUnavailable: boolean;
 }) {
   const router = useRouter();
   const [specialtyId, setSpecialtyId] = useState(selectedSpecialtyId);
   const [professionalId, setProfessionalId] = useState(selectedProfessionalId);
-  const [selectedSlotId, setSelectedSlotId] = useState("");
+  const initialSelectedSlotId = slots.some((slot) => slot.id === initialSlotId) ? initialSlotId : "";
+  const [selectedSlotId, setSelectedSlotId] = useState(initialSelectedSlotId);
   const [message, setMessage] = useState("");
   const { clearErrors, register, handleSubmit, setError, setValue, formState: { errors, isSubmitting } } = useForm<PatientAppointmentFormValues>({
     resolver: zodResolver(patientAppointmentSchema),
-    defaultValues: { specialtyId: selectedSpecialtyId, professionalId: selectedProfessionalId, slotId: "" },
+    defaultValues: { specialtyId: selectedSpecialtyId, professionalId: selectedProfessionalId, slotId: initialSelectedSlotId },
   });
   const filteredProfessionals = useMemo(
     () => professionals.filter((professional) => professional.specialtyId === specialtyId),
@@ -110,6 +115,7 @@ export function PatientAppointmentForm({
       <Card>
         <h2 className="text-xl font-bold text-[#62727B]">Horarios disponibles</h2>
         <p className="mt-2 text-sm text-[#62727B]/75">Datos consultados del backend y mostrados en hora de Guatemala.</p>
+        {initialSlotUnavailable ? <p className="mt-4 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm font-semibold" role="alert">El horario elegido ya no está disponible. Selecciona otro horario actualizado.</p> : null}
         {visibleSlots.length > 0 ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {visibleSlots.map((slot) => {

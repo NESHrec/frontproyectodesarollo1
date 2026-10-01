@@ -9,6 +9,7 @@ export default async function NewPatientAppointmentPage({ searchParams }: { sear
   const params = await searchParams;
   const medicoIdParam = firstSearchParam(params.medicoId);
   const especialidadIdParam = firstSearchParam(params.especialidadId);
+  const slotIdParam = firstSearchParam(params.slotId);
   const [specialties, professionals] = await Promise.all([getEspecialidades(), getMedicos()]);
   if (!specialties.ok || !professionals.ok) return <ApiErrorState title="No pudimos cargar el catálogo para la demostración" />;
   if (professionals.data.length === 0 || specialties.data.length === 0) return <EmptyState description="El catálogo no tiene datos disponibles para mostrar una solicitud visual." title="Catálogo vacío" />;
@@ -22,6 +23,7 @@ export default async function NewPatientAppointmentPage({ searchParams }: { sear
   const availability = selectedProfessional ? await getDisponibilidadMedico(selectedProfessional.id) : null;
   if (availability && !availability.ok) return <ApiErrorState title="No pudimos cargar los horarios de demostración" />;
   const slots = availability ? ordenarBloques(availability.data).map(toBloqueHorarioVista) : [];
+  const requestedSlotUnavailable = Boolean(slotIdParam) && !slots.some((slot) => slot.id === slotIdParam);
   const formKey = `${selectedSpecialtyId}:${selectedProfessional?.id ?? ""}:${slots.map((slot) => slot.id).join("|")}`;
-  return <div className="space-y-7"><PatientPortalHeader description="Selecciona un bloque disponible. La confirmación se atribuirá a tu identidad verificada por el backend." eyebrow="Nueva cita" title="Reservar una cita" /><PatientAppointmentForm key={formKey} professionals={professionals.data} selectedSpecialtyId={selectedSpecialtyId} selectedProfessionalId={selectedProfessional?.id ?? ""} slots={slots} specialties={specialties.data} /></div>;
+  return <div className="space-y-7"><PatientPortalHeader description="Selecciona un bloque disponible. La confirmación se atribuirá a tu identidad verificada por el backend." eyebrow="Nueva cita" title="Reservar una cita" /><PatientAppointmentForm initialSlotId={slotIdParam ?? ""} initialSlotUnavailable={requestedSlotUnavailable} key={formKey} professionals={professionals.data} selectedSpecialtyId={selectedSpecialtyId} selectedProfessionalId={selectedProfessional?.id ?? ""} slots={slots} specialties={specialties.data} /></div>;
 }

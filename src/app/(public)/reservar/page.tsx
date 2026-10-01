@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { getAuthenticatedPatient } from "@/modules/auth/server-session";
+import { getStaffSessionState } from "@/modules/auth/staff-session";
 import { getMedicos } from "@/modules/catalogo-medico/api";
 import { HorariosDisponibles } from "@/modules/catalogo-medico/components/HorariosDisponibles";
 import { PreAppointmentFlow } from "@/modules/catalogo-medico/components/PreAppointmentFlow";
@@ -11,7 +13,7 @@ export default async function ReservarPage({ searchParams }: { searchParams: Pag
   return (
     <>
       <PageHeader
-        description="Selecciona un profesional para consultar sus horarios disponibles. El envío de solicitudes se habilitará cuando exista el servicio de citas."
+        description="Selecciona un profesional y un horario para continuar con la reserva. La cita se crea únicamente después de confirmarla en tu sesión de paciente."
         eyebrow="Pre-agendamiento"
         title="Reserva de cita"
       />
@@ -27,7 +29,11 @@ export default async function ReservarPage({ searchParams }: { searchParams: Pag
 }
 
 async function ReservaContenido({ medicoId }: { medicoId?: string }) {
-  const result = await getMedicos();
+  const [result, patient, staffState] = await Promise.all([
+    getMedicos(),
+    getAuthenticatedPatient(),
+    getStaffSessionState(),
+  ]);
 
   if (!result.ok) {
     return <ApiErrorState title="No pudimos cargar los profesionales" />;
@@ -51,7 +57,13 @@ async function ReservaContenido({ medicoId }: { medicoId?: string }) {
           fallback={<LoadingState message="Consultando horarios..." />}
           key={medicoSeleccionado.id}
         >
-          <HorariosDisponibles medicoId={medicoSeleccionado.id} modo="seleccion" />
+          <HorariosDisponibles
+            medicoId={medicoSeleccionado.id}
+            modo="seleccion"
+            patientSessionActive={Boolean(patient)}
+            specialtyId={medicoSeleccionado.specialtyId}
+            staffSessionActive={staffState.status === "active"}
+          />
         </Suspense>
       ) : (
         <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold text-[#62727B]">

@@ -21,8 +21,6 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
       { href: "/medico/agenda", label: "Mi agenda", shortLabel: "A" },
       { href: "/medico/consultas/nueva", label: "Nueva consulta", shortLabel: "C" },
       { href: "/medico/recetas/nueva", label: "Recetas", shortLabel: "Rx" },
-      { href: "/medico/horarios", label: "Horarios", shortLabel: "H" },
-      { href: "/medico/odontograma/pac-003", label: "Odontograma", shortLabel: "O" },
     ],
   },
   admin: {

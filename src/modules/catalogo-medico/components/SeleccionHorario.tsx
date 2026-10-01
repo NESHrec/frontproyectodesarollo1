@@ -1,16 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/shared/components";
+import Link from "next/link";
+import { buttonLinkClasses } from "@/shared/components";
 import type { BloqueHorarioVista } from "@/shared/types/catalogo-medico";
 
 type SeleccionHorarioProps = {
   bloques: BloqueHorarioVista[];
+  medicoId: string;
+  patientSessionActive: boolean;
+  specialtyId: string;
+  staffSessionActive: boolean;
 };
 
-export function SeleccionHorario({ bloques }: SeleccionHorarioProps) {
+export function SeleccionHorario({
+  bloques,
+  medicoId,
+  patientSessionActive,
+  specialtyId,
+  staffSessionActive,
+}: SeleccionHorarioProps) {
   const [bloqueId, setBloqueId] = useState("");
   const bloqueSeleccionado = bloques.find((bloque) => bloque.id === bloqueId);
+  const reservationPath = bloqueSeleccionado
+    ? `/paciente/citas/nueva?${new URLSearchParams({
+      especialidadId: specialtyId,
+      medicoId,
+      slotId: bloqueSeleccionado.id,
+    })}`
+    : "";
+  const loginPath = reservationPath
+    ? `/iniciar-sesion?${new URLSearchParams({ next: reservationPath })}`
+    : "/iniciar-sesion";
 
   return (
     <div className="space-y-5">
@@ -46,15 +67,40 @@ export function SeleccionHorario({ bloques }: SeleccionHorarioProps) {
         </p>
       ) : null}
 
-      <div className="space-y-3">
-        <Button aria-describedby="aviso-envio-citas" disabled type="button">
-          Enviar solicitud (próximamente)
-        </Button>
-        <p className="rounded-md bg-[#F8E2E8] px-4 py-3 text-sm text-[#62727B]" id="aviso-envio-citas">
-          El envío de solicitudes estará disponible cuando se implemente el servicio de citas.
-          Por ahora no se reserva ni se guarda ninguna cita.
+      {bloqueSeleccionado ? (
+        <div className="space-y-3">
+          {patientSessionActive ? (
+            <>
+              <Link className={buttonLinkClasses} href={reservationPath}>
+                Continuar con la reserva
+              </Link>
+              <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm text-[#62727B]" role="status">
+                Se volverá a consultar este horario en tu sesión de paciente antes de confirmar.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm text-[#62727B]" role="status">
+                {staffSessionActive
+                  ? "Tu sesión de personal no autoriza reservas de paciente. Inicia sesión como paciente para continuar."
+                  : "Inicia sesión como paciente para continuar con esta reserva."}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link className={buttonLinkClasses} href={loginPath}>
+                  Iniciar sesión como paciente
+                </Link>
+                <Link className={`${buttonLinkClasses} bg-[#E5F1D8]`} href="/registro">
+                  Crear cuenta de paciente
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm text-[#62727B]" role="status">
+          Selecciona un horario para continuar.
         </p>
-      </div>
+      )}
     </div>
   );
 }

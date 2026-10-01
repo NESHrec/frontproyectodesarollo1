@@ -17,7 +17,6 @@ export { PageHeader } from "./PageHeader";
 export { PatientSummaryCard } from "./PatientSummaryCard";
 export { PermissionGate } from "./PermissionGate";
 export { PublicFooter } from "./PublicFooter";
-export { PublicHeader } from "./PublicHeader";
 export { RoleSidebar } from "./RoleSidebar";
 export { SearchFilters } from "./SearchFilters";
 export { SimulatedFormNotice } from "./SimulatedFormNotice";

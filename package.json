@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:billing-client": "tsx --test tests/reception-billing-client.test.tsx"
+    "test:billing-client": "tsx --test tests/reception-billing-client.test.tsx",
+    "test:auth-bff": "NODE_OPTIONS=--require=./tests/server-only-test-shim.cjs tsx --test tests/unified-login-route.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -29,6 +30,7 @@
     "eslint-config-next": "16.3.5",
     "jsdom": "^30.1.1",
     "playwright": "^1.63.0",
+    "server-only": "^0.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"

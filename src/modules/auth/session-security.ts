@@ -3,6 +3,7 @@ import "server-only";
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { PATIENT_CSRF_COOKIE, PATIENT_SESSION_COOKIE } from "@/modules/auth/server-session";
+import { STAFF_SESSION_COOKIE } from "@/modules/auth/staff-session";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" } as const;
 
@@ -64,6 +65,20 @@ export function setPatientSessionCookies(
   maxAge: number,
 ) {
   response.cookies.set(PATIENT_SESSION_COOKIE, sessionToken, {
+    ...cookieOptions(request, maxAge),
+    httpOnly: true,
+  });
+  setCsrfCookie(response, request, csrfToken, maxAge);
+}
+
+export function setStaffSessionCookies(
+  response: NextResponse,
+  request: NextRequest,
+  sessionToken: string,
+  csrfToken: string,
+  maxAge: number,
+) {
+  response.cookies.set(STAFF_SESSION_COOKIE, sessionToken, {
     ...cookieOptions(request, maxAge),
     httpOnly: true,
   });

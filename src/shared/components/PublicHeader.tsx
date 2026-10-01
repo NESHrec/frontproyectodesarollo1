@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { getStaffSessionState } from "@/modules/auth/staff-session";
 import { buttonLinkClasses } from "@/shared/components/Button";
+import { StatusBadge } from "@/shared/components/StatusBadge";
 
 const publicLinks = [
   { href: "/", label: "Inicio" },
@@ -9,7 +11,16 @@ const publicLinks = [
   { href: "/reservar", label: "Reservar" },
 ];
 
-export function PublicHeader() {
+const staffDestinations = {
+  ADMIN: { href: "/admin", label: "Volver a administración" },
+  RECEPCION: { href: "/recepcion", label: "Volver a recepción" },
+  MEDICO: { href: "/medico", label: "Volver a mi área médica" },
+} as const;
+
+export async function PublicHeader() {
+  const staffSession = await getStaffSessionState();
+  const destination = staffSession.status === "active" ? staffDestinations[staffSession.identity.role] : null;
+
   return (
     <header className="border-b border-[#62727B]/15 bg-[#FBFCFA]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
@@ -29,9 +40,10 @@ export function PublicHeader() {
               {link.label}
             </Link>
           ))}
-          <Link className={buttonLinkClasses} href="/iniciar-sesion">
-            Iniciar sesión
-          </Link>
+          {destination ? <>
+            <StatusBadge tone="pistacho">Sesión de personal activa</StatusBadge>
+            <Link className={buttonLinkClasses} href={destination.href}>{destination.label}</Link>
+          </> : <Link className={buttonLinkClasses} href="/iniciar-sesion">Iniciar sesión</Link>}
         </nav>
       </div>
     </header>

@@ -2,8 +2,8 @@ import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 
 import { backendApiBaseUrl, backendFetch } from "@/modules/auth/server-session";
-import { parseStaffIdentity, STAFF_SESSION_COOKIE } from "@/modules/auth/staff-session";
-import { hasValidCsrf, isSecureRequest, jsonNoStore } from "@/modules/auth/session-security";
+import { parseStaffIdentity } from "@/modules/auth/staff-session";
+import { hasValidCsrf, jsonNoStore, setStaffSessionCookies } from "@/modules/auth/session-security";
 
 export async function POST(request: NextRequest) {
   if (!hasValidCsrf(request)) return jsonNoStore({ ok: false, reason: "csrf" }, { status: 403 });
@@ -33,13 +33,6 @@ export async function POST(request: NextRequest) {
   const identity = identityResponse?.ok ? parseStaffIdentity(await identityResponse.json().catch(() => null)) : null;
   if (!identity) return jsonNoStore({ ok: false, reason: "service" }, { status: 502 });
   const response = jsonNoStore({ ok: true, identity });
-  response.cookies.set(STAFF_SESSION_COOKIE, payload.accessToken, {
-    httpOnly: true, sameSite: "lax", secure: isSecureRequest(request), path: "/",
-    maxAge: payload.expiresInSeconds,
-  });
-  response.cookies.set("clinica_serena_csrf", randomUUID(), {
-    httpOnly: false, sameSite: "lax", secure: isSecureRequest(request), path: "/",
-    maxAge: payload.expiresInSeconds,
-  });
+  setStaffSessionCookies(response, request, payload.accessToken, randomUUID(), payload.expiresInSeconds);
   return response;
 }

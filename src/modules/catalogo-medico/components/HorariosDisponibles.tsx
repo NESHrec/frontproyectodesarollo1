@@ -7,9 +7,18 @@ type HorariosDisponiblesProps = {
   medicoId: string;
   /** "consulta" solo lista los bloques; "seleccion" permite elegir uno visualmente. */
   modo?: "consulta" | "seleccion";
+  patientSessionActive?: boolean;
+  specialtyId?: string;
+  staffSessionActive?: boolean;
 };
 
-export async function HorariosDisponibles({ medicoId, modo = "consulta" }: HorariosDisponiblesProps) {
+export async function HorariosDisponibles({
+  medicoId,
+  modo = "consulta",
+  patientSessionActive = false,
+  specialtyId = "",
+  staffSessionActive = false,
+}: HorariosDisponiblesProps) {
   const result = await getDisponibilidadMedico(medicoId);
 
   if (!result.ok) {
@@ -32,7 +41,15 @@ export async function HorariosDisponibles({ medicoId, modo = "consulta" }: Horar
   }
 
   if (modo === "seleccion") {
-    return <SeleccionHorario bloques={bloques} />;
+    return (
+      <SeleccionHorario
+        bloques={bloques}
+        medicoId={medicoId}
+        patientSessionActive={patientSessionActive}
+        specialtyId={specialtyId}
+        staffSessionActive={staffSessionActive}
+      />
+    );
   }
 
   return (
