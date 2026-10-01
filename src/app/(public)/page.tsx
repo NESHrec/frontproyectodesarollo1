@@ -26,15 +26,15 @@ export default function HomePage() {
             <h2 className="mt-5 text-2xl font-bold text-[#62727B]">{clinicaInfo.lema}</h2>
             <p className="mt-4 max-w-2xl leading-7 text-[#62727B]/85">
               Consulta información general, revisa especialidades, encuentra médicos y
-              revisa sus horarios disponibles. El envío de solicitudes de cita se habilitará
-              en una próxima fase.
+              revisa sus horarios disponibles. Puedes iniciar una reserva desde el portal
+              público y confirmarla en tu sesión de paciente.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link className={buttonLinkClasses} href="/medicos">
                 Ver médicos
               </Link>
               <Link className={buttonLinkClasses} href="/reservar">
-                Pre-agendar cita
+                Reservar cita
               </Link>
             </div>
           </Card>
