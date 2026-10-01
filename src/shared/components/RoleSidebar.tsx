@@ -13,7 +13,7 @@ export function RoleSidebar({ role }: { role: InternalRole }) {
   return (
     <aside className="border-b border-[#62727B]/15 bg-[#DDF3F1] lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r">
       <div className="p-5 lg:sticky lg:top-0">
-        <Link className="inline-flex items-center gap-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]" href="/">
+        <Link className="inline-flex items-center gap-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]" href={`/${role}`}>
           <span aria-hidden="true" className="grid size-10 place-items-center rounded-xl bg-[#FBFCFA] text-lg font-black">CS</span>
           <span><span className="block font-bold text-[#62727B]">Clínica Serena</span><span className="text-xs text-[#62727B]/70">{role === "paciente" ? "Portal seguro" : "Área interna visual"}</span></span>
         </Link>
