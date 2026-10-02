@@ -72,7 +72,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Iniciar sesión</h1>
       {sessionExpired ? (
         <p className="mt-4 rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold text-[#62727B]" role="alert">
-          Tu sesión de personal expiró o fue cerrada. Inicia sesión nuevamente; los datos no guardados se perdieron.
+          Tu sesión expiró o fue cerrada. Inicia sesión nuevamente; los datos no guardados se perdieron.
         </p>
       ) : null}
       <form className="mt-6 space-y-5" onSubmit={handleSubmit(submit)}>

@@ -3,6 +3,9 @@ import "server-only";
 import { cookies } from "next/headers";
 
 import { backendApiBaseUrl } from "@/modules/auth/server-session";
+import type { ReceptionAppointment } from "@/modules/recepcion/schemas";
+
+export type { ReceptionAppointment } from "@/modules/recepcion/schemas";
 
 export const STAFF_SESSION_COOKIE = "clinica_serena_staff_session";
 
@@ -15,17 +18,6 @@ export type StaffIdentity = {
   role: StaffRole;
   practitionerLinkStatus: PractitionerLinkStatus;
 };
-export type ReceptionAppointment = {
-  id: string;
-  patientId: string;
-  practitionerId: string;
-  specialtyId: string;
-  scheduledAt: string;
-  status: "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | "COMPLETADA";
-  arrivalAt: string | null;
-  arrivalByAccountId: string | null;
-};
-
 export function parseStaffIdentity(value: unknown): StaffIdentity | null {
   if (!value || typeof value !== "object") return null;
   const identity = value as Record<string, unknown>;

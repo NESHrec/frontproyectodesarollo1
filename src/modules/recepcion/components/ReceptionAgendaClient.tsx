@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { Button, EmptyState, InternalPageHeader, LoadingState, StatusBadge } from "@/shared/components";
-import type { ReceptionAppointment } from "@/modules/auth/staff-session";
 import { getCsrfToken as csrfToken } from "@/modules/auth/csrf-client";
+import { receptionAppointmentsSchema, type ReceptionAppointment } from "@/modules/recepcion/schemas";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -18,13 +18,15 @@ export function ReceptionAgendaClient() {
   const [message, setMessage] = useState<string | null>(null);
 
   async function loadAgenda() {
+    setAppointments(null);
     setError(null);
     const response = await fetch("/api/staff/agenda", { cache: "no-store" }).catch(() => null);
     if (!response) { setError("service"); return; }
     if (response.status === 401 || response.status === 403) { setError("forbidden"); return; }
     if (!response.ok) { setError("service"); return; }
-    const body = await response.json().catch(() => null);
-    setAppointments(Array.isArray(body) ? body : []);
+    const parsed = receptionAppointmentsSchema.safeParse(await response.json().catch(() => null));
+    if (!parsed.success) { setError("service"); return; }
+    setAppointments(parsed.data);
   }
 
   useEffect(() => {

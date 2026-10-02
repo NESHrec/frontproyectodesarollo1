@@ -64,12 +64,25 @@ export async function getPatientSessionToken() {
   return (await cookies()).get(PATIENT_SESSION_COOKIE)?.value ?? null;
 }
 
-export async function getAuthenticatedPatient(): Promise<PatientIdentity | null> {
+export type PatientSessionState =
+  | { status: "active"; identity: PatientIdentity }
+  | { status: "none" | "expired" | "unavailable" };
+
+/** Distingue la ausencia o caducidad de la sesión de una caída del servicio. */
+export async function getPatientSessionState(): Promise<PatientSessionState> {
   const token = await getPatientSessionToken();
-  if (!token) return null;
+  if (!token) return { status: "none" };
   const response = await backendFetch("/auth/me", { headers: { Authorization: `Bearer ${token}` } });
-  if (!response?.ok) return null;
-  return parsePatientIdentity(await response.json().catch(() => null));
+  if (!response) return { status: "unavailable" };
+  if (response.status === 401) return { status: "expired" };
+  if (!response.ok) return { status: "unavailable" };
+  const identity = parsePatientIdentity(await response.json().catch(() => null));
+  return identity ? { status: "active", identity } : { status: "unavailable" };
+}
+
+export async function getAuthenticatedPatient(): Promise<PatientIdentity | null> {
+  const session = await getPatientSessionState();
+  return session.status === "active" ? session.identity : null;
 }
 
 export async function getOwnAppointments(): Promise<PatientAppointment[] | null> {
