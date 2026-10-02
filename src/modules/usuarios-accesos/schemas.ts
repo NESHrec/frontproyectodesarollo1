@@ -8,7 +8,6 @@ export const internalUserSchema = z.object({
 
 export const specialtySchema = z.object({
   name: z.string().trim().min(3, "Ingresa el nombre de la especialidad."),
-  category: z.enum(["medica", "odontologica"]),
   description: z.string().trim().min(10, "Agrega una descripción de al menos 10 caracteres."),
 });
 

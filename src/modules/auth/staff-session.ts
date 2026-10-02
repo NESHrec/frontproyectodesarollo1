@@ -17,6 +17,7 @@ export type StaffIdentity = {
   fullName: string;
   role: StaffRole;
   practitionerLinkStatus: PractitionerLinkStatus;
+  practitionerId: string | null;
 };
 export function parseStaffIdentity(value: unknown): StaffIdentity | null {
   if (!value || typeof value !== "object") return null;
@@ -36,6 +37,7 @@ export function parseStaffIdentity(value: unknown): StaffIdentity | null {
     fullName: identity.fullName,
     role: identity.role as StaffRole,
     practitionerLinkStatus: linkStatus,
+    practitionerId: typeof identity.medicoId === "string" ? identity.medicoId : null,
   };
 }
 
