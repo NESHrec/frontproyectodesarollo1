@@ -9,3 +9,11 @@ export const patientSchema = z.object({
 });
 
 export type PatientFormValues = z.infer<typeof patientSchema>;
+
+export const administrativePatientSchema = z.object({
+  fullName: z.string().trim().min(3, "Ingresa el nombre completo."),
+  phone: z.string().trim().min(7, "Ingresa un teléfono válido."),
+  email: z.union([z.literal(""), z.string().trim().email("Ingresa un correo válido.")]),
+});
+
+export type AdministrativePatientFormValues = z.infer<typeof administrativePatientSchema>;

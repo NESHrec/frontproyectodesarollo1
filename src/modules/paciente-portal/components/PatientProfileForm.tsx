@@ -18,7 +18,7 @@ export function PatientProfileForm() {
   const [profile, setProfile] = useState<ReturnType<typeof patientProfileResponseSchema.parse> | null>(null);
   const [error, setError] = useState<LoadError>(null);
   const [message, setMessage] = useState("");
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PatientProfileFormValues>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<PatientProfileFormValues>({
     resolver: zodResolver(patientProfileSchema),
     defaultValues: { fullName: "" },
   });
@@ -34,7 +34,8 @@ export function PatientProfileForm() {
     const parsed = patientProfileResponseSchema.safeParse(await response.json().catch(() => null));
     if (!response.ok || !parsed.success) { setError("service"); return; }
     setProfile(parsed.data);
-  }, []);
+    reset({ fullName: parsed.data.fullName ?? "" });
+  }, [reset]);
 
   useEffect(() => {
     const task = window.setTimeout(() => { void load(); }, 0);
@@ -59,6 +60,7 @@ export function PatientProfileForm() {
       const parsed = patientProfileResponseSchema.safeParse(await response.json().catch(() => null));
       if (!response.ok || !parsed.success) { setError("service"); return; }
       setProfile(parsed.data);
+      reset({ fullName: parsed.data.fullName ?? "" });
       setMessage("Tu nombre completo se guardó correctamente.");
     } catch {
       setError("service");

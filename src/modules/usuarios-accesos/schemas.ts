@@ -13,3 +13,20 @@ export const specialtySchema = z.object({
 
 export type InternalUserFormValues = z.infer<typeof internalUserSchema>;
 export type SpecialtyFormValues = z.infer<typeof specialtySchema>;
+
+export const auditEventPageSchema = z.object({
+  items: z.array(z.object({
+    id: z.string(),
+    actorAccountId: z.string(),
+    action: z.string(),
+    entityType: z.string(),
+    entityId: z.string(),
+    occurredAt: z.string(),
+  })),
+  page: z.number(),
+  size: z.number(),
+  totalElements: z.number(),
+  hasNext: z.boolean(),
+});
+
+export type AuditEvent = z.infer<typeof auditEventPageSchema>["items"][number];

@@ -21,6 +21,7 @@ export default async function DoctorAppointmentPage({ params }: { params: Promis
         actions={<div className="flex flex-wrap gap-2">
           <Link className={buttonLinkClasses} href={recordHref}>Consultar expediente</Link>
           {appointment.canRecordAttention ? <Link className={buttonLinkClasses} href={`/medico/consultas/nueva?cita=${encodeURIComponent(appointment.id)}`}>Registrar atención</Link> : null}
+          <Link className={buttonLinkClasses} href={`/medico/odontograma/${encodeURIComponent(appointment.patientId)}?cita=${encodeURIComponent(appointment.id)}`}>Odontograma</Link>
         </div>}
         description="Datos persistidos de la cita; el paciente proviene de la reserva registrada."
         eyebrow="Atención clínica"
