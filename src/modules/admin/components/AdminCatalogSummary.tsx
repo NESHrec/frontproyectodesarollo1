@@ -10,6 +10,6 @@ export async function AdminCatalogSummary() {
     return <EmptyState description="El catálogo respondió correctamente y no contiene especialidades publicadas." title="Catálogo vacío" />;
   }
   return <section aria-label="Indicadores de catálogo" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    <MetricCard detail="Lista pública completa de GET /especialidades, sin paginación." label="Especialidades publicadas" tone="crema" value={String(specialties.data.length)} />
+    <MetricCard detail="Consulta del catálogo público de especialidades mediante GET /especialidades; la edición continúa siendo demostrativa." label="Especialidades publicadas" tone="crema" value={String(specialties.data.length)} />
   </section>;
 }

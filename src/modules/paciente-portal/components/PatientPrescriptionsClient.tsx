@@ -7,7 +7,7 @@ import { patientPrescriptionsSchema, type PatientPrescription } from "@/modules/
 import { Card, EmptyState, ErrorState, LoadingState, ModalDialog, buttonLinkClasses } from "@/shared/components";
 import { SectionTitle } from "@/modules/paciente-portal/components/PatientPortalHeader";
 
-type LoadError = "expired" | "service" | null;
+type LoadError = "expired" | "forbidden" | "service" | null;
 
 const dateTimeFormatter = new Intl.DateTimeFormat("es-GT", {
   dateStyle: "long",
@@ -29,6 +29,7 @@ export function PatientPrescriptionsClient() {
     const response = await fetch("/api/patient/prescriptions", { cache: "no-store" }).catch(() => null);
     if (!response) { setError("service"); return; }
     if (response.status === 401) { setError("expired"); return; }
+    if (response.status === 403) { setError("forbidden"); return; }
     const parsed = patientPrescriptionsSchema.safeParse(await response.json().catch(() => null));
     if (!response.ok || !parsed.success) { setError("service"); return; }
     setPrescriptions(parsed.data);
@@ -42,6 +43,9 @@ export function PatientPrescriptionsClient() {
   if (prescriptions === null && !error) return <LoadingState message="Consultando tus recetas..." />;
   if (error === "expired") {
     return <EmptyState action={<Link className={buttonLinkClasses} href="/iniciar-sesion?next=/paciente/recetas&sesion=expirada">Iniciar sesión nuevamente</Link>} description="Tu sesión terminó. Inicia sesión nuevamente para consultar tus recetas." title="Sesión vencida" />;
+  }
+  if (error === "forbidden") {
+    return <ErrorState description="Tu sesión no tiene permiso para consultar tus recetas." title="Acceso denegado" />;
   }
   if (error === "service") {
     return <ErrorState description="No pudimos consultar tus recetas. Intenta nuevamente cuando el servicio esté disponible." onRetry={() => void load()} title="Recetas no disponibles" />;

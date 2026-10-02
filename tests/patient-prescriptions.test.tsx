@@ -70,8 +70,20 @@ test("el BFF distingue sesión ausente, sesión vencida y respuesta inválida", 
 
   globalThis.fetch = (async () => json([{ ...prescription, items: [] }])) as typeof fetch;
   const invalid = await routeGet(request());
-  assert.equal(invalid.status, 503);
-  assert.deepEqual(await invalid.json(), { ok: false, reason: "service" });
+  assert.equal(invalid.status, 502);
+  assert.deepEqual(await invalid.json(), { ok: false, reason: "invalid-response" });
+});
+
+test("el BFF preserva el permiso denegado del backend y reserva 503 para indisponibilidad", async () => {
+  globalThis.fetch = (async () => json({ code: "FORBIDDEN" }, 403)) as typeof fetch;
+  const forbidden = await routeGet(request());
+  assert.equal(forbidden.status, 403);
+  assert.deepEqual(await forbidden.json(), { ok: false, reason: "forbidden" });
+
+  globalThis.fetch = (async () => { throw new Error("backend unavailable"); }) as typeof fetch;
+  const unavailable = await routeGet(request());
+  assert.equal(unavailable.status, 503);
+  assert.deepEqual(await unavailable.json(), { ok: false, reason: "service" });
 });
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://localhost" });
@@ -112,6 +124,12 @@ test("la pantalla distingue servicio caído con reintento y sesión vencida", as
   fireEvent.click(screen.getByRole("button", { name: "Intentar nuevamente" }));
   await screen.findByText("1 receta");
   assert.equal(calls, 2);
+  cleanup();
+
+  globalThis.fetch = (async () => json({ reason: "forbidden" }, 403)) as typeof fetch;
+  screen = render(<PatientPrescriptionsClient />);
+  await screen.findByText("Acceso denegado");
+  assert.ok(screen.getByText(/permiso para consultar tus recetas/));
   cleanup();
 
   globalThis.fetch = (async () => json({ reason: "expired" }, 401)) as typeof fetch;

@@ -36,7 +36,7 @@ export function ReceptionSummaryClient() {
     return <ErrorState description="No se pudo consultar la agenda. Ningún fallo de carga se presenta como cero." onRetry={() => void load()} title="No se pudo cargar el resumen" />;
   }
   if (!appointments?.length) {
-    return <EmptyState action={<Link className={buttonLinkClasses} href="/recepcion/agenda">Abrir agenda</Link>} description="No hay citas en el rango operativo consultado: desde un día atrás hasta 30 días después." title="Sin citas en la vista actual" />;
+    return <EmptyState action={<Link className={buttonLinkClasses} href="/recepcion/agenda">Abrir agenda</Link>} description="No hay citas en la ventana consultada: comienza ayer y termina 30 días después de ese inicio." title="Sin citas en la vista actual" />;
   }
 
   const waiting = appointments.filter((item) =>
@@ -46,7 +46,7 @@ export function ReceptionSummaryClient() {
   const cancelled = appointments.filter((item) => item.status === "CANCELADA").length;
   const limitDetail = appointments.length === 50
     ? "Se alcanzó el límite de 50; esta cifra no es un total general."
-    : "Rango: desde un día atrás hasta 30 días después; máximo 50.";
+    : "Rango: ventana de 30 días que comienza ayer y termina 30 días después de ese inicio; máximo 50.";
 
   return <div className="space-y-6">
     <section aria-label="Indicadores de la vista de agenda" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

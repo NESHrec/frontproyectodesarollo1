@@ -18,9 +18,11 @@ export async function GET(request: NextRequest) {
     headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
   });
   if (response?.status === 401) return unauthorized(request);
-  if (!response?.ok) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
+  if (response?.status === 403) return jsonNoStore({ ok: false, reason: "forbidden" }, { status: 403 });
+  if (!response) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
+  if (!response.ok) return jsonNoStore({ ok: false, reason: "service" }, { status: response.status });
 
   const parsed = patientPrescriptionsSchema.safeParse(await response.json().catch(() => null));
-  if (!parsed.success) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
+  if (!parsed.success) return jsonNoStore({ ok: false, reason: "invalid-response" }, { status: 502 });
   return jsonNoStore(parsed.data);
 }
