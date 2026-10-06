@@ -14,8 +14,8 @@ export const rolePermissions = [
   { permission: "Consultar datos de contacto", recepcion: true, medico: true, admin: false, paciente: false },
   { permission: "Ver y registrar contenido clínico", recepcion: false, medico: true, admin: false, paciente: false },
   { permission: "Gestionar cobros", recepcion: true, medico: false, admin: false, paciente: false },
-  { permission: "Gestionar usuarios y roles", recepcion: false, medico: false, admin: true, paciente: false },
-  { permission: "Portal personal futuro", recepcion: false, medico: false, admin: false, paciente: true },
+  { permission: "Gestionar cuentas de personal", recepcion: false, medico: false, admin: true, paciente: false },
+  { permission: "Consultar portal personal", recepcion: false, medico: false, admin: false, paciente: true },
 ];
 
 export const auditEvents: AuditEvent[] = [

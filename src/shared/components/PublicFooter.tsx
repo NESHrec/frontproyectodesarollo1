@@ -18,7 +18,7 @@ export function PublicFooter() {
           <p className="font-semibold">Acceso</p>
           <div className="mt-2 flex flex-col gap-1">
             <Link className="hover:underline" href="/registro">
-              Registro visual
+              Crear cuenta
             </Link>
             <Link className="hover:underline" href="/recuperar-contrasena">
               Recuperar contraseña

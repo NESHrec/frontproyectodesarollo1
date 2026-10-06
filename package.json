@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:billing-client": "tsx --test tests/reception-billing-client.test.tsx",
     "test:auth-bff": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/unified-login-route.test.ts",
-    "test:staff-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-write-routes.test.ts"
+    "test:staff-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-write-routes.test.ts",
+    "test:audit-findings": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/audit-findings-content.test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

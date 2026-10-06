@@ -6,7 +6,7 @@ import type { FormEvent, ReactNode } from "react";
 import { getCsrfToken } from "@/modules/auth/csrf-client";
 import type { BillingAppointment, PaymentMethod } from "@/modules/pagos/billing-types";
 import { createOrReusePaymentIntent, paymentIntentWasPersisted } from "@/modules/pagos/payment-intent";
-import type { PaymentIntent, PersistedPaymentIntent } from "@/modules/pagos/payment-intent";
+import { parsePaymentIntentStatus, type PaymentIntent, type PersistedPaymentIntent } from "@/modules/pagos/payment-intent";
 import { Button, EmptyState, Input, InternalPageHeader, LoadingState, MetricCard, SelectField, StatusBadge } from "@/shared/components";
 
 type LoadError = "service" | "forbidden" | "expired" | null;
@@ -50,22 +50,23 @@ export function ReceptionBillingClient() {
 
   async function loadPaymentIntent() {
     const response = await fetch("/api/staff/billing/payment-intent", { cache: "no-store" }).catch(() => null);
-    if (response?.status === 404) {
-      setPendingPayment(null);
-      setIntentChecked(true);
-      return null;
-    }
     if (!response?.ok) {
       setIntentChecked(false);
       setError(response?.status === 401 ? "expired" : response?.status === 403 ? "forbidden" : "service");
       return undefined;
     }
-    const intent = await response.json().catch(() => null) as PersistedPaymentIntent | null;
-    if (!intent || typeof intent.appointmentId !== "string" || typeof intent.idempotencyKey !== "string") {
+    const status = parsePaymentIntentStatus(await response.json().catch(() => null));
+    if (!status) {
       setIntentChecked(false);
       setError("service");
       return undefined;
     }
+    if (!status.active) {
+      setPendingPayment(null);
+      setIntentChecked(true);
+      return null;
+    }
+    const intent = status.intent;
     setPendingPayment(intent);
     setPaymentAmount(String(intent.amount));
     setPaymentMethod(intent.method);
@@ -274,6 +275,8 @@ export function ReceptionBillingClient() {
     {error === "forbidden" ? <Notice tone="warn" title="Permiso denegado" text="Solo recepción puede operar cobros." /> : null}
     {error === "service" ? <Notice tone="warn" title="Backend no disponible" text="No se pudo contactar el servicio. Revisa el backend e intenta nuevamente." action={<Button onClick={() => void loadList()}>Reintentar</Button>} /> : null}
     {message ? <p className="rounded-md bg-[#E5F1D8] px-4 py-3 text-sm font-semibold text-[#62727B]" role="status">{message}</p> : null}
+
+    {intentChecked && !pendingPayment && !error ? <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm font-semibold text-[#62727B]" role="status">Sin intención de pago activa.</p> : null}
 
     {pendingPayment ? <Notice tone="warn" title="Pago pendiente de confirmación" text={`Pago de ${money(pendingPayment.amount)} para la cita ${pendingPayment.appointmentId}. Sus datos están bloqueados hasta confirmar el historial.`} action={<Button disabled={busy !== null} onClick={() => void consultPendingPayment()}>Consultar historial nuevamente</Button>} /> : null}
 

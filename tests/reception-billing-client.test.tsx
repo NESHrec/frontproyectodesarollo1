@@ -23,6 +23,90 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
+function installInitialLoad(intentResponse: Response) {
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : new URL(input.url).pathname;
+    if (url === "/api/staff/billing/payment-intent") return intentResponse;
+    if (url === "/api/staff/billing/appointments") return json([structuredClone(appointment)]);
+    throw new Error(`Unexpected request: ${url}`);
+  }) as typeof fetch;
+}
+
+test("la ausencia de intención es un estado explícito y normal", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
+  installInitialLoad(json({ active: false, intent: null }));
+
+  const screen = render(<ReceptionBillingClient />);
+  await screen.findByText("Sin intención de pago activa.");
+  assert.ok(screen.getByText("Cita appointment-1"));
+  assert.equal(screen.queryByText("Backend no disponible"), null);
+  cleanup();
+});
+
+test("una intención existente se recupera desde el estado explícito", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
+  installInitialLoad(json({
+    active: true,
+    intent: {
+      appointmentId: appointment.id,
+      amount: 20000,
+      method: "TRANSFERENCIA",
+      reference: "REF-EXISTENTE",
+      idempotencyKey: "intent-existing",
+      status: "PREPARADA",
+      createdAt: "2026-09-30T12:00:30Z",
+      completedAt: null,
+    },
+  }));
+
+  const screen = render(<ReceptionBillingClient />);
+  await screen.findByText("Pago pendiente de confirmación");
+  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).value, "20000");
+  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).disabled, true);
+  assert.equal(screen.queryByText("Sin intención de pago activa."), null);
+  cleanup();
+});
+
+test("sesión vencida y permiso denegado conservan estados distintos", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
+
+  for (const scenario of [
+    { status: 401, title: "Sesión expirada" },
+    { status: 403, title: "Permiso denegado" },
+  ]) {
+    installInitialLoad(json({ ok: false }, scenario.status));
+    const screen = render(<ReceptionBillingClient />);
+    await screen.findByText(scenario.title);
+    assert.equal(screen.queryByText("Sin intención de pago activa."), null);
+    cleanup();
+  }
+});
+
+test("backend no disponible no se interpreta como ausencia", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
+  installInitialLoad(json({ ok: false, reason: "service" }, 503));
+
+  const screen = render(<ReceptionBillingClient />);
+  await screen.findByText("Backend no disponible");
+  assert.equal(screen.queryByText("Sin intención de pago activa."), null);
+  cleanup();
+});
+
+test("un 404 inesperado no se convierte en ausencia de intención", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
+  installInitialLoad(json({ code: "UNEXPECTED_NOT_FOUND" }, 404));
+
+  const screen = render(<ReceptionBillingClient />);
+  await screen.findByText("Backend no disponible");
+  assert.equal(screen.queryByText("Sin intención de pago activa."), null);
+  cleanup();
+});
+
 test("el formulario recupera del backend una intención incierta y conserva su clave", async () => {
   const { cleanup, fireEvent, render } = await import("@testing-library/react");
   const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
@@ -61,7 +145,11 @@ test("el formulario recupera del backend una intención incierta y conserva su c
       serverIntent = null;
       return new Response(null, { status: 204 });
     }
-    if (url === "/api/staff/billing/payment-intent") return serverIntent ? json(serverIntent) : json({}, 404);
+    if (url === "/api/staff/billing/payment-intent") {
+      return serverIntent
+        ? json({ active: true, intent: serverIntent })
+        : json({ active: false, intent: null });
+    }
     if (url === `/api/staff/billing/appointments/${appointment.id}`) {
       if (!historyAvailable) throw new TypeError("history unavailable");
       return json(persisted);

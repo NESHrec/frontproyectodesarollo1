@@ -15,6 +15,29 @@ export type PersistedPaymentIntent = PaymentIntent & {
   completedAt: string | null;
 };
 
+export type PaymentIntentStatus =
+  | { active: false; intent: null }
+  | { active: true; intent: PersistedPaymentIntent };
+
+export function parsePaymentIntentStatus(value: unknown): PaymentIntentStatus | null {
+  if (!value || typeof value !== "object") return null;
+  const status = value as Record<string, unknown>;
+  if (status.active === false && status.intent === null) return { active: false, intent: null };
+  if (status.active !== true || !status.intent || typeof status.intent !== "object") return null;
+  const intent = status.intent as Record<string, unknown>;
+  if (
+    typeof intent.appointmentId !== "string"
+    || typeof intent.amount !== "number"
+    || !["EFECTIVO", "TRANSFERENCIA", "OTRO"].includes(String(intent.method))
+    || !(intent.reference === null || typeof intent.reference === "string")
+    || typeof intent.idempotencyKey !== "string"
+    || !["PREPARADA", "COMPLETADA"].includes(String(intent.status))
+    || typeof intent.createdAt !== "string"
+    || !(intent.completedAt === null || typeof intent.completedAt === "string")
+  ) return null;
+  return { active: true, intent: intent as PersistedPaymentIntent };
+}
+
 export function createOrReusePaymentIntent(
   current: PaymentIntent | null,
   draft: PaymentDraft,
