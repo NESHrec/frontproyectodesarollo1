@@ -45,9 +45,9 @@ export async function getStaffSessionToken() {
   return (await cookies()).get(STAFF_SESSION_COOKIE)?.value ?? null;
 }
 
-export async function staffBackendFetch(path: string, init: RequestInit = {}) {
+export async function staffBackendFetch(path: string, init: RequestInit = {}, explicitToken?: string) {
   const baseUrl = backendApiBaseUrl();
-  const token = await getStaffSessionToken();
+  const token = explicitToken ?? await getStaffSessionToken();
   if (!baseUrl || !token) return null;
   try {
     return await fetch(`${baseUrl}${path}`, {

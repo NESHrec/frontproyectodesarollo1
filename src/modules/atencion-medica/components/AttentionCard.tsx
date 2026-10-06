@@ -1,6 +1,7 @@
 import type { Attention } from "@/modules/atencion-medica/schemas";
 import { formatDateTime } from "@/modules/atencion-medica/format";
 import { Card, StatusBadge } from "@/shared/components";
+import { AddendumForm } from "@/modules/atencion-medica/components/AddendumForm";
 
 export function AttentionCard({ attention }: { attention: Attention }) {
   return (
@@ -34,6 +35,11 @@ export function AttentionCard({ attention }: { attention: Attention }) {
       <p className="mt-4 text-xs font-semibold">
         Profesional: {attention.practitionerName ?? attention.practitionerId} · Registró: {attention.authorName ?? attention.authorAccountId}
       </p>
+      <section className="mt-4 border-t border-[#62727B]/15 pt-4" aria-label="Adendas de la atención">
+        <h4 className="text-sm font-semibold">Adendas</h4>
+        {attention.addenda.length===0?<p className="mt-1 text-sm text-[#62727B]/75">Sin adendas.</p>:<ol className="mt-2 space-y-2">{attention.addenda.map(item=><li className="rounded-md bg-[#F8EDD2]/60 p-3 text-sm" key={item.id}><p className="whitespace-pre-line">{item.text}</p><p className="mt-1 text-xs"><strong>Motivo:</strong> {item.reason} · {formatDateTime(item.recordedAt)} · {item.authorName??item.authorAccountId}</p></li>)}</ol>}
+        <AddendumForm appointmentId={attention.appointmentId} attentionId={attention.id}/>
+      </section>
     </Card>
   );
 }

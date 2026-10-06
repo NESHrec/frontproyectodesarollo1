@@ -7,6 +7,7 @@ import { formatDateTime } from "@/modules/atencion-medica/format";
 import { getRecordForAppointment } from "@/modules/atencion-medica/server";
 import { Card, EmptyState, InternalPageHeader, StatusBadge, buttonLinkClasses } from "@/shared/components";
 import { firstSearchParam, type PageSearchParams } from "@/shared/lib/search-params";
+import { ClinicalProfileForm } from "@/modules/expedientes/components/ClinicalProfileForm";
 
 /**
  * El expediente solo se abre a través de una cita propia (`?cita=`): el backend
@@ -28,7 +29,7 @@ export default async function PatientRecordPage({ params, searchParams }: {
   if (!result.ok) return <div className="space-y-7">{header("Expediente")}<MedicalFailureNotice reason={result.reason} /></div>;
   if (result.data.patient.id !== pacienteId) notFound();
 
-  const { patient, recordId, recordCreatedAt, attentions } = result.data;
+  const { patient, recordId, recordCreatedAt, clinicalProfile, clinicalProfileHistory, attentions } = result.data;
   const appointmentHref = `/medico/citas/${encodeURIComponent(citaId)}`;
   return (
     <div className="space-y-7">
@@ -48,6 +49,7 @@ export default async function PatientRecordPage({ params, searchParams }: {
         </dl>
         <Link className="mt-5 inline-flex text-sm font-bold text-[#62727B] underline-offset-4 hover:underline" href={appointmentHref}>Volver a la cita</Link>
       </Card>
+      <Card><h2 className="text-xl font-bold text-[#62727B]">Información clínica declarada</h2><div className="mt-4"><ClinicalProfileForm appointmentId={citaId} initial={clinicalProfile}/></div>{clinicalProfileHistory.length>0?<details className="mt-5"><summary className="cursor-pointer font-semibold">Historial de versiones ({clinicalProfileHistory.length})</summary><ol className="mt-3 space-y-2">{clinicalProfileHistory.map(version=><li className="rounded-md bg-[#F6FAFA] p-3 text-sm" key={version.id}><p>{formatDateTime(version.recordedAt)} · {version.authorName??version.authorAccountId}</p><p>Alergias: {version.allergies??"No indicado"}</p><p>Condiciones: {version.relevantConditions??"No indicado"}</p><p>Medicamentos: {version.currentMedications??"No indicado"}</p><p>Antecedentes odontológicos: {version.dentalHistory??"No indicado"}</p></li>)}</ol></details>:<p className="mt-3 text-sm text-[#62727B]/75">Aún no se ha registrado información clínica explícita.</p>}</Card>
       <section>
         <h2 className="text-xl font-bold text-[#62727B]">Historial de atenciones</h2>
         {attentions.length === 0

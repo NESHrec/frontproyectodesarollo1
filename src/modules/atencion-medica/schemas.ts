@@ -40,6 +40,10 @@ export const attentionSchema = z.object({
     duration: z.string(),
     instructions: nullableText,
   })),
+  addenda: z.array(z.object({
+    id: z.string(), text: z.string(), reason: z.string(), authorAccountId: z.string(),
+    authorName: nullableText, recordedAt: z.string(),
+  })).default([]),
 });
 
 export const medicalAppointmentsSchema = z.array(medicalAppointmentSchema);
@@ -58,6 +62,16 @@ export const clinicalRecordSchema = z.object({
   }),
   recordId: nullableText,
   recordCreatedAt: nullableText,
+  clinicalProfile: z.object({
+    id: z.string(), allergies: nullableText, relevantConditions: nullableText,
+    currentMedications: nullableText, dentalHistory: nullableText,
+    authorAccountId: z.string(), authorName: nullableText, recordedAt: z.string(),
+  }).nullable(),
+  clinicalProfileHistory: z.array(z.object({
+    id: z.string(), allergies: nullableText, relevantConditions: nullableText,
+    currentMedications: nullableText, dentalHistory: nullableText,
+    authorAccountId: z.string(), authorName: nullableText, recordedAt: z.string(),
+  })),
   attentions: z.array(attentionSchema),
 });
 

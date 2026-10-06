@@ -1,43 +1,18 @@
 "use client";
-
 import { useState } from "react";
 import { Button, EmptyState, Input } from "@/shared/components";
 import { getCsrfToken } from "@/modules/auth/csrf-client";
+import { permanentRows, primaryRows, surfaceLabels, surfaces, type DentalSurface } from "@/modules/odontologia/data";
 import type { DentalObservation } from "@/modules/odontologia/schemas";
 
-export function Odontogram({ patientId, appointmentId, initialObservations }: { patientId: string; appointmentId?: string; initialObservations: DentalObservation[] }) {
-  const [observations, setObservations] = useState(initialObservations);
-  const [toothNumber, setToothNumber] = useState("");
-  const [observation, setObservation] = useState("");
-  const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!appointmentId) { setMessage({ tone: "error", text: "Abre el odontograma desde una cita propia para registrar una observación." }); return; }
-    setBusy(true); setMessage(null);
-    try {
-      const response = await fetch(`/api/staff/medico/citas/${encodeURIComponent(appointmentId)}/odontograma`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-csrf-token": await getCsrfToken() },
-        body: JSON.stringify({ toothNumber: Number(toothNumber), observation }),
-      });
-      if (response.status === 409) { setMessage({ tone: "error", text: "La cita no admite observaciones en este momento." }); return; }
-      if (response.status === 400) { setMessage({ tone: "error", text: "Indica una pieza dental válida y una observación." }); return; }
-      if (!response.ok) { setMessage({ tone: "error", text: "No se pudo guardar la observación." }); return; }
-      const saved = await response.json() as DentalObservation;
-      if (saved.patientId !== patientId) { setMessage({ tone: "error", text: "La respuesta no corresponde al paciente de esta pantalla." }); return; }
-      setObservations((current) => [saved, ...current]); setToothNumber(""); setObservation("");
-      setMessage({ tone: "ok", text: "Observación persistida." });
-    } catch { setMessage({ tone: "error", text: "El servicio no está disponible." }); }
-    finally { setBusy(false); }
-  }
-
-  return (
-    <section aria-labelledby="odontogram-title" className="space-y-5 rounded-xl border border-[#62727B]/15 bg-white p-5">
-      <div><h2 className="text-lg font-bold text-[#62727B]" id="odontogram-title">Odontograma persistido</h2><p className="mt-2 text-sm text-[#62727B]/75">Solo muestra observaciones guardadas en citas propias. Los registros son append-only y no sobrescriben atención ni receta.</p></div>
-      {!appointmentId ? <p className="rounded-md bg-[#F8EDD2] px-3 py-2 text-sm" role="status">Para registrar, abre esta pantalla desde una cita de tu agenda.</p> : <form className="grid gap-4 sm:grid-cols-[10rem_1fr_auto] sm:items-end" onSubmit={submit}><Input label="Pieza FDI" min={11} max={48} required type="number" value={toothNumber} onChange={(event) => setToothNumber(event.target.value)} /><Input label="Observación" maxLength={500} required value={observation} onChange={(event) => setObservation(event.target.value)} /><Button disabled={busy} type="submit">{busy ? "Guardando…" : "Guardar observación"}</Button></form>}
-      {message ? <p className={message.tone === "ok" ? "rounded-md bg-[#E5F1D8] px-3 py-2 text-sm" : "rounded-md bg-[#F8E2E8] px-3 py-2 text-sm"} role={message.tone === "error" ? "alert" : "status"}>{message.text}</p> : null}
-      {observations.length === 0 ? <EmptyState description="No hay observaciones persistidas para este paciente desde tus citas." title="Odontograma vacío" /> : <div className="overflow-x-auto rounded-lg border border-[#62727B]/15"><table className="min-w-full text-left text-sm"><caption className="sr-only">Observaciones odontológicas persistidas</caption><thead className="bg-[#DDF3F1]"><tr><th className="px-4 py-3">Pieza</th><th className="px-4 py-3">Observación</th><th className="px-4 py-3">Cita</th><th className="px-4 py-3">Registrada</th></tr></thead><tbody>{observations.map((item) => <tr className="border-t border-[#62727B]/10" key={item.id}><td className="px-4 py-3 font-semibold">{item.toothNumber}</td><td className="px-4 py-3">{item.observation}</td><td className="px-4 py-3">{item.appointmentId}</td><td className="px-4 py-3">{new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.recordedAt))}</td></tr>)}</tbody></table></div>}
-    </section>
-  );
+function ToothChart({title,rows,selected,annotated,onSelect}:{title:string;rows:readonly (readonly number[])[];selected:number|null;annotated:Set<number>;onSelect:(n:number)=>void}){
+ return <fieldset><legend className="mb-2 text-sm font-bold text-[#62727B]">{title}</legend><div className="space-y-2 overflow-x-auto pb-2">{rows.map((row,index)=><div className="grid min-w-[620px] grid-cols-[repeat(16,minmax(2.1rem,1fr))] gap-1" key={index}>{row.map(number=><button aria-label={`Pieza dental FDI ${number}${annotated.has(number)?", con observaciones":""}`} aria-pressed={selected===number} className={`relative min-h-12 rounded-lg border text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] ${selected===number?"border-[#62727B] bg-[#62727B] text-white":annotated.has(number)?"border-[#D99AAE] bg-[#F8E2E8]":"border-[#62727B]/25 bg-white hover:bg-[#DDF3F1]"}`} key={number} onClick={()=>onSelect(number)} type="button">{number}{annotated.has(number)?<span aria-hidden className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[#B45373]"/>:null}</button>)}</div>)}</div></fieldset>;
+}
+export function Odontogram({patientId,appointmentId,initialObservations}:{patientId:string;appointmentId?:string;initialObservations:DentalObservation[]}){
+ const [observations,setObservations]=useState(initialObservations),[tooth,setTooth]=useState<number|null>(null),[surface,setSurface]=useState<DentalSurface|null>(null),[observation,setObservation]=useState(""),[busy,setBusy]=useState(false);
+ const [message,setMessage]=useState<{tone:"ok"|"error";text:string}|null>(null);const annotated=new Set(observations.map(item=>item.toothNumber));
+ async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(!appointmentId){setMessage({tone:"error",text:"Abre el odontograma desde una cita propia para registrar."});return;}if(!tooth||!surface||!observation.trim()){setMessage({tone:"error",text:"Selecciona pieza, superficie y escribe una observación."});return;}setBusy(true);setMessage(null);try{const response=await fetch(`/api/staff/medico/citas/${encodeURIComponent(appointmentId)}/odontograma`,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","x-csrf-token":await getCsrfToken()},body:JSON.stringify({toothNumber:tooth,surface,observation})});if(!response.ok){setMessage({tone:"error",text:response.status===409?"La cita no admite observaciones en este momento.":"No se pudo guardar la observación."});return;}const saved=await response.json() as DentalObservation;if(saved.patientId!==patientId){setMessage({tone:"error",text:"La respuesta no corresponde a este paciente."});return;}setObservations(current=>[saved,...current]);setObservation("");setMessage({tone:"ok",text:"Observación persistida sin reemplazar el historial."});}catch{setMessage({tone:"error",text:"El servicio no está disponible."});}finally{setBusy(false);}}
+ return <section aria-labelledby="odontogram-title" className="space-y-6 rounded-xl border border-[#62727B]/15 bg-white p-4 sm:p-5"><div><h2 className="text-lg font-bold text-[#62727B]" id="odontogram-title">Odontograma FDI</h2><p className="mt-1 text-sm text-[#62727B]/75">Selecciona una pieza y superficie. Rosa indica historial; los registros antiguos conservan “Sin superficie”.</p></div><div aria-label="Leyenda" className="flex flex-wrap gap-4 rounded-lg bg-[#F6FAFA] p-3 text-sm"><span>○ Sin anotación</span><span className="font-semibold text-[#9A3F5D]">● Con historial</span><span className="rounded bg-[#62727B] px-2 text-white">Seleccionada</span></div><ToothChart annotated={annotated} onSelect={setTooth} rows={permanentRows} selected={tooth} title="Dentición permanente"/><ToothChart annotated={annotated} onSelect={setTooth} rows={primaryRows} selected={tooth} title="Dentición temporal"/>
+ {!appointmentId?<p className="rounded-md bg-[#F8EDD2] px-3 py-2 text-sm" role="status">Abre desde una cita propia para registrar.</p>:<form className="space-y-4" onSubmit={submit}><fieldset disabled={busy}><legend className="text-sm font-bold">Superficie de la pieza {tooth??"—"}</legend><div className="mt-2 flex flex-wrap gap-2">{surfaces.map(value=><button aria-pressed={surface===value} className={`rounded-full border px-3 py-2 text-sm ${surface===value?"bg-[#62727B] text-white":"bg-white"}`} key={value} onClick={()=>setSurface(value)} type="button">{surfaceLabels[value]}</button>)}</div></fieldset><div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end"><Input label="Observación clínica" maxLength={500} required value={observation} onChange={e=>setObservation(e.target.value)}/><Button disabled={busy} type="submit">{busy?"Guardando…":"Guardar anotación"}</Button></div></form>}
+ {message?<p className={message.tone==="ok"?"rounded-md bg-[#E5F1D8] px-3 py-2 text-sm":"rounded-md bg-[#F8E2E8] px-3 py-2 text-sm"} role={message.tone==="error"?"alert":"status"}>{message.text}</p>:null}{observations.length===0?<EmptyState description="No hay observaciones persistidas para este paciente." title="Odontograma vacío"/>:<div className="space-y-3"><h3 className="font-bold">Historial</h3><ol className="space-y-2">{observations.map(item=><li className="rounded-lg border border-[#62727B]/15 p-3 text-sm" key={item.id}><p><strong>Pieza {item.toothNumber}</strong> · {item.surface?surfaceLabels[item.surface as DentalSurface]??item.surface:"Sin superficie (registro histórico)"}</p><p className="mt-1 whitespace-pre-line">{item.observation}</p><p className="mt-1 text-xs text-[#62727B]/70">{new Intl.DateTimeFormat("es-GT",{dateStyle:"medium",timeStyle:"short"}).format(new Date(item.recordedAt))}</p></li>)}</ol></div>}</section>;
 }

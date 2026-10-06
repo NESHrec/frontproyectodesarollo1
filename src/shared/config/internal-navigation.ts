@@ -44,6 +44,7 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
       { href: "/paciente/citas", label: "Mis citas", shortLabel: "C" },
       { href: "/paciente/recetas", label: "Recetas", shortLabel: "Rx" },
       { href: "/paciente/chequeos", label: "Chequeos", shortLabel: "Ch" },
+      { href: "/paciente/expediente", label: "Mi expediente", shortLabel: "Ex" },
       { href: "/paciente/perfil", label: "Mi perfil", shortLabel: "P" },
     ],
   },

@@ -7,6 +7,7 @@ export const dentalObservationSchema = z.object({
   practitionerId: z.string(),
   recordedByAccountId: z.string(),
   toothNumber: z.number(),
+  surface: z.string().nullable(),
   observation: z.string(),
   recordedAt: z.string(),
 });

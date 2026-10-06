@@ -1,0 +1,2 @@
+import { PatientClinicalRecordClient } from "@/modules/paciente-portal/components/PatientClinicalRecordClient";import { PatientPortalHeader } from "@/modules/paciente-portal/components/PatientPortalHeader";
+export default function PatientClinicalRecordPage(){return <div className="space-y-7"><PatientPortalHeader description="Consulta de solo lectura vinculada a tu identidad autenticada; el navegador no envía patientId ni recibe el Bearer." eyebrow="Portal del paciente" title="Mi expediente"/><PatientClinicalRecordClient/></div>}

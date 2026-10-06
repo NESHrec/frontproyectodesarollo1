@@ -6,6 +6,7 @@ import { hasValidCsrf, jsonNoStore } from "@/modules/auth/session-security";
 
 const recordDentalObservationSchema = z.object({
   toothNumber: z.number().int(),
+  surface: z.enum(["MESIAL", "DISTAL", "VESTIBULAR", "LINGUAL", "PALATINA", "OCLUSAL", "INCISAL"]),
   observation: z.string(),
 });
 
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ap
   const input = await request.json().catch(() => null);
   const parsed = recordDentalObservationSchema.safeParse(input);
   if (!parsed.success) return jsonNoStore({ ok: false, reason: "invalid-body" }, { status: 400 });
-  const body = { toothNumber: parsed.data.toothNumber, observation: parsed.data.observation };
+  const body = { toothNumber: parsed.data.toothNumber, surface: parsed.data.surface, observation: parsed.data.observation };
   return forwardStaffRequest(request, `/medico/citas/${encodeURIComponent(appointmentId)}/odontograma`, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
   });
