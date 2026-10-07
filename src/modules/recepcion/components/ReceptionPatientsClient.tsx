@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { PatientForm } from "@/modules/pacientes/components/PatientForm";
 import { Button, DataTable, EmptyState, Input, InternalPageHeader, LoadingState, ModalDialog, SearchFilters, type DataTableColumn } from "@/shared/components";
+import { PatientLinkInitiator } from "@/modules/recepcion/components/PatientLinkInitiator";
 
 type AdministrativePatient = {
   patientId: string;
@@ -25,6 +26,7 @@ const columns: DataTableColumn<AdministrativePatient>[] = [
   { key: "email", label: "Correo de contacto", render: (item) => item.email ?? "No informado" },
   { key: "type", label: "Origen", render: (item) => item.recordType === "AUTORREGISTRADO+EXPEDIENTE_ADMINISTRATIVO" ? "Cuenta y expediente" : item.recordType === "AUTORREGISTRADO" ? "Cuenta autorregistrada" : item.recordType === "EXPEDIENTE_ADMINISTRATIVO" ? "Expediente administrativo" : "Registro histórico" },
   { key: "created", label: "Alta", render: (item) => item.createdAt ? formatDate(item.createdAt) : "No disponible" },
+  { key: "link", label: "Vinculación", render: (item) => item.patientAccountLinked ? "Cuenta vinculada" : item.recordType === "EXPEDIENTE_ADMINISTRATIVO" ? <PatientLinkInitiator patientId={item.patientId}/> : "No aplica" },
 ];
 
 export function ReceptionPatientsClient() {

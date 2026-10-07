@@ -7,7 +7,7 @@ import { Button, DataTable, EmptyState, LoadingState, type DataTableColumn } fro
 
 const columns: DataTableColumn<AuditEvent>[] = [
   { key: "date", label: "Fecha", render: (item) => new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.occurredAt)) },
-  { key: "actor", label: "Actor", render: (item) => <span className="font-semibold">{item.actorAccountId}</span> },
+  { key: "actor", label: "Actor", render: (item) => <span className="font-semibold">{item.actorType} · {item.actorRole} · {item.actorAccountId}</span> },
   { key: "action", label: "Acción", render: (item) => item.action },
   { key: "entity", label: "Entidad", render: (item) => <code className="rounded bg-[#DDF3F1] px-2 py-1 text-xs">{item.entityType} · {item.entityId}</code> },
 ];

@@ -1,92 +1,18 @@
 "use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { getCsrfToken } from "@/modules/auth/csrf-client";
-import { formatGuatemalaInstant, guatemalaWallTimeToIso } from "@/modules/agenda-citas/timezone";
-import { Button, Card, Input, LoadingState } from "@/shared/components";
-
-type ScheduleBlock = { id: string; practitionerId: string; startAt: string; endAt: string; available: boolean };
-
-function display(value: string) {
-  return formatGuatemalaInstant(value);
+import {useCallback,useEffect,useState} from "react";
+import {getCsrfToken} from "@/modules/auth/csrf-client";
+import {formatGuatemalaInstant,guatemalaWallTimeToIso} from "@/modules/agenda-citas/timezone";
+import {Button,Card,Input,LoadingState} from "@/shared/components";
+type Block={id:string;practitionerId:string;startAt:string;endAt:string;available:boolean};
+export function MedicalScheduleManager(){
+ const[blocks,setBlocks]=useState<Block[]>([]),[state,setState]=useState<"loading"|"ready"|"unauthorized"|"forbidden"|"service">("loading");
+ const[date,setDate]=useState(""),[startTime,setStart]=useState(""),[endTime,setEnd]=useState(""),[editing,setEditing]=useState<string|null>(null);const[message,setMessage]=useState<string|null>(null);
+ const load=useCallback(async()=>{setState("loading");try{const r=await fetch("/api/staff/medico/horarios",{cache:"no-store"});if(r.status===401)return setState("unauthorized");if(r.status===403)return setState("forbidden");if(!r.ok)return setState("service");const b=await r.json() as unknown;if(!Array.isArray(b))return setState("service");setBlocks(b as Block[]);setState("ready");}catch{setState("service");}},[]);useEffect(()=>{const t=setTimeout(()=>void load(),0);return()=>clearTimeout(t);},[load]);
+ function clear(){setDate("");setStart("");setEnd("");setEditing(null);}
+ async function save(e:React.FormEvent){e.preventDefault();setMessage(null);const startAt=guatemalaWallTimeToIso(date,startTime),endAt=guatemalaWallTimeToIso(date,endTime);if(!startAt||!endAt||startAt>=endAt)return setMessage("Indica un intervalo válido.");try{const csrf=await getCsrfToken(),r=await fetch(editing?`/api/staff/medico/horarios/${encodeURIComponent(editing)}`:"/api/staff/medico/horarios",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json","x-csrf-token":csrf},body:JSON.stringify({startAt,endAt})});if(r.ok){setMessage(editing?"Bloque actualizado y persistido.":"Bloque guardado.");clear();await load();return;}const b=await r.json().catch(()=>null) as {code?:string}|null;setMessage(errorText(r.status,b?.code));}catch{setMessage("No se pudo conectar con el servicio.");}}
+ async function retire(id:string){setMessage(null);try{const csrf=await getCsrfToken(),r=await fetch(`/api/staff/medico/horarios/${encodeURIComponent(id)}`,{method:"DELETE",headers:{"x-csrf-token":csrf}});if(r.ok){setMessage("Bloque retirado; ya no admite nuevas reservas.");await load();return;}const b=await r.json().catch(()=>null) as {code?:string}|null;setMessage(errorText(r.status,b?.code));}catch{setMessage("No se pudo conectar con el servicio.");}}
+ function edit(b:Block){const parts=(v:string)=>Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Guatemala",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date(v)).map(p=>[p.type,p.value]));const s=parts(b.startAt),e=parts(b.endAt);setDate(`${s.year}-${s.month}-${s.day}`);setStart(`${s.hour}:${s.minute}`);setEnd(`${e.hour}:${e.minute}`);setEditing(b.id);}
+ if(state==="loading")return <LoadingState message="Cargando tus horarios persistidos…"/>;if(state==="unauthorized")return <Card><p role="alert">Tu sesión médica expiró.</p></Card>;if(state==="forbidden")return <Card><p role="alert">La cuenta no tiene permiso o vínculo médico.</p></Card>;if(state==="service")return <Card><p role="alert">No se pudo consultar el servicio de horarios.</p></Card>;
+ return <div className="space-y-6"><Card><h2 className="text-xl font-bold">{editing?"Editar bloque":"Agregar bloque"}</h2><p className="mt-2 text-sm">Zona America/Guatemala. El servidor obtiene el médico desde la sesión.</p><form className="mt-5 grid gap-4 sm:grid-cols-3" onSubmit={save}><Input label="Fecha" required type="date" value={date} onChange={e=>setDate(e.target.value)}/><Input label="Desde" required type="time" value={startTime} onChange={e=>setStart(e.target.value)}/><Input label="Hasta" required type="time" value={endTime} onChange={e=>setEnd(e.target.value)}/><div className="flex gap-2 sm:col-span-3"><Button type="submit">{editing?"Guardar cambios":"Agregar bloque"}</Button>{editing?<Button type="button" onClick={clear}>Cancelar</Button>:null}</div></form>{message?<p className="mt-4 rounded-md px-4 py-3" role="status">{message}</p>:null}</Card><Card><h2 className="text-xl font-bold">Mis bloques persistidos</h2>{blocks.length===0?<p className="mt-4">Aún no tienes bloques registrados.</p>:<ul>{blocks.map(b=><li className="flex flex-wrap items-center justify-between gap-3 py-4" key={b.id}><span>{formatGuatemalaInstant(b.startAt)} – {formatGuatemalaInstant(b.endAt)}</span><div className="flex gap-2"><span>{b.available?"Disponible":"Reservado o retirado"}</span>{b.available?<><Button type="button" onClick={()=>edit(b)}>Editar</Button><Button type="button" onClick={()=>void retire(b.id)}>Retirar</Button></>:null}</div></li>)}</ul>}</Card></div>;
 }
-
-export function MedicalScheduleManager() {
-  const [blocks, setBlocks] = useState<ScheduleBlock[]>([]);
-  const [state, setState] = useState<"loading" | "ready" | "unauthorized" | "forbidden" | "service">("loading");
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
-
-  const load = useCallback(async () => {
-    setState("loading");
-    try {
-      const response = await fetch("/api/staff/medico/horarios", { cache: "no-store" });
-      if (response.status === 401) { setState("unauthorized"); return; }
-      if (response.status === 403) { setState("forbidden"); return; }
-      if (!response.ok) { setState("service"); return; }
-      const body = await response.json() as unknown;
-      if (!Array.isArray(body)) { setState("service"); return; }
-      setBlocks(body as ScheduleBlock[]);
-      setState("ready");
-    } catch { setState("service"); }
-  }, []);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => { void load(); }, 0);
-    return () => window.clearTimeout(timer);
-  }, [load]);
-
-  async function addBlock(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage(null);
-    const startAt = guatemalaWallTimeToIso(date, startTime);
-    const endAt = guatemalaWallTimeToIso(date, endTime);
-    if (!startAt || !endAt || startAt >= endAt) {
-      setMessage({ tone: "error", text: "Indica una fecha y un intervalo válido; el inicio debe ser anterior al fin." });
-      return;
-    }
-    try {
-      const csrf = await getCsrfToken();
-      const response = await fetch("/api/staff/medico/horarios", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-csrf-token": csrf },
-        body: JSON.stringify({ startAt, endAt }),
-      });
-      if (response.ok) {
-        setMessage({ tone: "success", text: "Bloque guardado. Se actualizó tu lista de horarios." });
-        setDate(""); setStartTime(""); setEndTime("");
-        await load();
-        return;
-      }
-      const body = await response.json().catch(() => null) as { code?: string } | null;
-      setMessage({ tone: "error", text: response.status === 401 ? "Tu sesión médica expiró." : response.status === 403 ? "La cuenta no tiene permiso o vínculo médico." : response.status === 409 || body?.code === "SCHEDULE_OVERLAP" ? "El bloque se solapa con otro horario." : response.status === 400 ? "Revisa la fecha y las horas." : "No se pudo guardar el bloque." });
-    } catch { setMessage({ tone: "error", text: "No se pudo conectar con el servicio." }); }
-  }
-
-  if (state === "loading") return <LoadingState message="Cargando tus horarios persistidos…" />;
-  if (state === "unauthorized") return <Card><p className="font-semibold" role="alert">Tu sesión médica expiró. Inicia sesión nuevamente.</p></Card>;
-  if (state === "forbidden") return <Card><p className="font-semibold" role="alert">La cuenta MEDICO debe estar vinculada a un profesional para gestionar horarios.</p></Card>;
-  if (state === "service") return <Card><p className="font-semibold" role="alert">No se pudo consultar el servicio de horarios.</p></Card>;
-
-  return <div className="space-y-6">
-    <Card>
-      <h2 className="text-xl font-bold text-[#62727B]">Agregar bloque</h2>
-      <p className="mt-2 text-sm text-[#62727B]/80">El servidor obtiene el profesional desde tu sesión. No se puede elegir otro médico.</p>
-      <p className="mt-2 rounded-md bg-[#DDF3F1] px-4 py-3 text-sm font-semibold text-[#62727B]">Las horas se interpretan en zona America/Guatemala (UTC-06:00).</p>
-      <form className="mt-5 grid gap-4 sm:grid-cols-3 sm:items-end" onSubmit={addBlock}>
-        <Input label="Fecha" required type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-        <Input label="Desde" required type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
-        <Input label="Hasta" required type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} />
-        <Button className="sm:col-span-3 sm:justify-self-start" type="submit">Agregar bloque</Button>
-      </form>
-      {message ? <p className={`mt-4 rounded-md px-4 py-3 text-sm font-semibold ${message.tone === "success" ? "bg-[#E5F1D8]" : "bg-[#F8E2E8]"}`} role="status">{message.text}</p> : null}
-    </Card>
-    <Card>
-      <h2 className="text-xl font-bold text-[#62727B]">Mis bloques persistidos</h2>
-      {blocks.length === 0 ? <p className="mt-4 rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold">Aún no tienes bloques registrados.</p> : <ul className="mt-4 divide-y divide-[#62727B]/10">{blocks.map((block) => <li className="flex flex-wrap items-center justify-between gap-3 py-4" key={block.id}><span className="font-semibold">{display(block.startAt)} – {display(block.endAt)}</span><span className="rounded-md bg-[#DDF3F1] px-3 py-1 text-xs font-bold">{block.available ? "Disponible" : "Reservado"}</span></li>)}</ul>}
-      <p className="mt-4 text-xs text-[#62727B]/75">Edición/retiro de bloques queda pendiente de definición de negocio para proteger citas ya reservadas.</p>
-    </Card>
-  </div>;
-}
+function errorText(status:number,code?:string){if(status===401)return"Tu sesión médica expiró.";if(status===403)return"No tienes permiso sobre este bloque.";if(status===404)return"El bloque ya no existe.";if(status===409&&code==="SCHEDULE_BLOCK_HAS_APPOINTMENTS")return"El bloque conserva una cita asociada.";if(status===409)return"El horario entra en conflicto o cambió simultáneamente.";if(status===422||status===400)return"Revisa fecha, zona horaria y duración.";return"No se pudo completar la operación.";}

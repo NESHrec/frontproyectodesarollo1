@@ -18,6 +18,8 @@ export const auditEventPageSchema = z.object({
   items: z.array(z.object({
     id: z.string(),
     actorAccountId: z.string(),
+    actorType: z.enum(["PERSONAL", "PACIENTE"]),
+    actorRole: z.string(),
     action: z.string(),
     entityType: z.string(),
     entityId: z.string(),

@@ -13,6 +13,7 @@
     "test:staff-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-write-routes.test.ts",
     "test:audit-findings": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/audit-findings-content.test.tsx"
     ,"test:clinical-expansions": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/clinical-expansions.test.tsx"
+    ,"test:patient-link": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/patient-link-route.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
