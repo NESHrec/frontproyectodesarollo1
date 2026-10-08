@@ -15,6 +15,7 @@ export type BillingPayment = {
 export type BillingAppointment = {
   id: string;
   patientId: string;
+  patientName: string | null;
   practitionerId: string;
   specialtyId: string;
   scheduledAt: string;

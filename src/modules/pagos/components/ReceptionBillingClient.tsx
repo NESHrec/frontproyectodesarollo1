@@ -7,17 +7,17 @@ import { getCsrfToken } from "@/modules/auth/csrf-client";
 import type { BillingAppointment, PaymentMethod } from "@/modules/pagos/billing-types";
 import { createOrReusePaymentIntent, paymentIntentWasPersisted } from "@/modules/pagos/payment-intent";
 import { parsePaymentIntentStatus, type PaymentIntent, type PersistedPaymentIntent } from "@/modules/pagos/payment-intent";
+import { appointmentDateInGuatemala, filterBillingAppointments, formatGtq, parseGtqToCents } from "@/modules/pagos/search-and-money";
 import { Button, EmptyState, Input, InternalPageHeader, LoadingState, MetricCard, SelectField, StatusBadge } from "@/shared/components";
 
 type LoadError = "service" | "forbidden" | "expired" | null;
 
-function money(value: number | null, currency = "GTQ") {
-  if (value === null) return "Sin cargo";
-  return new Intl.NumberFormat("es-GT", { style: "currency", currency }).format(value / 100);
+function money(value: number | null) {
+  return formatGtq(value);
 }
 
 function dateTime(value: string) {
-  return new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Guatemala" }).format(new Date(value));
 }
 
 async function readBillingResponse(response: Response) {
@@ -29,6 +29,8 @@ export function ReceptionBillingClient() {
   const [appointments, setAppointments] = useState<BillingAppointment[] | null>(null);
   const [selected, setSelected] = useState<BillingAppointment | null>(null);
   const [query, setQuery] = useState("");
+  const [patientQuery, setPatientQuery] = useState("");
+  const [dateQuery, setDateQuery] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("EFECTIVO");
@@ -40,6 +42,7 @@ export function ReceptionBillingClient() {
   const [intentChecked, setIntentChecked] = useState(false);
   const paymentSubmitting = useRef(false);
   const paymentLocked = pendingPayment !== null || !intentChecked;
+  const visibleAppointments = useMemo(() => filterBillingAppointments(appointments ?? [], patientQuery, dateQuery), [appointments, dateQuery, patientQuery]);
 
   const metrics = useMemo(() => {
     const rows = appointments ?? [];
@@ -104,7 +107,7 @@ export function ReceptionBillingClient() {
   async function findAppointment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pendingPayment) { setMessage("Confirma primero el pago pendiente antes de consultar otra cita."); return; }
-    if (!query.trim()) { setMessage("Ingresa el identificador de la cita atendida."); return; }
+    if (!query.trim()) { setMessage("Ingresa el ID exacto de la cita atendida."); return; }
     setBusy("search"); setMessage(null); setError(null);
     const response = await fetch(`/api/staff/billing/appointments/${encodeURIComponent(query.trim())}`, { cache: "no-store" }).catch(() => null);
     setBusy(null);
@@ -120,8 +123,8 @@ export function ReceptionBillingClient() {
 
   async function setCharge(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const amount = Number(chargeAmount);
-    if (!Number.isInteger(amount) || amount <= 0) { setMessage("El cargo debe ser un entero mayor que cero, en centavos."); return; }
+    const amount = parseGtqToCents(chargeAmount);
+    if (amount === null) { setMessage("El cargo debe ser un importe GTQ positivo, con hasta dos decimales y dentro del límite seguro."); return; }
     if (!selected) return;
     setBusy("charge"); setMessage(null);
     const token = await getCsrfToken().catch(() => null);
@@ -139,8 +142,8 @@ export function ReceptionBillingClient() {
     event.preventDefault();
     if (paymentSubmitting.current) return;
     if (!selected && !pendingPayment) return;
-    const amount = pendingPayment?.amount ?? Number(paymentAmount);
-    if (!Number.isInteger(amount) || amount <= 0) { setMessage("El pago debe ser un entero mayor que cero, en centavos."); return; }
+    const amount = pendingPayment?.amount ?? parseGtqToCents(paymentAmount);
+    if (amount === null || amount === undefined) { setMessage("El pago debe ser un importe GTQ positivo, con hasta dos decimales y dentro del límite seguro."); return; }
     const intent = pendingPayment ?? createOrReusePaymentIntent(null, {
       appointmentId: selected!.id,
       amount,
@@ -266,8 +269,8 @@ export function ReceptionBillingClient() {
     <InternalPageHeader description="Cobros persistidos en PostgreSQL para citas atendidas. Registra constancias internas de pago recibido." eyebrow="Recepción" title="Cobros y pagos" />
     <section className="grid gap-4 sm:grid-cols-3">
       <MetricCard detail="Citas atendidas consultadas" label="Citas" tone="agua" value={String(metrics.count)} />
-      <MetricCard detail="Constancias internas" label="Pagado" tone="pistacho" value={money(metrics.paid)} />
-      <MetricCard detail="Saldo calculado por backend" label="Pendiente" tone="rosa" value={money(metrics.pending)} />
+      <MetricCard detail="Constancias internas" label="Pagado (GTQ)" tone="pistacho" value={money(metrics.paid)} />
+      <MetricCard detail="Saldo calculado por backend" label="Pendiente (GTQ)" tone="rosa" value={money(metrics.pending)} />
     </section>
 
     {busy === "load" && !appointments ? <LoadingState message="Consultando cobros..." /> : null}
@@ -280,30 +283,33 @@ export function ReceptionBillingClient() {
 
     {pendingPayment ? <Notice tone="warn" title="Pago pendiente de confirmación" text={`Pago de ${money(pendingPayment.amount)} para la cita ${pendingPayment.appointmentId}. Sus datos están bloqueados hasta confirmar el historial.`} action={<Button disabled={busy !== null} onClick={() => void consultPendingPayment()}>Consultar historial nuevamente</Button>} /> : null}
 
-    <form className="grid gap-3 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-4 md:grid-cols-[1fr_auto]" onSubmit={findAppointment}>
-      <Input disabled={paymentLocked} id="billing-appointment-query" label="Consultar cita por ID" value={query} onChange={(event) => setQuery(event.target.value)} />
-      <Button className="self-end" disabled={paymentLocked || busy === "search"} type="submit">{busy === "search" ? "Consultando..." : "Consultar"}</Button>
-    </form>
+    <section className="space-y-4 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-4">
+      <h2 className="text-lg font-bold text-[#62727B]">Buscar cita</h2>
+      <p className="text-sm text-[#62727B]/75">Busca por nombre parcial o fecha entre las citas cargadas. La consulta está limitada a estos resultados.</p>
+      <div className="grid gap-3 md:grid-cols-2"><Input disabled={paymentLocked} id="billing-patient-query" label="Nombre del paciente" placeholder="Ej. María" value={patientQuery} onChange={(event) => setPatientQuery(event.target.value)} /><Input disabled={paymentLocked} id="billing-date-query" label="Fecha de cita (Guatemala)" type="date" value={dateQuery} onChange={(event) => setDateQuery(event.target.value)} /></div>
+      <details><summary className="cursor-pointer font-semibold">Búsqueda avanzada por ID</summary><form className="mt-3 grid gap-3 md:grid-cols-[1fr_auto]" onSubmit={findAppointment}><Input disabled={paymentLocked} id="billing-appointment-query" label="ID exacto de cita" value={query} onChange={(event) => setQuery(event.target.value)} /><Button className="self-end" disabled={paymentLocked || busy === "search"} type="submit">{busy === "search" ? "Consultando..." : "Consultar"}</Button></form></details>
+    </section>
 
     {appointments?.length === 0 ? <EmptyState description="No hay citas atendidas con cobros para mostrar." title="Lista vacía" /> : null}
-    {appointments && appointments.length > 0 ? <div className="overflow-x-auto rounded-lg border border-[#62727B]/15 bg-[#FBFCFA]">
+    {appointments && visibleAppointments.length === 0 ? <EmptyState description="No hay citas que coincidan con los filtros disponibles." title="Sin resultados" /> : null}
+    {visibleAppointments.length > 0 ? <div className="overflow-x-auto rounded-lg border border-[#62727B]/15 bg-[#FBFCFA]">
       <table className="min-w-full text-left text-sm">
         <caption className="sr-only">Citas atendidas para cobro</caption>
         <thead className="bg-[#DDF3F1] text-[#62727B]"><tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Paciente</th><th className="px-4 py-3">Cargo</th><th className="px-4 py-3">Saldo</th><th className="px-4 py-3">Estado</th><th className="px-4 py-3">Acción</th></tr></thead>
-        <tbody>{appointments.map((item) => <tr className="border-t border-[#62727B]/10" key={item.id}><td className="px-4 py-3">{dateTime(item.scheduledAt)}</td><td className="px-4 py-3 font-semibold">{item.patientId}</td><td className="px-4 py-3">{money(item.chargeAmount, item.currency)}</td><td className="px-4 py-3 font-bold">{money(item.balanceAmount, item.currency)}</td><td className="px-4 py-3"><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></td><td className="px-4 py-3"><Button disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">Ver</Button></td></tr>)}</tbody>
+        <tbody>{visibleAppointments.map((item) => <tr className="border-t border-[#62727B]/10" key={item.id}><td className="px-4 py-3">{dateTime(item.scheduledAt)}<span className="block text-xs text-[#62727B]/60">{appointmentDateInGuatemala(item.scheduledAt)}</span></td><td className="px-4 py-3 font-semibold">{item.patientName ?? item.patientId}</td><td className="px-4 py-3">{money(item.chargeAmount)}</td><td className="px-4 py-3 font-bold">{money(item.balanceAmount)}</td><td className="px-4 py-3"><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></td><td className="px-4 py-3"><Button disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">Ver</Button></td></tr>)}</tbody>
       </table>
     </div> : null}
 
     {selected ? <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
       <div className="space-y-4 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-5">
         <h2 className="text-lg font-bold text-[#62727B]">Cita {selected.id}</h2>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Saldo" value={money(selected.balanceAmount, selected.currency)} /></dl>
-        {!selected.chargeDefined ? <form className="space-y-3" onSubmit={setCharge}><Input disabled={paymentLocked} id="billing-charge-amount" label="Cargo GTQ en centavos" min="1" step="1" type="number" value={chargeAmount} onChange={(event) => setChargeAmount(event.target.value)} /><Button disabled={paymentLocked || busy === "charge"} type="submit">{busy === "charge" ? "Guardando..." : "Fijar cargo"}</Button></form> : null}
-        {selected.chargeDefined && selected.balanceAmount !== 0 ? <form className="space-y-3" onSubmit={registerPayment}><Input disabled={paymentLocked} id="billing-payment-amount" label="Pago GTQ en centavos" min="1" step="1" type="number" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} /><SelectField disabled={paymentLocked} id="billing-payment-method" label="Método interno" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="OTRO">Otro</option></SelectField><Input disabled={paymentLocked} id="billing-payment-reference" label="Referencia interna opcional" value={reference} onChange={(event) => setReference(event.target.value)} /><Button disabled={busy !== null || (!intentChecked && !pendingPayment)} type="submit">{busy === "payment" ? "Registrando..." : paymentLocked ? "Reintentar el mismo pago" : "Registrar pago"}</Button></form> : null}
+        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientName ?? selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Saldo (GTQ)" value={money(selected.balanceAmount)} /></dl>
+        {!selected.chargeDefined ? <form className="space-y-3" onSubmit={setCharge}><Input disabled={paymentLocked} id="billing-charge-amount" label="Cargo (GTQ)" inputMode="decimal" placeholder="100.00" value={chargeAmount} onChange={(event) => setChargeAmount(event.target.value)} /><Button disabled={paymentLocked || busy === "charge"} type="submit">{busy === "charge" ? "Guardando..." : "Fijar cargo"}</Button></form> : null}
+        {selected.chargeDefined && selected.balanceAmount !== 0 ? <form className="space-y-3" onSubmit={registerPayment}><Input disabled={paymentLocked} id="billing-payment-amount" label="Pago (GTQ)" inputMode="decimal" placeholder="40.00" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} /><SelectField disabled={paymentLocked} id="billing-payment-method" label="Método interno" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="OTRO">Otro</option></SelectField><Input disabled={paymentLocked} id="billing-payment-reference" label="Referencia interna opcional" value={reference} onChange={(event) => setReference(event.target.value)} /><Button disabled={busy !== null || (!intentChecked && !pendingPayment)} type="submit">{busy === "payment" ? "Registrando..." : paymentLocked ? "Reintentar el mismo pago" : "Registrar pago"}</Button></form> : null}
       </div>
       <div className="space-y-3 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-5">
         <h2 className="text-lg font-bold text-[#62727B]">Historial</h2>
-        {selected.payments.length === 0 ? <p className="text-sm text-[#62727B]/70">Sin pagos registrados.</p> : selected.payments.map((payment) => <div className="rounded-md border border-[#62727B]/10 p-3 text-sm" key={payment.id}><p className="font-bold">{money(payment.amount, payment.currency)} · {payment.method}</p><p className="text-[#62727B]/70">{dateTime(payment.registeredAt)}</p><p className="text-xs text-[#62727B]/65">{payment.reference ?? "Sin referencia"} · {payment.registeredByAccountId}</p></div>)}
+        {selected.payments.length === 0 ? <p className="text-sm text-[#62727B]/70">Sin pagos registrados.</p> : selected.payments.map((payment) => <div className="rounded-md border border-[#62727B]/10 p-3 text-sm" key={payment.id}><p className="font-bold">{money(payment.amount)} · {payment.method}</p><p className="text-[#62727B]/70">{dateTime(payment.registeredAt)}</p><p className="text-xs text-[#62727B]/65">{payment.reference ?? "Sin referencia"} · {payment.registeredByAccountId}</p></div>)}
       </div>
     </section> : null}
   </div>;
