@@ -6,7 +6,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <PublicHeader />
-      <main className="flex-1">{children}</main>
+      <main className="serena-surface flex-1">{children}</main>
       <PublicFooter />
     </>
   );

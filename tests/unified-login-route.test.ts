@@ -6,6 +6,7 @@ import {
   authorizedDestinationForRole,
   destinationForRole,
 } from "../src/modules/auth/login-destination";
+import { staffAreaFallback } from "../src/modules/auth/components/StaffAreaGuard";
 
 process.env.BACKEND_API_BASE_URL = "http://backend.test/api/v1";
 
@@ -172,4 +173,9 @@ test("solo acepta next dentro del área del rol autenticado", () => {
   assert.equal(authorizedDestinationForRole("MEDICO", "/medico/agenda"), "/medico/agenda");
   assert.equal(authorizedDestinationForRole("MEDICO", "/admin"), "/medico");
   assert.equal(authorizedDestinationForRole("ADMIN", "//external.example"), "/admin");
+});
+
+test("un ADMIN rechazado del área médica vuelve a administración", () => {
+  assert.equal(staffAreaFallback("ADMIN", "/recepcion", { ADMIN: "/admin" }), "/admin");
+  assert.equal(staffAreaFallback("RECEPCION", "/recepcion", { ADMIN: "/admin" }), "/recepcion");
 });

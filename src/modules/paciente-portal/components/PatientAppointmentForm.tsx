@@ -114,7 +114,7 @@ export function PatientAppointmentForm({
       </Card>
       <Card>
         <h2 className="text-xl font-bold text-[#62727B]">Horarios disponibles</h2>
-        <p className="mt-2 text-sm text-[#62727B]/75">Datos consultados del backend y mostrados en hora de Guatemala.</p>
+        <p className="mt-2 text-sm text-[#62727B]/75">Disponibilidad actualizada y mostrada en hora de Guatemala.</p>
         {initialSlotUnavailable ? <p className="mt-4 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm font-semibold" role="alert">El horario elegido ya no está disponible. Selecciona otro horario actualizado.</p> : null}
         {visibleSlots.length > 0 ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -128,7 +128,7 @@ export function PatientAppointmentForm({
       </Card>
       <div className="flex flex-col items-start gap-3">
         <Button disabled={isSubmitting || visibleSlots.length === 0} type="submit">{isSubmitting ? "Confirmando…" : "Confirmar cita"}</Button>
-        <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm text-[#62727B]">La cita se confirma solo cuando el backend la persiste para tu sesión verificada.</p>
+        <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm text-[#62727B]">La cita quedará confirmada cuando recibas el mensaje de éxito.</p>
         {message ? <SimulatedFormNotice>{message}</SimulatedFormNotice> : null}
       </div>
     </form>

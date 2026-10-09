@@ -53,6 +53,35 @@ Playwright con un navegador del sistema y reciben las credenciales sinteticas po
 variables de proceso; nunca deben escribirse en el repositorio ni pasarse como
 argumentos de linea de comandos.
 
+### Revision visual publica portable
+
+Instala una vez Chromium administrado por Playwright:
+
+```bash
+npx playwright install chromium
+```
+
+Con Next.js en ejecucion, la misma prueba funciona en Windows, macOS y Linux:
+
+```bash
+node tests/public-ux-review.mjs
+```
+
+`BASE_URL` permite probar otro puerto y `OUTPUT_DIR` elegir donde guardar las
+capturas. Si el equipo no puede instalar el navegador administrado, puede indicar
+un Chromium o Chrome compatible sin fijar rutas en el repositorio:
+
+```powershell
+# Windows (PowerShell)
+$env:PLAYWRIGHT_EXECUTABLE_PATH = "C:\ruta\al\navegador.exe"
+node tests/public-ux-review.mjs
+```
+
+```bash
+# macOS o Linux
+PLAYWRIGHT_EXECUTABLE_PATH=/ruta/al/navegador node tests/public-ux-review.mjs
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

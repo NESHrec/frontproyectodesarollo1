@@ -7,7 +7,7 @@ import { EmptyState, InternalPageHeader, MetricCard, buttonLinkClasses } from "@
 
 export default async function DoctorDashboardPage() {
   const result = await getOwnAppointments();
-  const header = <InternalPageHeader actions={<Link className={buttonLinkClasses} href="/medico/agenda">Ver mi agenda</Link>} description="Citas asignadas a tu profesional vinculado, obtenidas del backend en cada solicitud." eyebrow="Médico / Odontólogo" title="Panel clínico" />;
+  const header = <InternalPageHeader actions={<Link className={buttonLinkClasses} href="/medico/agenda">Ver mi agenda</Link>} description="Citas actualizadas asignadas a tu perfil profesional." eyebrow="Médico / Odontólogo" title="Panel clínico" />;
   if (!result.ok) return <div className="space-y-7">{header}<MedicalFailureNotice reason={result.reason} /></div>;
 
   const pending = result.data.filter((item) => item.canRecordAttention);

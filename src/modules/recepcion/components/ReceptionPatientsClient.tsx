@@ -57,7 +57,7 @@ export function ReceptionPatientsClient() {
     <form onSubmit={(event) => { event.preventDefault(); void load(search); }}><SearchFilters><Input label="Buscar por nombre, teléfono o correo" placeholder="Buscar" type="search" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="flex items-end"><Button type="submit">Buscar</Button></div></SearchFilters></form>
     {patients === null && !error ? <LoadingState message="Consultando pacientes persistidos…" /> : null}
     {error === "forbidden" ? <section className="rounded-lg bg-[#F8E2E8] p-5" role="alert"><h2 className="font-bold">Acceso denegado</h2><p className="mt-1 text-sm">Tu cuenta no puede consultar el directorio.</p></section> : null}
-    {error === "service" ? <section className="space-y-3 rounded-lg bg-[#F8E2E8] p-5" role="alert"><h2 className="font-bold">No se pudo cargar el directorio</h2><p className="text-sm">El backend no respondió.</p><Button onClick={() => void load(search)}>Intentar nuevamente</Button></section> : null}
+    {error === "service" ? <section className="space-y-3 rounded-lg bg-[#F8E2E8] p-5" role="alert"><h2 className="font-bold">No se pudo cargar el directorio</h2><p className="text-sm">El servicio no respondió.</p><Button onClick={() => void load(search)}>Intentar nuevamente</Button></section> : null}
     {patients?.length === 0 ? <EmptyState description="No hay pacientes persistidos que coincidan con la búsqueda." title="Directorio vacío" /> : null}
     {patients && patients.length > 0 ? <DataTable caption="Directorio persistido de pacientes" columns={columns} getRowKey={(item) => item.patientId} rows={patients} /> : null}
   </div>;

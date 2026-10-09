@@ -8,7 +8,7 @@ export function Topbar({ role }: { role: InternalRole }) {
   const navigation = internalNavigation[role];
   const isPatient = role === "paciente";
   return (
-    <header className="flex flex-col gap-3 border-b border-[#62727B]/15 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <header className={`flex flex-col gap-3 border-b border-[#62727B]/15 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 ${isPatient ? "sticky top-0 z-30 bg-white/95 backdrop-blur" : ""}`}>
       <div><p className="text-sm font-bold text-[#62727B]">{navigation.label}</p><p className="text-xs text-[#62727B]/65">{isPatient ? "Acceso verificado de paciente" : "Entorno académico · datos ficticios"}</p></div>
       <div className="flex items-center gap-3">
         <StatusBadge tone={isPatient ? "pistacho" : "crema"}>{isPatient ? "Sesión protegida" : "Sesión de personal"}</StatusBadge>

@@ -35,7 +35,7 @@ export function AdminAccountsSummaryClient() {
     return <ErrorState description="No se pudieron consultar las cuentas. Ningún fallo de carga se presenta como cero." onRetry={() => void load()} title="No se pudo cargar el resumen" />;
   }
   if (!accounts?.length) {
-    return <EmptyState description="El backend respondió correctamente y no existen cuentas de personal." title="Sin cuentas de personal" />;
+    return <EmptyState description="Todavía no existen cuentas de personal." title="Sin cuentas de personal" />;
   }
 
   const active = accounts.filter((account) => account.status === "ACTIVA").length;
@@ -46,7 +46,7 @@ export function AdminAccountsSummaryClient() {
 
   return <section aria-label="Indicadores de cuentas" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <MetricCard detail="Lista completa de GET /staff/accounts, sin paginación." label="Cuentas de personal" value={String(accounts.length)} />
-    <MetricCard detail="Cuentas con estado ACTIVA en el backend." label="Cuentas activas" tone="pistacho" value={String(active)} />
+    <MetricCard detail="Cuentas habilitadas actualmente." label="Cuentas activas" tone="pistacho" value={String(active)} />
     <MetricCard detail="Roles que tienen al menos una cuenta configurada." label="Roles presentes" tone="crema" value={String(roles)} />
     <MetricCard detail="Cuentas MEDICO que aún requieren vinculación." label="Vinculaciones pendientes" tone="rosa" value={String(pendingLinks)} />
   </section>;

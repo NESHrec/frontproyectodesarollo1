@@ -4,7 +4,7 @@ export const clinicaInfo: ClinicaInfo = {
   nombre: "Clínica Serena",
   lema: "Atención médica y odontológica con calma, claridad y confianza.",
   descripcion:
-    "Plataforma académica para visualizar servicios, profesionales y un flujo inicial de pre-agendamiento. Los datos son ficticios y no representan pacientes reales.",
+    "Consulta especialidades, conoce a los profesionales y encuentra horarios disponibles para reservar tu próxima cita.",
   direccion: "Zona 10, Ciudad de Guatemala",
   telefono: "2234-0000",
   correo: "contacto@clinicaserena.test",

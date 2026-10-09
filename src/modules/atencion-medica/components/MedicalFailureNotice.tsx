@@ -28,7 +28,7 @@ const messages: Record<Exclude<MedicalFailure, "service">, { title: string; desc
 
 export function MedicalFailureNotice({ reason }: { reason: MedicalFailure }) {
   if (reason === "service") {
-    return <ApiErrorState description="El servicio clínico no respondió. Ningún dato se guardó ni se muestra desde caché." title="No pudimos consultar el backend" />;
+    return <ApiErrorState description="El servicio clínico no respondió. Ningún dato se guardó ni se muestra desde caché." title="No pudimos consultar la información" />;
   }
   const message = messages[reason];
   return (

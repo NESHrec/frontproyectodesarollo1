@@ -16,12 +16,12 @@ export function PatientPortalHeader({
     <InternalPageHeader
       actions={actions}
       description={description}
-      eyebrow={`Paciente · ${eyebrow}`}
+      eyebrow={eyebrow}
       title={title}
     />
   );
 }
 
 export function SectionTitle({ title }: { title: string }) {
-  return <h2 className="mb-4 text-xl font-bold text-[#62727B]">{title}</h2>;
+  return <h2 className="mb-4 text-xl font-bold text-[#334B54]">{title}</h2>;
 }

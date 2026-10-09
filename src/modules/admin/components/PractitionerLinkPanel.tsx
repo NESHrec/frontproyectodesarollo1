@@ -52,7 +52,7 @@ export function PractitionerLinkPanel({ practitioners }: { practitioners: Practi
         : { method: "DELETE", cache: "no-store", headers: { "x-csrf-token": token } });
       const body = await response.json().catch(() => null) as { code?: unknown } | null;
       if (response.ok) {
-        setMessage({ tone: "ok", text: pending.practitionerId ? "Vinculación guardada en el backend." : "Vinculación retirada." });
+        setMessage({ tone: "ok", text: pending.practitionerId ? "Vinculación guardada correctamente." : "Vinculación retirada correctamente." });
         await load();
       } else if (response.status === 403) {
         setMessage({ tone: "error", text: "Solo una sesión ADMIN puede modificar vinculaciones." });

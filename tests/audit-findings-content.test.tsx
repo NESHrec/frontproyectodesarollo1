@@ -21,9 +21,8 @@ test("la referencia de roles describe las protecciones actuales sin conceder per
 
   const screen = render(<AdminRolesPage />);
   assert.ok(screen.getByRole("columnheader", { name: "Paciente" }));
-  assert.ok(screen.getByText(/Next\.js protege las áreas por sesión y rol/));
-  assert.ok(screen.getByText(/Spring Security aplica la autorización final/));
-  assert.ok(screen.getByText(/no concede permisos ni reemplaza/));
+  assert.ok(screen.getByText(/El sistema valida la sesión y los permisos/));
+  assert.ok(screen.getByText(/los permisos se aplican automáticamente/));
   assert.ok(screen.getByRole("rowheader", { name: "Gestionar cuentas de personal" }));
   assert.ok(screen.getByRole("rowheader", { name: "Consultar portal personal" }));
   assert.equal(screen.queryByText(/Paciente futuro|deberá aplicarse|Portal personal futuro/), null);

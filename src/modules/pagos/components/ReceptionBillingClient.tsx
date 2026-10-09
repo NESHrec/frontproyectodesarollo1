@@ -168,7 +168,7 @@ export function ReceptionBillingClient() {
       if (current && paymentIntentWasPersisted(current, intent)) {
         await acknowledgePaymentIntent(current, intent, token);
       } else {
-        setMessage("El backend respondió, pero el historial no prueba aún esta intención. El pago sigue bloqueado.");
+        setMessage("La respuesta no permite comprobar todavía esta intención. El pago sigue bloqueado para evitar duplicados.");
       }
     } else {
       const body = await readBillingResponse(response);
@@ -192,11 +192,11 @@ export function ReceptionBillingClient() {
     if (!response || response.status >= 500 || response.status === 409) {
       const recovered = await loadPaymentIntent();
       if (recovered && recovered.idempotencyKey === intent.idempotencyKey) return true;
-      setMessage("No se pudo confirmar la preparación del pago. Las operaciones quedan bloqueadas hasta consultar el backend.");
+      setMessage("No se pudo confirmar la preparación del pago. Las operaciones quedan bloqueadas hasta recuperar la información.");
       return false;
     }
     setPendingPayment(null);
-    setMessage("El backend rechazó la intención antes de registrar el pago.");
+    setMessage("No fue posible preparar el pago con los datos indicados.");
     return false;
   }
 
@@ -207,7 +207,7 @@ export function ReceptionBillingClient() {
       return;
     }
     if (recovered === null) {
-      setMessage("El backend confirmó que no existe una intención activa. Puedes preparar un nuevo pago.");
+      setMessage("No existe una intención activa. Puedes preparar un nuevo pago.");
       return;
     }
     intent = recovered;
@@ -237,7 +237,7 @@ export function ReceptionBillingClient() {
     setSelected(current);
     setAppointments((rows) => rows?.map((item) => item.id === current.id ? current : item) ?? [current]);
     setPaymentAmount(""); setReference(""); setPendingPayment(null); setIntentChecked(true);
-    setMessage("El pago sí quedó registrado. El backend confirmó la misma clave; saldo e historial fueron actualizados.");
+    setMessage("El pago quedó registrado correctamente; el saldo y el historial fueron actualizados.");
   }
 
   async function consultPendingPayment() {
@@ -266,17 +266,17 @@ export function ReceptionBillingClient() {
   }
 
   return <div className="space-y-7">
-    <InternalPageHeader description="Cobros persistidos en PostgreSQL para citas atendidas. Registra constancias internas de pago recibido." eyebrow="Recepción" title="Cobros y pagos" />
+    <InternalPageHeader description="Cobros de citas atendidas y constancias internas de pago recibido." eyebrow="Recepción" title="Cobros y pagos" />
     <section className="grid gap-4 sm:grid-cols-3">
       <MetricCard detail="Citas atendidas consultadas" label="Citas" tone="agua" value={String(metrics.count)} />
       <MetricCard detail="Constancias internas" label="Pagado (GTQ)" tone="pistacho" value={money(metrics.paid)} />
-      <MetricCard detail="Saldo calculado por backend" label="Pendiente (GTQ)" tone="rosa" value={money(metrics.pending)} />
+      <MetricCard detail="Saldo pendiente actualizado" label="Pendiente (GTQ)" tone="rosa" value={money(metrics.pending)} />
     </section>
 
     {busy === "load" && !appointments ? <LoadingState message="Consultando cobros..." /> : null}
     {error === "expired" ? <Notice tone="warn" title="Sesión expirada" text="Inicia sesión nuevamente para consultar o registrar cobros." /> : null}
     {error === "forbidden" ? <Notice tone="warn" title="Permiso denegado" text="Solo recepción puede operar cobros." /> : null}
-    {error === "service" ? <Notice tone="warn" title="Backend no disponible" text="No se pudo contactar el servicio. Revisa el backend e intenta nuevamente." action={<Button onClick={() => void loadList()}>Reintentar</Button>} /> : null}
+    {error === "service" ? <Notice tone="warn" title="Servicio no disponible" text="No se pudo recuperar la información. Intenta nuevamente." action={<Button onClick={() => void loadList()}>Reintentar</Button>} /> : null}
     {message ? <p className="rounded-md bg-[#E5F1D8] px-4 py-3 text-sm font-semibold text-[#62727B]" role="status">{message}</p> : null}
 
     {intentChecked && !pendingPayment && !error ? <p className="rounded-md bg-[#DDF3F1] px-4 py-3 text-sm font-semibold text-[#62727B]" role="status">Sin intención de pago activa.</p> : null}

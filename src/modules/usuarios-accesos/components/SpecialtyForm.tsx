@@ -29,7 +29,7 @@ export function SpecialtyForm({ specialty, onSaved }: SpecialtyFormProps) {
         body: JSON.stringify({ name: values.name, description: values.description }),
       });
       if (response.ok) {
-        setMessage({ tone: "success", text: specialty ? "Especialidad actualizada." : "Especialidad creada." });
+        setMessage({ tone: "success", text: specialty ? "Especialidad actualizada correctamente." : "Especialidad creada correctamente." });
         onSaved();
         return;
       }
@@ -45,7 +45,7 @@ export function SpecialtyForm({ specialty, onSaved }: SpecialtyFormProps) {
       <Input error={errors.name?.message} label="Nombre" {...register("name")} />
       <TextareaField error={errors.description?.message} label="Descripción" rows={3} {...register("description")} />
       <Button disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando…" : specialty ? "Guardar cambios" : "Crear especialidad"}</Button>
-      {message ? <p className={`rounded-md px-4 py-3 text-sm font-semibold ${message.tone === "success" ? "bg-[#E5F1D8]" : "bg-[#F8E2E8]"}`} role="status">{message.text}</p> : null}
+      {message ? <p aria-live="assertive" className={`rounded-lg border px-4 py-4 text-sm font-bold shadow-sm ${message.tone === "success" ? "border-[#7AA274] bg-[#E5F1D8] text-[#334B54]" : "border-[#B96B7E] bg-[#F8E2E8]"}`} role="status">{message.tone === "success" ? "✓ " : ""}{message.text}</p> : null}
     </form>
   );
 }

@@ -38,10 +38,10 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
   paciente: {
     role: "paciente",
     label: "Paciente",
-    description: "Citas y datos de tu sesión",
+    description: "Citas, recetas y seguimiento",
     items: [
-      { href: "/paciente", label: "Resumen", shortLabel: "R" },
-      { href: "/paciente/citas", label: "Mis citas", shortLabel: "C" },
+      { href: "/paciente", label: "Inicio", shortLabel: "I" },
+      { href: "/paciente/citas", label: "Citas", shortLabel: "C" },
       { href: "/paciente/recetas", label: "Recetas", shortLabel: "Rx" },
       { href: "/paciente/chequeos", label: "Chequeos", shortLabel: "Ch" },
       { href: "/paciente/expediente", label: "Mi expediente", shortLabel: "Ex" },

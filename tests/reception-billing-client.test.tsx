@@ -85,13 +85,13 @@ test("sesión vencida y permiso denegado conservan estados distintos", async () 
   }
 });
 
-test("backend no disponible no se interpreta como ausencia", async () => {
+test("servicio no disponible no se interpreta como ausencia", async () => {
   const { cleanup, render } = await import("@testing-library/react");
   const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
   installInitialLoad(json({ ok: false, reason: "service" }, 503));
 
   const screen = render(<ReceptionBillingClient />);
-  await screen.findByText("Backend no disponible");
+  await screen.findByText("Servicio no disponible");
   assert.equal(screen.queryByText("Sin intención de pago activa."), null);
   cleanup();
 });
@@ -102,12 +102,12 @@ test("un 404 inesperado no se convierte en ausencia de intención", async () => 
   installInitialLoad(json({ code: "UNEXPECTED_NOT_FOUND" }, 404));
 
   const screen = render(<ReceptionBillingClient />);
-  await screen.findByText("Backend no disponible");
+  await screen.findByText("Servicio no disponible");
   assert.equal(screen.queryByText("Sin intención de pago activa."), null);
   cleanup();
 });
 
-test("el formulario recupera del backend una intención incierta y conserva su clave", async () => {
+test("el formulario recupera del servicio una intención incierta y conserva su clave", async () => {
   const { cleanup, fireEvent, render } = await import("@testing-library/react");
   const { ReceptionBillingClient } = await import("../src/modules/pagos/components/ReceptionBillingClient");
   let historyAvailable = false;
@@ -193,7 +193,7 @@ test("el formulario recupera del backend una intención incierta y conserva su c
 
   historyAvailable = true;
   fireEvent.click(screen.getByRole("button", { name: "Consultar historial nuevamente" }));
-  await screen.findByText(/El pago sí quedó registrado/);
+  await screen.findByText(/El pago quedó registrado correctamente/);
   assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).disabled, false);
   assert.equal((screen.getByLabelText("ID exacto de cita") as HTMLInputElement).disabled, false);
   assert.equal(serverIntent, null);

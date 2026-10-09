@@ -22,18 +22,19 @@ export async function PublicHeader() {
   const destination = staffSession.status === "active" ? staffDestinations[staffSession.identity.role] : null;
 
   return (
-    <header className="border-b border-[#62727B]/15 bg-[#FBFCFA]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-[#62727B]/10 bg-[#FBFCFA]/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <Link
-          className="text-xl font-bold text-[#62727B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]"
+          className="inline-flex items-center gap-3 text-lg font-extrabold tracking-tight text-[#334B54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]"
           href="/"
         >
+          <span aria-hidden="true" className="grid size-9 place-items-center rounded-full bg-[#56777A] text-xs text-white">CS</span>
           Clínica Serena
         </Link>
-        <nav aria-label="Navegación pública" className="flex flex-wrap items-center gap-2">
+        <nav aria-label="Navegación pública" className="flex flex-wrap items-center gap-1">
           {publicLinks.map((link) => (
             <Link
-              className="rounded-md px-3 py-2 text-sm font-medium text-[#62727B] transition hover:bg-[#DDF3F1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B]"
+              className="min-w-max rounded-full px-3 py-2 text-sm font-semibold text-[#526871] transition hover:bg-[#DDF3F1] hover:text-[#334B54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B]"
               href={link.href}
               key={link.href}
             >
