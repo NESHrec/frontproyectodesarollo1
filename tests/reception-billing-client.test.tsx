@@ -63,8 +63,8 @@ test("una intención existente se recupera desde el estado explícito", async ()
 
   const screen = render(<ReceptionBillingClient />);
   await screen.findByText("Pago pendiente de confirmación");
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).value, "20000");
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).disabled, true);
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).value, "200.00");
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).disabled, true);
   assert.equal(screen.queryByText("Sin intención de pago activa."), null);
   cleanup();
 });
@@ -159,7 +159,7 @@ test("el formulario recupera del backend una intención incierta y conserva su c
 
   let screen = render(<ReceptionBillingClient />);
   await screen.findByText("Cita appointment-1");
-  fireEvent.change(screen.getByLabelText("Pago GTQ en centavos"), { target: { value: "20000" } });
+  fireEvent.change(screen.getByLabelText("Pago (GTQ)"), { target: { value: "200.00" } });
   fireEvent.change(screen.getByLabelText("Método interno"), { target: { value: "TRANSFERENCIA" } });
   fireEvent.change(screen.getByLabelText("Referencia interna opcional"), { target: { value: "REF-20" } });
   fireEvent.click(screen.getByRole("button", { name: "Registrar pago" }));
@@ -171,23 +171,31 @@ test("el formulario recupera del backend una intención incierta y conserva su c
   assert.equal(persisted.payments.length, 1);
   assert.equal(persisted.paidAmount, 20000);
   assert.equal(persisted.balanceAmount, 30000);
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).disabled, true);
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).disabled, true);
   assert.equal((screen.getByLabelText("Método interno") as HTMLSelectElement).disabled, true);
   assert.equal((screen.getByLabelText("Referencia interna opcional") as HTMLInputElement).disabled, true);
-  assert.equal((screen.getByLabelText("Consultar cita por ID") as HTMLInputElement).disabled, true);
+  assert.equal((screen.getByLabelText("ID exacto de cita") as HTMLInputElement).disabled, true);
 
   cleanup();
   screen = render(<ReceptionBillingClient />);
   await screen.findByText("Cita appointment-1");
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).value, "20000");
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).disabled, true);
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).value, "200.00");
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).disabled, true);
   assert.equal((serverIntent as Record<string, unknown> | null)?.idempotencyKey, originalKey);
+
+  fireEvent.click(screen.getByRole("button", { name: "Reintentar el mismo pago" }));
+  await screen.findByText(/Pago pendiente de confirmación\. No se conoce aún el resultado/);
+  assert.equal(commitRequests, 2);
+  assert.equal((serverIntent as Record<string, unknown> | null)?.idempotencyKey, originalKey);
+  assert.equal(persisted.payments.length, 1);
+  assert.equal(persisted.paidAmount, 20000);
+  assert.equal(persisted.balanceAmount, 30000);
 
   historyAvailable = true;
   fireEvent.click(screen.getByRole("button", { name: "Consultar historial nuevamente" }));
   await screen.findByText(/El pago sí quedó registrado/);
-  assert.equal((screen.getByLabelText("Pago GTQ en centavos") as HTMLInputElement).disabled, false);
-  assert.equal((screen.getByLabelText("Consultar cita por ID") as HTMLInputElement).disabled, false);
+  assert.equal((screen.getByLabelText("Pago (GTQ)") as HTMLInputElement).disabled, false);
+  assert.equal((screen.getByLabelText("ID exacto de cita") as HTMLInputElement).disabled, false);
   assert.equal(serverIntent, null);
   assert.equal(persisted.payments.length, 1);
   assert.equal(persisted.balanceAmount, 30000);

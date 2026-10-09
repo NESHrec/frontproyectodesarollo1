@@ -71,7 +71,7 @@ export function ReceptionBillingClient() {
     }
     const intent = status.intent;
     setPendingPayment(intent);
-    setPaymentAmount(String(intent.amount));
+    setPaymentAmount(formatGtq(intent.amount).replace(/^GTQ /, ""));
     setPaymentMethod(intent.method);
     setReference(intent.reference ?? "");
     setIntentChecked(true);
