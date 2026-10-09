@@ -49,3 +49,10 @@ test("el resumen administrativo describe únicamente operaciones persistidas con
   assert.match(ADMIN_RESPONSIBILITY_TEXT, /cuentas de personal y especialidades persistidas/);
   assert.doesNotMatch(`${ADMIN_CATALOG_DETAIL} ${ADMIN_RESPONSIBILITY_TEXT}`, /demostrativa/);
 });
+
+test("la bitácora presenta etiquetas para los nuevos eventos clínicos", async () => {
+  const { actionLabels } = await import("../src/modules/admin/components/AdminAuditClient");
+
+  assert.equal(actionLabels.CLINICAL_ATTENTION_RECORDED, "Atención clínica registrada");
+  assert.equal(actionLabels.DENTAL_OBSERVATION_RECORDED, "Observación odontológica registrada");
+});

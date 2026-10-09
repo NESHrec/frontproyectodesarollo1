@@ -5,13 +5,15 @@ import { useCallback, useEffect, useState } from "react";
 import { auditEventPageSchema, type AuditEvent } from "@/modules/usuarios-accesos/schemas";
 import { Button, DataTable, EmptyState, LoadingState, type DataTableColumn } from "@/shared/components";
 
-const actionLabels: Record<string, string> = {
+export const actionLabels: Record<string, string> = {
   STAFF_ACCOUNT_CREATED: "Cuenta de personal creada",
   SPECIALTY_CREATED: "Especialidad creada",
   SPECIALTY_UPDATED: "Especialidad actualizada",
   STAFF_PRACTITIONER_LINKED: "Profesional vinculado",
   STAFF_PRACTITIONER_UNLINKED: "Profesional desvinculado",
   PATIENT_ADMINISTRATIVE_RECORD_CREATED: "Expediente administrativo creado",
+  CLINICAL_ATTENTION_RECORDED: "Atención clínica registrada",
+  DENTAL_OBSERVATION_RECORDED: "Observación odontológica registrada",
 };
 
 const columns: DataTableColumn<AuditEvent>[] = [
