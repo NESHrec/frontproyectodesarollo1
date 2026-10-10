@@ -12,6 +12,8 @@ export const actionLabels: Record<string, string> = {
   STAFF_PRACTITIONER_LINKED: "Profesional vinculado",
   STAFF_PRACTITIONER_UNLINKED: "Profesional desvinculado",
   PATIENT_ADMINISTRATIVE_RECORD_CREATED: "Expediente administrativo creado",
+  PATIENT_PROFILE_UPDATED: "Perfil de paciente actualizado",
+  APPOINTMENT_BOOKED: "Cita reservada",
   CLINICAL_ATTENTION_RECORDED: "Atención clínica registrada",
   DENTAL_OBSERVATION_RECORDED: "Observación odontológica registrada",
 };

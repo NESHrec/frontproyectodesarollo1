@@ -55,4 +55,6 @@ test("la bitácora presenta etiquetas para los nuevos eventos clínicos", async 
 
   assert.equal(actionLabels.CLINICAL_ATTENTION_RECORDED, "Atención clínica registrada");
   assert.equal(actionLabels.DENTAL_OBSERVATION_RECORDED, "Observación odontológica registrada");
+  assert.equal(actionLabels.PATIENT_PROFILE_UPDATED, "Perfil de paciente actualizado");
+  assert.equal(actionLabels.APPOINTMENT_BOOKED, "Cita reservada");
 });
