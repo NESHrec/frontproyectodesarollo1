@@ -2,5 +2,5 @@ import { PatientCheckupsClient } from "@/modules/paciente-portal/components/Pati
 import { PatientPortalHeader } from "@/modules/paciente-portal/components/PatientPortalHeader";
 
 export default function PatientCheckupsPage() {
-  return <div className="space-y-7"><PatientPortalHeader description="Información derivada únicamente de atenciones clínicas, citas y recetas persistidas. No muestra recomendaciones futuras ni datos de muestra." eyebrow="Seguimiento" title="Chequeos y tratamiento" /><PatientCheckupsClient /></div>;
+  return <div className="space-y-7"><PatientPortalHeader description="Revisa el motivo, diagnóstico y plan registrados después de cada atención. Aquí no se agregan recomendaciones automáticas." eyebrow="Seguimiento" title="Mi seguimiento" /><PatientCheckupsClient /></div>;
 }

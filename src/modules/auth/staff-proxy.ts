@@ -15,7 +15,10 @@ export async function forwardStaffRequest(
   init: RequestInit = {},
   { requireCsrf = (init.method ?? "GET") !== "GET" }: { requireCsrf?: boolean } = {},
 ) {
-  if (requireCsrf && !hasValidCsrf(request)) return jsonNoStore({ ok: false, reason: "csrf" }, { status: 403 });
+  if (requireCsrf) {
+    const csrfFailure = rejectInvalidStaffCsrf(request);
+    if (csrfFailure) return csrfFailure;
+  }
   const token = request.cookies.get(STAFF_SESSION_COOKIE)?.value;
   if (!token) return jsonNoStore({ ok: false, reason: "expired" }, { status: 401 });
   const response = await staffBackendFetch(path, init, token);
@@ -25,6 +28,11 @@ export async function forwardStaffRequest(
   }
   const body = await response.json().catch(() => ({ ok: false, reason: "service" }));
   return jsonNoStore(body, { status: response.status });
+}
+
+/** Valida CSRF al entrar al BFF, antes de que el handler consuma JSON o multipart. */
+export function rejectInvalidStaffCsrf(request: NextRequest) {
+  return hasValidCsrf(request) ? null : jsonNoStore({ ok: false, reason: "csrf" }, { status: 403 });
 }
 
 /** Solo acepta identificadores simples para interpolarlos en rutas del backend. */

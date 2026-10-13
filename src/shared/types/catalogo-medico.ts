@@ -14,6 +14,8 @@ export type Medico = {
   specialtyId: string;
   specialtyName?: string;
   licenseNumber?: string;
+  active: boolean;
+  photoUrl?: string;
 };
 
 export type BloqueDisponibilidad = {

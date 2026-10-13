@@ -11,6 +11,7 @@ import {
   StatusBadge,
   buttonLinkClasses,
 } from "@/shared/components";
+import { PractitionerPortrait } from "@/modules/catalogo-medico/components/PractitionerPortrait";
 
 export default async function MedicoDetailPage({
   params,
@@ -53,6 +54,7 @@ export default async function MedicoDetailPage({
       <section className="bg-[#FBFCFA] px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <Card className="self-start bg-[#F8EDD2]">
+            <PractitionerPortrait large practitioner={medico} />
             {medico.specialtyName ? (
               <StatusBadge tone="pistacho">{medico.specialtyName}</StatusBadge>
             ) : null}

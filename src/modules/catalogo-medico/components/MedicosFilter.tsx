@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, EmptyState, StatusBadge, buttonLinkClasses } from "@/shared/components";
 import type { Especialidad, Medico } from "@/shared/types/catalogo-medico";
+import { PractitionerPortrait } from "@/modules/catalogo-medico/components/PractitionerPortrait";
 
 type MedicosFilterProps = {
   especialidades: Especialidad[];
@@ -107,6 +108,7 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
 
               return (
                 <Card className="flex flex-col gap-4" key={medico.id}>
+                  <PractitionerPortrait practitioner={medico} />
                   <div>
                     {especialidad ? (
                       <StatusBadge tone="pistacho">{especialidad}</StatusBadge>

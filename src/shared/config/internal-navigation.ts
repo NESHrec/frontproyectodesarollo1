@@ -32,6 +32,7 @@ export const internalNavigation: Record<InternalRole, NavigationGroup> = {
       { href: "/admin/usuarios", label: "Usuarios", shortLabel: "U" },
       { href: "/admin/roles", label: "Roles y permisos", shortLabel: "P" },
       { href: "/admin/especialidades", label: "Especialidades", shortLabel: "E" },
+      { href: "/admin/profesionales", label: "Profesionales", shortLabel: "M" },
       { href: "/admin/bitacora", label: "Bitácora", shortLabel: "B" },
     ],
   },

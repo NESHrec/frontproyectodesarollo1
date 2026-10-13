@@ -25,6 +25,8 @@ export const medicoSchema = z.object({
   specialtyId: z.string().min(1),
   specialtyName: optionalText,
   licenseNumber: optionalText,
+  active: z.boolean(),
+  photoUrl: optionalText,
 }) satisfies z.ZodType<Medico, unknown>;
 
 export const bloqueDisponibilidadSchema = z.object({
