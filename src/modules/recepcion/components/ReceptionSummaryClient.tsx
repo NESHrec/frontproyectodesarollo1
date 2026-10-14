@@ -56,9 +56,13 @@ export function ReceptionSummaryClient() {
       <MetricCard detail="Citas canceladas dentro de la vista cargada." label="Canceladas" tone="rosa" value={String(cancelled)} />
     </section>
     <Card>
-      <h2 className="text-lg font-bold text-[#62727B]">Agenda operativa</h2>
-      <p className="mt-2 text-sm leading-6 text-[#62727B]/80">Consulta las citas persistidas y registra llegadas únicamente desde la agenda autorizada. Este resumen no muestra diagnósticos, notas clínicas, recetas ni expedientes.</p>
-      <Link className={`${buttonLinkClasses} mt-5`} href="/recepcion/agenda">Abrir agenda real</Link>
+      <h2 className="text-lg font-bold text-[#334B54]">Acciones frecuentes</h2>
+      <p className="mt-2 text-sm leading-6 text-[#62727B]">Continúa en el módulo correspondiente. Este resumen no muestra diagnósticos, notas clínicas, recetas ni expedientes.</p>
+      <nav aria-label="Acciones frecuentes de recepción" className="mt-5 grid gap-3 sm:grid-cols-3">
+        <Link className={buttonLinkClasses} href="/recepcion/agenda">Revisar agenda</Link>
+        <Link className={buttonLinkClasses} href="/recepcion/pacientes">Buscar paciente</Link>
+        <Link className={buttonLinkClasses} href="/recepcion/cobros">Consultar cobros</Link>
+      </nav>
     </Card>
   </div>;
 }
