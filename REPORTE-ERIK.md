@@ -115,7 +115,9 @@ No se confirmó una vulnerabilidad explotable dentro del alcance autorizado. No 
 
 # SHA commit
 
-Se actualizará con el SHA del commit de implementación antes del push.
+Implementación y evidencias: `0bf7e5e` (`feat(ui): improve accessibility and security e2e`).
+
+El reporte se actualiza en un commit documental posterior para evitar una referencia SHA circular.
 
 # Recomendación para integración
 
