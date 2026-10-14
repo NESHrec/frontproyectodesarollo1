@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const role = getRoleFromPathname(pathname);
 
   return (
-    <div className={role === "paciente" ? "min-h-screen bg-[linear-gradient(135deg,#F6FAF7_0%,#FBFCFA_55%,#F3F8F0_100%)] lg:flex" : "min-h-screen bg-[#FBFCFA] lg:flex"}>
+    <div className={role === "paciente" ? "min-h-screen bg-[linear-gradient(135deg,#F6FAF7_0%,var(--background)_55%,#F3F8F0_100%)] lg:flex" : "min-h-screen bg-[var(--background)] lg:flex"}>
       <RoleSidebar role={role} />
       <div className="min-w-0 flex-1">
         <Topbar role={role} />

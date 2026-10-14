@@ -8,10 +8,10 @@ type MetricCardProps = {
 };
 
 const toneClasses = {
-  agua: "bg-[#DDF3F1]",
-  pistacho: "bg-[#E5F1D8]",
-  rosa: "bg-[#F8E2E8]",
-  crema: "bg-[#F8EDD2]",
+  agua: "bg-[var(--serena-surface-info)]",
+  pistacho: "bg-[var(--serena-success-soft)]",
+  rosa: "bg-[var(--serena-danger-soft)]",
+  crema: "bg-[var(--serena-warning-soft)]",
 };
 
 export function MetricCard({ label, value, detail, tone = "agua" }: MetricCardProps) {

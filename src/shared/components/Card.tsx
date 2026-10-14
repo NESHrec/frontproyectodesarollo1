@@ -7,7 +7,7 @@ export function Card({ className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "min-w-0 max-w-full rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-6 shadow-sm shadow-[#62727B]/10",
+        "min-w-0 max-w-full rounded-[var(--serena-radius-md)] border border-[var(--serena-border)] bg-[var(--serena-surface)] p-6 shadow-[var(--serena-shadow-card)]",
         className,
       )}
       {...props}

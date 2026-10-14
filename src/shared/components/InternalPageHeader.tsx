@@ -14,7 +14,7 @@ export function InternalPageHeader({
   actions,
 }: InternalPageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 border-b border-[#62727B]/15 pb-6 md:flex-row md:items-end md:justify-between">
+    <header className="flex flex-col gap-4 border-b border-[var(--serena-border)] pb-6 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#62727B]/70">
           {eyebrow}
