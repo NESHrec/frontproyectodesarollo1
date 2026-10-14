@@ -7,7 +7,7 @@ import { ApiErrorState, LoadingState, buttonLinkClasses } from "@/shared/compone
 
 export default function HomePage() {
   return <>
-    <section className="px-4 pb-14 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
+    <section className="serena-surface px-4 pb-14 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[.92fr_1.08fr]">
         <div className="max-w-xl">
           <p className="serena-kicker">Atención dental con calma</p>
@@ -16,7 +16,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link className={buttonLinkClasses} href="/reservar">Reservar una cita</Link><Link className={`${buttonLinkClasses} bg-white`} href="/medicos">Conocer profesionales</Link></div>
           <div className="mt-8 grid grid-cols-2 gap-3" aria-label="Resumen del catálogo"><Suspense fallback={<LoadingState message="Consultando disponibilidad..." />}><ResumenCatalogo /></Suspense></div>
         </div>
-        <div className="relative overflow-hidden rounded-[2rem] bg-[#DDF3F1] shadow-[0_28px_80px_rgba(51,75,84,.18)]">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[var(--serena-surface-info)] shadow-[0_28px_80px_rgba(51,75,84,.18)]">
           <Image alt="Consultorio dental moderno, cálido y luminoso de Clínica Serena" className="h-[360px] w-full object-cover sm:h-[470px] lg:h-[560px]" height={914} priority sizes="(max-width: 1024px) 100vw, 54vw" src="/images/clinica-serena-hero.webp" width={1600} />
           <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-white/92 p-4 shadow-lg backdrop-blur sm:inset-x-6 sm:bottom-6"><p className="font-bold text-[#334B54]">Horarios claros, reserva segura</p><p className="mt-1 text-sm text-[#62727B]">Consulta profesionales y disponibilidad antes de confirmar.</p></div>
         </div>

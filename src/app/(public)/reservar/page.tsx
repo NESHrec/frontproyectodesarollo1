@@ -17,7 +17,7 @@ export default async function ReservarPage({ searchParams }: { searchParams: Pag
         eyebrow="Pre-agendamiento"
         title="Reserva de cita"
       />
-      <section className="bg-[#FBFCFA] px-4 py-12 sm:px-6 lg:px-8">
+      <section className="serena-surface px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <Suspense fallback={<LoadingState message="Cargando profesionales..." />}>
             <ReservaContenido medicoId={medicoId} />

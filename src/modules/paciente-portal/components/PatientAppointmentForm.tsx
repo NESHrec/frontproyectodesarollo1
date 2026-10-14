@@ -113,8 +113,8 @@ export function PatientAppointmentForm({
         </SelectField>
       </Card>
       <Card>
-        <h2 className="text-xl font-bold text-[#62727B]">Horarios disponibles</h2>
-        <p className="mt-2 text-sm text-[#62727B]/75">Disponibilidad actualizada y mostrada en hora de Guatemala.</p>
+        <h2 className="text-xl font-bold text-[var(--serena-ink)]">Horarios disponibles</h2>
+        <p className="mt-2 text-sm text-[var(--serena-text)]/75">Disponibilidad actualizada y mostrada en hora de Guatemala.</p>
         {initialSlotUnavailable ? <p className="mt-4 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm font-semibold" role="alert">El horario elegido ya no está disponible. Selecciona otro horario actualizado.</p> : null}
         {visibleSlots.length > 0 ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2">

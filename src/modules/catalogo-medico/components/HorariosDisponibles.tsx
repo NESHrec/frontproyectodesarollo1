@@ -34,7 +34,7 @@ export async function HorariosDisponibles({
 
   if (bloques.length === 0) {
     return (
-      <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold text-[#62727B]">
+      <p className="rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--serena-warning-soft)] px-4 py-3 text-sm font-semibold text-[var(--serena-text)]">
         Este profesional no tiene horarios disponibles por ahora. Vuelve a consultar más tarde.
       </p>
     );
@@ -55,7 +55,7 @@ export async function HorariosDisponibles({
   return (
     <ul className="grid gap-4 sm:grid-cols-2">
       {bloques.map((bloque) => (
-        <li className="rounded-md bg-[#DDF3F1] p-4 text-[#62727B]" key={bloque.id}>
+        <li className="rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--serena-surface-info)] p-4 text-[var(--serena-text)]" key={bloque.id}>
           <p className="text-sm font-semibold">{bloque.fecha}</p>
           <p className="mt-2 text-xl font-bold">
             {bloque.horaInicio} – {bloque.horaFin}

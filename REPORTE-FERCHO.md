@@ -94,6 +94,53 @@ Las props públicas existentes se conservaron. `Button.loading` es opcional y no
 
 ## Pendientes
 
+## FASE 2B — Público y portal paciente
+
+### Alcance aplicado
+
+- Se aplicó la base visual de Fase 2A a las rutas públicas de inicio, clínica, especialidades, profesionales, detalle y pre-agendamiento.
+- Se mejoraron los controles compartidos de búsqueda y selección del catálogo, las tarjetas de profesionales, horarios disponibles y estados vacíos.
+- Se actualizó el encabezado visual del portal paciente y la presentación responsive del dashboard, manteniendo las rutas y acciones existentes.
+- No se modificaron backend, API, BFF, contratos, sesiones, cookies, CSRF, roles, persistencia ni reglas de negocio.
+
+### Archivos de esta fase
+
+- `src/app/(public)/page.tsx`
+- `src/app/(public)/clinica/page.tsx`
+- `src/app/(public)/especialidades/page.tsx`
+- `src/app/(public)/medicos/page.tsx`
+- `src/app/(public)/medicos/[medicoId]/page.tsx`
+- `src/app/(public)/reservar/page.tsx`
+- `src/app/(private)/paciente/page.tsx`
+- `src/modules/catalogo-medico/components/HorariosDisponibles.tsx`
+- `src/modules/catalogo-medico/components/MedicosFilter.tsx`
+- `src/modules/catalogo-medico/components/PreAppointmentFlow.tsx`
+- `src/modules/catalogo-medico/components/SeleccionHorario.tsx`
+- `src/modules/paciente-portal/components/PatientAppointmentForm.tsx`
+- `src/modules/paciente-portal/components/PatientPortalHeader.tsx`
+- `src/shared/components/PublicHeader.tsx`
+- `src/shared/components/PublicFooter.tsx`
+- `tests/browser-ui-patient-fercho.mjs`
+
+### Validación
+
+- `npm run lint`: PASS, con 2 warnings heredados por `<img>` en `PractitionerManager` y `PractitionerPortrait`.
+- `npm run typecheck`: PASS.
+- `npm run build`: PASS, 63 rutas generadas.
+- Suites frontend existentes: PASS — billing 6/6, auth BFF 6/6, staff routes 7/7, audit 4/4, clinical 5/5, patient link 4/4 y practitioner routes 4/4.
+- `git diff --check`: PASS antes del cierre.
+- Prueba visual nueva: preparada y ejecutada. El frontend público respondió en 3100 y generó capturas públicas de escritorio; el recorrido paciente quedó bloqueado al autenticarse porque el backend y PostgreSQL aislados no estaban escuchando. No se simularon datos ni se modificó la base.
+
+### Límites y riesgos
+
+- La búsqueda del catálogo continúa siendo sobre los datos publicados que entrega el BFF; no se agregaron endpoints ni parámetros.
+- La evidencia visual completa de paciente en escritorio y móvil debe repetirse cuando el backend y PostgreSQL aislados estén disponibles.
+- No se ejecutó auditoría de seguridad ni se modificaron dependencias.
+
+### SHA commit
+
+Se informará al cierre de la entrega.
+
 - Evaluar posteriormente los warnings de imágenes y la advertencia de scroll de Next.js.
 - Revisar las vulnerabilidades de dependencias en una tarea independiente.
 - Continuar con Fase 2B solo después de integrar y revisar este commit.

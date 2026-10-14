@@ -51,14 +51,14 @@ export default async function MedicoDetailPage({
         eyebrow={medico.specialtyName ?? "Profesionales"}
         title={medico.fullName}
       />
-      <section className="bg-[#FBFCFA] px-4 py-12 sm:px-6 lg:px-8">
+      <section className="serena-surface px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <Card className="self-start bg-[#F8EDD2]">
+          <Card className="self-start bg-[var(--serena-warning-soft)]">
             <PractitionerPortrait large practitioner={medico} />
             {medico.specialtyName ? (
               <StatusBadge tone="pistacho">{medico.specialtyName}</StatusBadge>
             ) : null}
-            <dl className="mt-6 space-y-4 text-sm text-[#62727B]">
+            <dl className="mt-6 space-y-4 text-sm text-[var(--serena-text)]">
               <div>
                 <dt className="font-semibold">Nombre</dt>
                 <dd className="mt-1">{medico.fullName}</dd>
@@ -89,8 +89,8 @@ export default async function MedicoDetailPage({
             </div>
           </Card>
           <Card>
-            <h2 className="text-xl font-bold text-[#62727B]">Horarios disponibles</h2>
-            <p className="mt-2 mb-5 text-sm text-[#62727B]/80">Hora de Guatemala.</p>
+            <h2 className="text-xl font-bold text-[var(--serena-ink)]">Horarios disponibles</h2>
+            <p className="mt-2 mb-5 text-sm text-[var(--serena-text)]/80">Hora de Guatemala.</p>
             <Suspense fallback={<LoadingState message="Consultando horarios..." />}>
               <HorariosDisponibles medicoId={medico.id} />
             </Suspense>
