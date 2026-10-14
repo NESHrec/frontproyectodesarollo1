@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import type { Especialidad, Medico } from "@/shared/types/catalogo-medico";
 import { Button, Card, EmptyState, LoadingState, StatusBadge } from "@/shared/components";
 import { getCsrfToken } from "@/modules/auth/csrf-client";
@@ -8,6 +9,8 @@ import { PractitionerPortrait } from "@/modules/catalogo-medico/components/Pract
 
 type Draft = { fullName: string; specialtyId: string; licenseNumber: string };
 const empty: Draft = { fullName: "", specialtyId: "", licenseNumber: "" };
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png"]);
 
 export function PractitionerManager({ specialties }: { specialties: Especialidad[] }) {
   const [items, setItems] = useState<Medico[] | null>(null);
@@ -17,13 +20,19 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function load() { const response = await fetch("/api/staff/practitioners", { cache: "no-store" }); setItems(response.ok ? await response.json() : []); }
+  async function load() { const response = await fetch("/api/staff/practitioners", { cache: "no-store" }); if (!response.ok) { setMessage(response.status === 401 ? "Tu sesión ADMIN expiró." : response.status === 403 ? "Solo ADMIN puede consultar profesionales." : "No se pudo cargar el catálogo de profesionales."); setItems([]); return; } setItems(await response.json()); }
   useEffect(() => { let active = true; void fetch("/api/staff/practitioners", { cache: "no-store" }).then(async response => { const data = response.ok ? await response.json() : []; if (active) setItems(data); }); return () => { active = false; }; }, []);
   const preview = useMemo(() => photo ? URL.createObjectURL(photo) : null, [photo]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
   const specialtyNames = useMemo(() => new Map(specialties.map(item => [item.id, item.name])), [specialties]);
 
   function select(item: Medico | null) { setEditing(item); setDraft(item ? { fullName: item.fullName, specialtyId: item.specialtyId, licenseNumber: item.licenseNumber ?? "" } : empty); setPhoto(null); setMessage(null); }
+  function selectPhoto(file: File | null) {
+    if (!file) { setPhoto(null); return; }
+    if (!ALLOWED_PHOTO_TYPES.has(file.type)) { setPhoto(null); setMessage("Formato no permitido. Selecciona una imagen JPEG o PNG."); return; }
+    if (file.size > MAX_PHOTO_BYTES) { setPhoto(null); setMessage("La foto supera el máximo de 2 MB."); return; }
+    setMessage(null); setPhoto(file);
+  }
   async function csrfHeaders(json = false) { const token = await getCsrfToken(); return { "x-csrf-token": token, ...(json ? { "Content-Type": "application/json" } : {}) }; }
   async function save(event: React.FormEvent) {
     event.preventDefault(); setBusy(true); setMessage(null);
@@ -44,8 +53,9 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
         <label className="block text-sm font-semibold">Nombre completo<input className="mt-2 w-full rounded-md border p-3" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/></label>
         <label className="block text-sm font-semibold">Especialidad<select className="mt-2 w-full rounded-md border p-3" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
         <label className="block text-sm font-semibold">Número de colegiado<input className="mt-2 w-full rounded-md border p-3" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/></label>
-        <label className="block text-sm font-semibold">Foto JPEG o PNG, máximo 2 MB<input accept="image/jpeg,image/png" className="mt-2 block w-full text-sm" onChange={e => setPhoto(e.target.files?.[0] ?? null)} type="file" /></label>
-        {preview ? <img alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-xl object-cover" src={preview}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
+        <label className="block text-sm font-semibold">Foto JPEG o PNG, máximo 2 MB<input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-2 block min-h-11 w-full rounded-md border border-[#62727B]/25 bg-white p-2 text-sm" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /></label>
+        <p className="-mt-2 text-xs text-[#62727B]/75" id="photo-help">La validación del navegador es preventiva; el servidor vuelve a comprobar tipo, contenido y tamaño.</p>
+        {preview ? <Image alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-xl object-cover" height={176} src={preview} unoptimized width={480}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
         <div className="flex flex-wrap gap-2"><Button disabled={busy} type="submit">{busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
       </form>{message ? <p className="mt-4 rounded-md bg-[#F8EDD2] p-3 text-sm" role="status">{message}</p> : null}
     </Card>
