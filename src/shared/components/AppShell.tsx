@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <RoleSidebar role={role} />
       <div className="min-w-0 flex-1">
         <Topbar role={role} />
-        <main className={role === "paciente" ? "mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-10" : "mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8"}>{children}</main>
+        <main className={role === "paciente" ? "mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-10" : "mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8"} id="contenido-principal" tabIndex={-1}>{children}</main>
       </div>
     </div>
   );

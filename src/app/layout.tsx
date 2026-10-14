@@ -15,6 +15,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       className="h-full antialiased"
     >
       <body className="flex min-h-full flex-col bg-[#FBFCFA] text-[#62727B]">
+        <a className="skip-link" href="#contenido-principal">
+          Saltar al contenido principal
+        </a>
         {children}
       </body>
     </html>

@@ -12,6 +12,7 @@
     "test:auth-bff": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/unified-login-route.test.ts",
     "test:staff-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-write-routes.test.ts",
     "test:audit-findings": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/audit-findings-content.test.tsx"
+    ,"test:e2e:ui-security": "node tests/public-ux-review.mjs"
     ,"test:clinical-expansions": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/clinical-expansions.test.tsx"
     ,"test:patient-link": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/patient-link-route.test.ts"
     ,"test:practitioner-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/practitioner-routes.test.ts"

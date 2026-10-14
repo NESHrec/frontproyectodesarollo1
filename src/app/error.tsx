@@ -9,7 +9,7 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <main className="flex flex-1 items-center justify-center bg-[#FBFCFA] px-4 py-16">
+    <main className="flex flex-1 items-center justify-center bg-[#FBFCFA] px-4 py-16" id="contenido-principal" tabIndex={-1}>
       <div className="w-full max-w-2xl">
         <ErrorState
           description="La interfaz encontró un problema inesperado. Puedes intentar cargar esta sección de nuevo."

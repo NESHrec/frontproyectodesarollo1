@@ -31,7 +31,7 @@ export function Input({
         aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         className={cn(
-          "w-full rounded-md border border-[#62727B]/20 bg-[#FBFCFA] px-4 py-3 text-sm text-[#62727B] outline-none transition placeholder:text-[#62727B]/60 focus:border-[#62727B] focus:bg-[#DDF3F1]",
+          "w-full rounded-md border border-[#62727B]/30 bg-[#FBFCFA] px-4 py-3 text-sm text-[#334B54] outline-none transition duration-200 placeholder:text-[#62727B]/65 focus:border-[#8D4154] focus:bg-white focus:ring-2 focus:ring-[#F8E2E8] disabled:cursor-not-allowed disabled:bg-[#62727B]/5 disabled:opacity-70",
           className,
         )}
         id={inputId}

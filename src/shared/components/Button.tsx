@@ -24,7 +24,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex min-h-11 items-center justify-center rounded-md border border-[#62727B]/20 px-5 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex min-h-11 items-center justify-center rounded-md border border-[#62727B]/20 px-5 py-2 text-sm font-semibold transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8D4154] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none",
         variantClasses[variant],
         className,
       )}
@@ -35,4 +35,4 @@ export function Button({
 }
 
 export const buttonLinkClasses =
-  "inline-flex min-h-11 items-center justify-center rounded-md border border-[#62727B]/20 bg-[#DDF3F1] px-5 py-2 text-sm font-semibold text-[#62727B] transition hover:bg-[#E5F1D8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B]";
+  "inline-flex min-h-11 items-center justify-center rounded-md border border-[#62727B]/20 bg-[#DDF3F1] px-5 py-2 text-sm font-semibold text-[#62727B] transition duration-200 hover:bg-[#E5F1D8] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8D4154] motion-reduce:transform-none";
