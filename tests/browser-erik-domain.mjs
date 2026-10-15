@@ -36,7 +36,11 @@ try {
       await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
       await page.waitForURL((url) => url.pathname === "/iniciar-sesion", { timeout: 10_000 });
       assert.equal(new URL(page.url()).pathname, "/iniciar-sesion", `${viewport.name}: ${route} debe exigir sesión`);
-      assert.equal(await page.getByRole("heading", { name: "Iniciar sesión" }).isVisible(), true);
+      const loginHeading = page.locator("h1").filter({
+        hasText: /^Iniciar sesión$/,
+      });
+      await loginHeading.waitFor({ state: "visible" });
+      assert.equal(await loginHeading.count(), 1);
       const layout = await page.evaluate(() => ({ width: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth }));
       assert.ok(layout.scrollWidth <= layout.width, `${viewport.name}: desbordamiento horizontal en ${route}`);
     }

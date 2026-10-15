@@ -20,7 +20,11 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function load() { const response = await fetch("/api/staff/practitioners", { cache: "no-store" }); if (!response.ok) { setMessage(response.status === 401 ? "Tu sesión ADMIN expiró." : response.status === 403 ? "Solo ADMIN puede consultar profesionales." : "No se pudo cargar el catálogo de profesionales."); setItems([]); return; } setItems(await response.json()); }
+  async function load() {
+    const response = await fetch("/api/staff/practitioners", { cache: "no-store" });
+    if (!response.ok) { setMessage(response.status === 401 ? "Tu sesión ADMIN expiró." : response.status === 403 ? "Solo ADMIN puede consultar profesionales." : "No se pudo cargar el catálogo de profesionales."); setItems([]); return; }
+    setItems(await response.json());
+  }
   useEffect(() => { let active = true; void fetch("/api/staff/practitioners", { cache: "no-store" }).then(async response => { const data = response.ok ? await response.json() : []; if (active) setItems(data); }); return () => { active = false; }; }, []);
   const preview = useMemo(() => photo ? URL.createObjectURL(photo) : null, [photo]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -47,18 +51,28 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
   async function status(item: Medico) { setBusy(true); const response = await fetch(`/api/staff/practitioners/${item.id}/status`, { method: "PATCH", headers: await csrfHeaders(true), body: JSON.stringify({ active: !item.active }) }); setMessage(response.ok ? (item.active ? "Profesional desactivado; ya no aparece públicamente." : "Profesional activado.") : "No se pudo cambiar el estado."); await load(); setBusy(false); }
   async function removePhoto(item: Medico) { setBusy(true); const response = await fetch(`/api/staff/practitioners/${item.id}/photo`, { method: "DELETE", headers: await csrfHeaders() }); setMessage(response.ok ? "Foto quitada." : "No se pudo quitar la foto."); await load(); setBusy(false); }
 
-  return <div className="grid gap-6 xl:grid-cols-[0.9fr_1.5fr]">
-    <Card className="self-start"><h2 className="text-xl font-bold text-[#334B54]">{editing ? "Editar profesional" : "Nuevo profesional"}</h2><p className="mt-2 text-sm text-[#62727B]">La fotografía es opcional y debe estar autorizada por la clínica o el profesional.</p>
-      <form className="mt-5 space-y-4" onSubmit={save}>
-        <label className="block text-sm font-semibold">Nombre completo<input className="mt-2 w-full rounded-md border p-3" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/></label>
-        <label className="block text-sm font-semibold">Especialidad<select className="mt-2 w-full rounded-md border p-3" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-        <label className="block text-sm font-semibold">Número de colegiado<input className="mt-2 w-full rounded-md border p-3" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/></label>
-        <label className="block text-sm font-semibold">Foto JPEG o PNG, máximo 2 MB<input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-2 block min-h-11 w-full rounded-md border border-[#62727B]/25 bg-white p-2 text-sm" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /></label>
-        <p className="-mt-2 text-xs text-[#62727B]/75" id="photo-help">La validación del navegador es preventiva; el servidor vuelve a comprobar tipo, contenido y tamaño.</p>
-        {preview ? <Image alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-xl object-cover" height={176} src={preview} unoptimized width={480}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
-        <div className="flex flex-wrap gap-2"><Button disabled={busy} type="submit">{busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
-      </form>{message ? <p className="mt-4 rounded-md bg-[#F8EDD2] p-3 text-sm" role="status">{message}</p> : null}
-    </Card>
-    <section>{items === null ? <LoadingState message="Cargando profesionales…"/> : items.length === 0 ? <EmptyState title="Sin profesionales" description="Crea el primer profesional del catálogo."/> : <div className="grid gap-4 md:grid-cols-2">{items.map(item => <Card className="flex flex-col gap-4" key={item.id}><PractitionerPortrait practitioner={item}/><div><StatusBadge tone={item.active ? "pistacho" : "rosa"}>{item.active ? "Activo" : "Inactivo"}</StatusBadge><h3 className="mt-3 text-lg font-bold">{item.fullName}</h3><p className="text-sm text-[#62727B]">{specialtyNames.get(item.specialtyId)} · {item.licenseNumber}</p></div><div className="mt-auto flex flex-wrap gap-2"><Button onClick={() => select(item)} type="button" variant="secondary">Editar</Button><Button disabled={busy} onClick={() => void status(item)} type="button" variant="secondary">{item.active ? "Desactivar" : "Activar"}</Button>{item.photoUrl ? <Button disabled={busy} onClick={() => void removePhoto(item)} type="button" variant="secondary">Quitar foto</Button> : null}</div></Card>)}</div>}</section>
-  </div>;
+  return (
+    <div className="grid gap-7 xl:grid-cols-[22rem_1fr]">
+      <Card className="self-start overflow-hidden rounded-[1.5rem] border-[#62727B]/15 xl:sticky xl:top-6">
+        <div className="-mx-5 -mt-5 bg-[#334B54] px-5 py-5 text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/70">{editing ? "Edición" : "Alta administrativa"}</p>
+          <h2 className="mt-2 text-xl font-black">{editing ? "Editar profesional" : "Nuevo profesional"}</h2>
+          <p className="mt-2 text-sm text-white/65">Datos de catálogo y fotografía autorizada.</p>
+        </div>
+        <form className="mt-6 space-y-5" onSubmit={save}>
+          <label className="block text-sm font-semibold">Nombre completo<input className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/></label>
+          <label className="block text-sm font-semibold">Especialidad<select className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+          <label className="block text-sm font-semibold">Número de colegiado<input className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/></label>
+          <div className="rounded-2xl border border-dashed border-[#56777A]/35 bg-[#DDF3F1]/25 p-4"><label className="block text-sm font-bold">Fotografía profesional<input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-3 block min-h-11 w-full text-sm" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /></label><p className="mt-2 text-xs leading-5 text-[#62727B]" id="photo-help">JPEG o PNG, máximo 2 MB. El servidor valida nuevamente contenido y tamaño.</p></div>
+          {preview ? <Image alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-2xl object-cover" height={176} src={preview} unoptimized width={480}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
+          <div className="flex flex-wrap gap-2"><Button disabled={busy} type="submit">{busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
+        </form>
+        {message ? <p className="mt-5 rounded-xl bg-[#F8EDD2] p-3 text-sm" role="status">{message}</p> : null}
+      </Card>
+      <section className="min-w-0">
+        <div className="mb-4 flex items-end justify-between border-b border-[#62727B]/15 pb-3"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Directorio clínico</p><h2 className="mt-1 text-2xl font-black text-[#263238]">Profesionales</h2></div><span className="text-sm font-bold text-[#62727B]">{items?.length ?? 0} registrados</span></div>
+        {items === null ? <LoadingState message="Cargando profesionales…"/> : items.length === 0 ? <EmptyState title="Sin profesionales" description="Crea el primer profesional del catálogo."/> : <div className="grid gap-4 md:grid-cols-2">{items.map(item => <article className="group overflow-hidden rounded-[1.5rem] border border-[#62727B]/15 bg-white p-5 shadow-[0_18px_50px_-42px_rgba(38,50,56,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-[#56777A]/35" key={item.id}><PractitionerPortrait practitioner={item}/><div className="mt-5 flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-lg font-black text-[#263238]">{item.fullName}</h3><p className="mt-1 text-sm text-[#62727B]">{specialtyNames.get(item.specialtyId)}</p><p className="mt-2 text-xs font-semibold uppercase tracking-wider text-[#62727B]/65">Colegiado {item.licenseNumber}</p></div><StatusBadge tone={item.active ? "pistacho" : "rosa"}>{item.active ? "Activo" : "Inactivo"}</StatusBadge></div><div className="mt-5 flex flex-wrap gap-2 border-t border-[#62727B]/12 pt-4"><Button onClick={() => select(item)} type="button" variant="secondary">Editar</Button><Button disabled={busy} onClick={() => void status(item)} type="button" variant="secondary">{item.active ? "Desactivar" : "Activar"}</Button>{item.photoUrl ? <Button disabled={busy} onClick={() => void removePhoto(item)} type="button" variant="ghost">Quitar foto</Button> : null}</div></article>)}</div>}
+      </section>
+    </div>
+  );
 }

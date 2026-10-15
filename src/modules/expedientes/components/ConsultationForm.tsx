@@ -84,13 +84,15 @@ export function ConsultationForm({ appointmentId, patientName }: { appointmentId
   const confirming = state.kind === "confirming";
 
   return (
-    <form className="grid gap-5" noValidate onSubmit={handleSubmit((values) => setState({ kind: "confirming", values }))}>
-      <fieldset className="grid gap-5" disabled={confirming || busy}>
+    <form className="grid gap-7" noValidate onSubmit={handleSubmit((values) => setState({ kind: "confirming", values }))}>
+      <div className="rounded-2xl bg-[#DDF3F1]/45 px-4 py-3"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Paso 1 · Evaluación clínica</p><p className="mt-1 text-sm text-[#334B54]">Documenta el contexto clínico antes de preparar la receta.</p></div>
+      <fieldset className="grid gap-6 border-b border-[#62727B]/15 pb-7 sm:grid-cols-2" disabled={confirming || busy}>
         <TextareaField error={errors.reason?.message} id="reason" label="Motivo de consulta" rows={3} {...register("reason")} />
         <TextareaField error={errors.findings?.message} id="findings" label="Hallazgos y exploración (opcional)" rows={3} {...register("findings")} />
         <TextareaField error={errors.diagnosis?.message} id="diagnosis" label="Diagnóstico" rows={3} {...register("diagnosis")} />
         <TextareaField error={errors.treatmentPlan?.message} id="treatmentPlan" label="Plan e indicaciones (opcional)" rows={3} {...register("treatmentPlan")} />
       </fieldset>
+      <div className="rounded-2xl bg-[#E5F1D8]/55 px-4 py-3"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Paso 2 · Receta e indicaciones</p><p className="mt-1 text-sm text-[#334B54]">Agrega medicamentos únicamente cuando correspondan a esta atención.</p></div>
       <PrescriptionFields control={control} disabled={confirming || busy} errors={errors} register={register} />
       {state.kind === "error" ? (
         <div className="space-y-2 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm" role="alert">
