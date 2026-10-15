@@ -92,6 +92,12 @@ try {
       await page.screenshot({ path: path.join(outputDir, `${name}-${viewport.name}.png`), fullPage: true });
     }
 
+    await page.getByRole("button", { name: /cerrar sesi.n/i }).click();
+    await page.waitForURL((url) => url.pathname === "/", { timeout: 10000 });
+    await page.goto(`${baseUrl}/paciente`, { waitUntil: "networkidle" });
+    assert.equal(new URL(page.url()).pathname, "/iniciar-sesion", `${viewport.name}: /paciente no rechazÃ³ la sesiÃ³n cerrada`);
+    await assertLayout();
+
     results.push({ viewport: `${viewport.width}x${viewport.height}`, consoleErrors, browserAuthorizationHeaders });
     assert.deepEqual(consoleErrors, [], `${viewport.name}: errores inesperados de consola`);
     assert.equal(browserAuthorizationHeaders, 0, `${viewport.name}: Authorization expuesto en navegador`);

@@ -129,26 +129,78 @@ Las props públicas existentes se conservaron. `Button.loading` es opcional y no
 - `npm run build`: PASS, 63 rutas generadas.
 - Suites frontend existentes: PASS — billing 6/6, auth BFF 6/6, staff routes 7/7, audit 4/4, clinical 5/5, patient link 4/4 y practitioner routes 4/4.
 - `git diff --check`: PASS antes del cierre.
-- Prueba visual nueva: preparada y ejecutada. El frontend público respondió en 3100 y generó capturas públicas de escritorio; el recorrido paciente quedó bloqueado al autenticarse porque el backend y PostgreSQL aislados no estaban escuchando. No se simularon datos ni se modificó la base.
+- Prueba visual inicial: quedó bloqueada por el entorno anterior; el cierre Fase 2B.1 la repitió con PostgreSQL 55437 y fixtures 100% sintéticos.
 
 ### Límites y riesgos
 
 - La búsqueda del catálogo continúa siendo sobre los datos publicados que entrega el BFF; no se agregaron endpoints ni parámetros.
-- La evidencia visual completa de paciente en escritorio y móvil debe repetirse cuando el backend y PostgreSQL aislados estén disponibles.
+- La evidencia visual completa de paciente en escritorio y móvil quedó cerrada en la sección Fase 2B.1.
 - No se ejecutó auditoría de seguridad ni se modificaron dependencias.
+
+### Diagnóstico de cierre de entorno
+
+- Causa del bloqueo `/api/v1/medicos`: A — el proceso inicial en 8081 provenía del backend local `desarrollo` en `c7588ad...`, no del backend QA esperado.
+- El frontend Fercho permaneció en `feature/ui-security-fercho`, SHA `e1e70f8e...`.
+- `origin/integration/ui-security` y el worktree QA `ui-security-fercho-backend` están en `7fa072d...`; ese código sí declara `active`, `photoUrl` y mapea `medico.isActivo()`.
+- Al iniciar el backend QA correcto contra PostgreSQL E2E 55435, Flyway detuvo el arranque por checksum de V10: aplicado `676738941`, resuelto localmente `-1528213979`.
+- En el intento bloqueado no se ejecutó Flyway repair ni se modificó código productivo; posteriormente los fixtures se crearon únicamente en la PostgreSQL descartable 55437.
+- Runtime correcto: PASS en el backend Fercho limpio sobre PostgreSQL nueva; Flyway validó y aplicó V1..V16.
+- `GET /api/v1/medicos`: PASS; la respuesta incluye `active` booleano y `photoUrl` nulo.
+- La discrepancia anterior correspondía al runtime local `desarrollo` y al checksum de la base 55435; no requirió cambios de código.
+- Cierre E2E paciente y Design System: PASS en escritorio `1366x768` y móvil `390x844`.
 
 ### SHA commit
 
-Se informará al cierre de la entrega.
+SHA funcional Fercho validado: `e1e70f8e5b6edfc809bafc5c419b4dbedbc2fdea`. El cierre QA se documenta en la sección Fase 2B.1.
 
 - Evaluar posteriormente los warnings de imágenes y la advertencia de scroll de Next.js.
 - Revisar las vulnerabilidades de dependencias en una tarea independiente.
-- Continuar con Fase 2B solo después de integrar y revisar este commit.
+- La Fase 2B.1 queda lista para revisión e integración con Junior y Erik; no se inicia Fase 2C.
 
 ## SHA commit
 
-Se informará al cierre de la entrega.
+SHA funcional Fercho: `e1e70f8e5b6edfc809bafc5c419b4dbedbc2fdea`.
 
 ## Recomendación para integración
 
 Listo para revisión e integración desde `feature/ui-security-fercho`. No hacer merge automático desde esta fase.
+
+## FASE 2B.1 — CIERRE DE ENTORNO E2E Y PORTAL PACIENTE
+
+### Entorno reproducible
+
+- Backend QA Fercho: worktree `ui-security-fercho-backend`, rama `feature/ui-security-fercho`, SHA `7fa072d60dc0b92ce7c5fe3256c2cb7b505f0d20`.
+- PostgreSQL E2E nueva y descartable: contenedor `clinica-serena-fercho-e2e-fresh`, puerto `55437`, PostgreSQL 16.15. La PostgreSQL existente en `55435` no se modificó.
+- Flyway: PASS desde esquema vacío; migraciones V1..V16 aplicadas correctamente.
+- Mailpit: `localhost:1025`; frontend `3100`; backend `8081`.
+- `GET /api/v1/medicos`: HTTP 200; `active` presente como booleano y `photoUrl` presente como null. No se imprimieron datos sensibles.
+
+### Fixtures sintéticos y recorrido visual
+
+- Paciente sintético: registro real por UI, correo de verificación por Mailpit, verificación, login y portal.
+- Admin sintético: fixture local únicamente en la base descartable para la prueba de sistema; no se versionaron credenciales, hashes ni tokens.
+- Portal paciente: PASS en `1366x768` y `390x844`; rutas públicas y protegidas respondieron 200.
+- Logout paciente: PASS; la UI redirige a `/` y `/paciente` queda protegido y redirige a login.
+- Design System/Admin: PASS en `1366x768` y `390x844`; dashboard, usuarios, modal y bitácora.
+- Consola: 0 errores inesperados en ambos recorridos.
+- `Authorization` en solicitudes del navegador: 0.
+- `localStorage` y `sessionStorage`: vacíos; no se expusieron credenciales en el navegador.
+- Capturas: se generaron fuera del worktree en `qa/ui-security/fercho/patient-public/` y `qa/ui-security/fercho/design-system/`, sin secretos.
+
+### Validación automatizada
+
+- Suites frontend: PASS, 36/36 (`billing 6`, `auth BFF 6`, `staff routes 7`, `audit 4`, `clinical 5`, `patient link 4`, `practitioner routes 4`).
+- Lint: PASS con 2 warnings heredados por `<img>` en `PractitionerManager` y `PractitionerPortrait`.
+- Typecheck: PASS.
+- Build: PASS; 63 rutas generadas.
+- Suite Maven backend en base vacía separada del fixture visual: PASS, 125/125.
+- Cobros backend: PASS; `ControlledClockBillingIntegrationTest` 1/1 y `ReceptionBillingIntegrationTest` 8/8 dentro de la suite Maven.
+- `git diff --check`: PASS, sin errores de whitespace.
+- Una primera ejecución Maven sobre la base visual falló solo por contaminación esperada de datos sintéticos (`totalElements` 6 frente a 2); se confirmó PASS al ejecutar sobre una base Maven vacía dentro del mismo PostgreSQL 55437.
+
+### Alcance, límites y estado
+
+- No se modificaron backend, migraciones, OpenAPI, contratos, dependencias ni lógica productiva.
+- El único cambio adicional de QA es la aserción de logout en `tests/browser-ui-patient-fercho.mjs`; el resto de cambios son documentación de cierre.
+- La evidencia visual manual previa del portal y la evidencia Playwright automatizada son complementarias; no se presentan como sustitutas.
+- La rama funcional permanece `feature/ui-security-fercho` sobre el SHA `e1e70f8e5b6edfc809bafc5c419b4dbedbc2fdea`; queda lista para integración con Junior y Erik.
