@@ -73,10 +73,10 @@ export function ReceptionAgendaClient() {
     ? <Button className="w-full sm:w-auto" disabled={busyId === item.id} onClick={() => void registerArrival(item.id)}>{busyId === item.id ? "Guardando..." : "Registrar llegada"}</Button>
     : <span className="text-xs font-semibold text-[#62727B]/65">Sin acción pendiente</span>;
 
-  return <div className="space-y-7">
+  return <div className="space-y-8">
     <InternalPageHeader description="Prioriza las llegadas pendientes y confirma cada registro sin exponer información clínica." eyebrow="Recepción" title="Agenda del equipo" />
 
-    {appointments ? <section aria-label="Resumen de agenda" className="grid gap-4 sm:grid-cols-3">
+    {appointments ? <section aria-label="Resumen de agenda" className="grid gap-3 sm:grid-cols-3">
       <MetricCard detail="Citas devueltas por la consulta actual." label="Citas en agenda" value={String(metrics.total)} />
       <MetricCard detail="Citas que todavía admiten registrar llegada." label="Por recibir" tone="crema" value={String(metrics.pending)} />
       <MetricCard detail="Llegadas confirmadas en esta vista." label="Ya recibidos" tone="pistacho" value={String(metrics.arrived)} />
@@ -89,7 +89,7 @@ export function ReceptionAgendaClient() {
     {appointments?.length === 0 ? <EmptyState description="No hay citas persistidas en el rango consultado." title="Agenda vacía" /> : null}
 
     {appointments && appointments.length > 0 ? <section className="space-y-4" aria-labelledby="agenda-list-title">
-      <div className="flex flex-col gap-3 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-2xl border border-[#62727B]/15 bg-gradient-to-r from-[#FBFCFA] to-[#DDF3F1]/70 p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between sm:p-5">
         <div><h2 className="font-bold text-[#334B54]" id="agenda-list-title">Citas disponibles</h2><p className="mt-1 text-sm text-[#62727B]">{visibleAppointments.length} de {appointments.length} citas visibles.</p></div>
         <div className="w-full sm:w-56"><SelectField id="agenda-status-filter" label="Filtrar por estado" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="TODAS">Todos los estados</option><option value="PENDIENTE">Pendiente</option><option value="CONFIRMADA">Confirmada</option><option value="COMPLETADA">Completada</option><option value="CANCELADA">Cancelada</option></SelectField></div>
       </div>

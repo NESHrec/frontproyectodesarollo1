@@ -49,13 +49,13 @@ export function ReceptionSummaryClient() {
     : "Rango: ventana de 30 días que comienza ayer y termina 30 días después de ese inicio; máximo 50.";
 
   return <div className="space-y-6">
-    <section aria-label="Indicadores de la vista de agenda" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section aria-label="Indicadores de la vista de agenda" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard detail={limitDetail} label="Citas recuperadas" value={String(appointments.length)} />
       <MetricCard detail="Pendientes o confirmadas sin llegada, dentro de la vista cargada." label="Por recibir" tone="pistacho" value={String(waiting)} />
       <MetricCard detail="Registros de llegada persistidos dentro de la vista cargada." label="Llegadas registradas" tone="crema" value={String(arrivals)} />
       <MetricCard detail="Citas canceladas dentro de la vista cargada." label="Canceladas" tone="rosa" value={String(cancelled)} />
     </section>
-    <Card>
+    <Card className="border-[#56777A]/20 bg-white/90 p-5 sm:p-6">
       <h2 className="text-lg font-bold text-[#334B54]">Acciones frecuentes</h2>
       <p className="mt-2 text-sm leading-6 text-[#62727B]">Continúa en el módulo correspondiente. Este resumen no muestra diagnósticos, notas clínicas, recetas ni expedientes.</p>
       <nav aria-label="Acciones frecuentes de recepción" className="mt-5 grid gap-3 sm:grid-cols-3">

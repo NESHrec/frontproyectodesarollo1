@@ -44,7 +44,7 @@ export function AdminAccountsSummaryClient() {
     account.role === "MEDICO" && account.practitionerLinkStatus === "PENDIENTE_VINCULACION"
   ).length;
 
-  return <section aria-label="Indicadores de cuentas" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  return <section aria-label="Indicadores de cuentas" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
     <MetricCard detail="Lista completa de GET /staff/accounts, sin paginación." label="Cuentas de personal" value={String(accounts.length)} />
     <MetricCard detail="Cuentas habilitadas actualmente." label="Cuentas activas" tone="pistacho" value={String(active)} />
     <MetricCard detail="Roles que tienen al menos una cuenta configurada." label="Roles presentes" tone="crema" value={String(roles)} />

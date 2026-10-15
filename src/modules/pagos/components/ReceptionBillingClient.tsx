@@ -265,9 +265,9 @@ export function ReceptionBillingClient() {
     setMessage(success);
   }
 
-  return <div className="space-y-7">
+  return <div className="space-y-8">
     <InternalPageHeader description="Cobros de citas atendidas y constancias internas de pago recibido." eyebrow="Recepción" title="Cobros y pagos" />
-    <section className="grid gap-4 sm:grid-cols-3">
+    <section className="grid gap-3 sm:grid-cols-3">
       <MetricCard detail="Citas atendidas consultadas" label="Citas" tone="agua" value={String(metrics.count)} />
       <MetricCard detail="Constancias internas" label="Pagado (GTQ)" tone="pistacho" value={money(metrics.paid)} />
       <MetricCard detail="Saldo pendiente actualizado" label="Pendiente (GTQ)" tone="rosa" value={money(metrics.pending)} />
@@ -283,7 +283,7 @@ export function ReceptionBillingClient() {
 
     {pendingPayment ? <Notice tone="warn" title="Pago pendiente de confirmación" text={`Pago de ${money(pendingPayment.amount)} para la cita ${pendingPayment.appointmentId}. Sus datos están bloqueados hasta confirmar el historial.`} action={<Button disabled={busy !== null} onClick={() => void consultPendingPayment()}>Consultar historial nuevamente</Button>} /> : null}
 
-    <section className="space-y-4 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-4">
+    <section className="space-y-4 rounded-2xl border border-[#62727B]/15 bg-gradient-to-br from-[#DDF3F1]/55 to-white p-4 shadow-sm sm:p-5">
       <h2 className="text-lg font-bold text-[#62727B]">Buscar cita</h2>
       <p className="text-sm text-[#62727B]/75">Busca por nombre parcial o fecha entre las citas cargadas. La consulta está limitada a estos resultados.</p>
       <div className="grid gap-3 md:grid-cols-2"><Input disabled={paymentLocked} id="billing-patient-query" label="Nombre del paciente" placeholder="Ej. María" value={patientQuery} onChange={(event) => setPatientQuery(event.target.value)} /><Input disabled={paymentLocked} id="billing-date-query" label="Fecha de cita (Guatemala)" type="date" value={dateQuery} onChange={(event) => setDateQuery(event.target.value)} /></div>
@@ -292,7 +292,7 @@ export function ReceptionBillingClient() {
 
     {appointments?.length === 0 ? <EmptyState description="No hay citas atendidas con cobros para mostrar." title="Lista vacía" /> : null}
     {appointments && visibleAppointments.length === 0 ? <EmptyState description="No hay citas que coincidan con los filtros disponibles." title="Sin resultados" /> : null}
-    {visibleAppointments.length > 0 ? <section className="space-y-3" aria-labelledby="billing-results-title">
+    {visibleAppointments.length > 0 ? <section className="space-y-4" aria-labelledby="billing-results-title">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-bold text-[#334B54]" id="billing-results-title">Citas disponibles para cobro</h2><p className="mt-1 text-sm text-[#62727B]">Selecciona una cita para revisar el cargo, saldo e historial.</p></div><p className="text-sm font-semibold text-[#334B54]">{visibleAppointments.length} resultados</p></div>
       <ul className="space-y-3 md:hidden" aria-label="Citas atendidas para cobro">
         {visibleAppointments.map((item) => <li className={`rounded-lg border bg-white p-4 shadow-sm ${selected?.id === item.id ? "border-[#56777A] ring-2 ring-[#DDF3F1]" : "border-[#62727B]/15"}`} key={item.id}><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-[#334B54]">{item.patientName ?? item.patientId}</p><p className="mt-1 text-xs text-[#62727B]">{dateTime(item.scheduledAt)}</p></div><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></div><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><Item label="Cargo (GTQ)" value={money(item.chargeAmount)} /><Item label="Saldo (GTQ)" value={money(item.balanceAmount)} /></dl><Button className="mt-4 w-full" disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">{selected?.id === item.id ? "Cita seleccionada" : "Abrir cita"}</Button></li>)}
@@ -307,13 +307,13 @@ export function ReceptionBillingClient() {
     </section> : null}
 
     {selected ? <section className="grid scroll-mt-4 gap-5 lg:grid-cols-[1fr_1fr]" aria-labelledby="selected-appointment-title">
-      <div className="space-y-4 rounded-lg border border-[#56777A]/35 bg-[#FBFCFA] p-5 shadow-sm">
+      <div className="space-y-5 rounded-2xl border border-[#56777A]/25 bg-gradient-to-br from-[#DDF3F1]/50 to-[#FBFCFA] p-4 shadow-sm sm:p-6">
         <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#62727B]/70">Detalle seleccionado</p><h2 className="mt-1 break-all text-lg font-bold text-[#334B54]" id="selected-appointment-title">Cita {selected.id}</h2></div>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientName ?? selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Saldo (GTQ)" value={money(selected.balanceAmount)} /></dl>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientName ?? selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Cargo (GTQ)" value={money(selected.chargeAmount)} /><Item label="Pagado (GTQ)" value={money(selected.paidAmount)} /><Item label="Saldo (GTQ)" value={money(selected.balanceAmount)} /></dl>
         {!selected.chargeDefined ? <form className="space-y-3" onSubmit={setCharge}><Input disabled={paymentLocked} id="billing-charge-amount" label="Cargo (GTQ)" inputMode="decimal" placeholder="100.00" value={chargeAmount} onChange={(event) => setChargeAmount(event.target.value)} /><Button disabled={paymentLocked || busy === "charge"} type="submit">{busy === "charge" ? "Guardando..." : "Fijar cargo"}</Button></form> : null}
         {selected.chargeDefined && selected.balanceAmount !== 0 ? <form className="space-y-3" onSubmit={registerPayment}><Input disabled={paymentLocked} id="billing-payment-amount" label="Pago (GTQ)" inputMode="decimal" placeholder="40.00" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} /><SelectField disabled={paymentLocked} id="billing-payment-method" label="Método interno" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="OTRO">Otro</option></SelectField><Input disabled={paymentLocked} id="billing-payment-reference" label="Referencia interna opcional" value={reference} onChange={(event) => setReference(event.target.value)} /><Button disabled={busy !== null || (!intentChecked && !pendingPayment)} type="submit">{busy === "payment" ? "Registrando..." : paymentLocked ? "Reintentar el mismo pago" : "Registrar pago"}</Button></form> : null}
       </div>
-      <div className="space-y-3 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-5">
+      <div className="space-y-3 rounded-2xl border border-[#62727B]/15 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-lg font-bold text-[#62727B]">Historial</h2>
         {selected.payments.length === 0 ? <p className="text-sm text-[#62727B]/70">Sin pagos registrados.</p> : selected.payments.map((payment) => <div className="rounded-md border border-[#62727B]/10 p-3 text-sm" key={payment.id}><p className="font-bold">{money(payment.amount)} · {payment.method}</p><p className="text-[#62727B]/70">{dateTime(payment.registeredAt)}</p><p className="text-xs text-[#62727B]/65">{payment.reference ?? "Sin referencia"} · {payment.registeredByAccountId}</p></div>)}
       </div>
