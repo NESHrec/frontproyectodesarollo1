@@ -11,9 +11,9 @@ export default async function NewPrescriptionPage({ searchParams }: { searchPara
   return (
     <div className="space-y-7">
       <InternalPageHeader description="Las recetas se registran dentro de la atención de una cita y quedan en el expediente del paciente." eyebrow="Atención clínica" title="Recetas digitales" />
-      <Card className="max-w-3xl">
+      <Card className="max-w-3xl overflow-hidden rounded-[1.75rem] border-[#62727B]/15 shadow-[0_24px_65px_-46px_rgba(38,50,56,0.65)]">
         <h2 className="text-lg font-bold">¿Cómo emitir una receta?</h2>
-        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6">
+        <ol className="mt-5 list-decimal space-y-3 rounded-2xl bg-[#DDF3F1]/35 px-10 py-5 text-sm leading-6">
           <li>Abre una cita de tu agenda.</li>
           <li>Elige “Registrar atención” y documenta motivo y diagnóstico.</li>
           <li>Agrega los medicamentos en la sección Receta y confirma el guardado.</li>

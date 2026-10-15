@@ -208,12 +208,13 @@ export function Odontogram({
   };
 
   return (
-    <section aria-labelledby="odontogram-title" className="min-w-0 space-y-6 rounded-xl border border-[#62727B]/15 bg-white p-4 sm:p-5">
-      <div>
-        <h2 className="text-lg font-bold text-[#62727B]" id="odontogram-title">Esquema de superficies dentales FDI</h2>
-        <p className="mt-1 text-sm text-[#62727B]/75">Cada contorno representa una pieza y organiza las superficies admitidas por el registro clínico. Es un esquema de selección, no un odontograma anatómico completo.</p>
+    <section aria-labelledby="odontogram-title" className="min-w-0 space-y-7 rounded-[1.75rem] border border-[#62727B]/15 bg-white p-4 shadow-[0_24px_70px_-48px_rgba(38,50,56,0.65)] sm:p-7">
+      <div className="rounded-2xl bg-[#334B54] p-5 text-white sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/70">Mapa clínico interactivo</p>
+        <h2 className="mt-2 text-2xl font-black text-white" id="odontogram-title">Esquema de superficies dentales FDI</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/70">Cada contorno representa una pieza y organiza las superficies admitidas por el registro clínico. Es un esquema de selección, no un odontograma anatómico completo.</p>
       </div>
-      <div aria-label="Leyenda del esquema" className="flex flex-wrap gap-4 rounded-lg bg-[#F6FAFA] p-3 text-sm">
+      <div aria-label="Leyenda del esquema" className="flex flex-wrap gap-4 rounded-xl border border-[#62727B]/10 bg-[#F6FAFA] p-4 text-sm">
         <span>Blanco: sin observación</span>
         <span className="font-semibold text-[#9A3F5D]">Rosa ●: con observaciones</span>
         <span className="rounded bg-[#405158] px-2 text-white">Oscuro: selección actual</span>
@@ -222,14 +223,14 @@ export function Odontogram({
       <ToothChart {...chartProps} rows={permanentRows} title="Dentición permanente" />
       <ToothChart {...chartProps} rows={primaryRows} title="Dentición temporal" />
 
-      <p aria-live="polite" className="rounded-md bg-[#F6FAFA] px-3 py-2 text-sm font-semibold text-[#52636B]" role="status">
+      <p aria-live="polite" className="rounded-xl border-l-4 border-[#56777A] bg-[#DDF3F1]/45 px-4 py-3 text-sm font-semibold text-[#334B54]" role="status">
         {selection?.surface ? `Pieza ${selection.tooth}, superficie ${surfaceLabels[selection.surface]} seleccionada.` : selection ? `Pieza ${selection.tooth} seleccionada; elige una superficie.` : "Selecciona una superficie dentro del esquema dental."}
       </p>
 
       {!appointmentId ? (
         <p className="rounded-md bg-[#F8EDD2] px-3 py-2 text-sm" role="status">Abre desde una cita propia para registrar. Puedes consultar y seleccionar el historial existente.</p>
       ) : (
-        <form className="space-y-4" onSubmit={submit}>
+        <form className="space-y-4 rounded-2xl border border-[#62727B]/15 bg-[#FBFCFA] p-5" onSubmit={submit}>
           <Input
             disabled={busy}
             helperText={selection?.surface ? `Se guardará en la pieza ${selection.tooth}, superficie ${surfaceLabels[selection.surface]}.` : "Selecciona primero una superficie en el esquema."}
@@ -247,7 +248,7 @@ export function Odontogram({
       {message ? <p className={message.tone === "ok" ? "rounded-md bg-[#E5F1D8] px-3 py-2 text-sm" : "rounded-md bg-[#F8E2E8] px-3 py-2 text-sm"} role={message.tone === "error" ? "alert" : "status"}>{message.text}</p> : null}
 
       {selectedObservation ? (
-        <aside aria-live="polite" className="rounded-lg border-2 border-[#62727B] bg-[#F6FAFA] p-4" aria-labelledby="selected-observation-title">
+        <aside aria-live="polite" className="rounded-2xl border-2 border-[#56777A] bg-[#DDF3F1]/35 p-5" aria-labelledby="selected-observation-title">
           <h3 className="font-bold" id="selected-observation-title">Observación seleccionada</h3>
           <p className="mt-1 text-sm"><strong>Pieza {selectedObservation.toothNumber}</strong> · {isDentalSurface(selectedObservation.surface) ? surfaceLabels[selectedObservation.surface] : "Sin superficie especificada (registro histórico)"}</p>
           <p className="mt-2 whitespace-pre-line text-sm">{selectedObservation.observation}</p>
@@ -257,7 +258,7 @@ export function Odontogram({
       {observations.length === 0 ? (
         <EmptyState description="No hay observaciones persistidas para este paciente." title="Odontograma vacío" />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 border-t border-[#62727B]/15 pt-6">
           <h3 className="font-bold">Historial</h3>
           <ol className="space-y-2">
             {observations.map((item) => (
