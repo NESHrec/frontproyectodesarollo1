@@ -55,7 +55,7 @@ export function SeleccionHorario({ bloques, medicoId, patientSessionActive, spec
               <p className="rounded-[var(--serena-radius-sm)] bg-[var(--serena-warning-soft)] px-4 py-3 text-sm text-[var(--serena-text)]" role="status">{staffSessionActive ? "Tu sesión de personal no autoriza reservas de paciente. Inicia sesión como paciente para continuar." : "Inicia sesión como paciente para continuar con esta reserva."}</p>
               <div className="flex flex-wrap gap-3">
                 <Link className={buttonLinkClasses} href={loginPath}>Iniciar sesión como paciente</Link>
-                <Link className={`${buttonLinkClasses} bg-[var(--serena-success-soft)]`} href="/registro">Crear cuenta de paciente</Link>
+                <Link className={`${buttonLinkClasses} bg-[var(--serena-success-soft)] !text-[var(--serena-ink)] hover:bg-[var(--serena-surface-info)]`} href="/registro">Crear cuenta de paciente</Link>
               </div>
             </>
           )}

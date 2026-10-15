@@ -19,13 +19,15 @@
   --serena-danger: #8D4154;
   --serena-overlay: #263238;
   --serena-border: rgb(98 114 123 / .18);
+  --serena-border-strong: rgb(86 119 122 / .38);
   --serena-focus: #56777A;
-  --serena-radius-sm: .5rem;
-  --serena-radius-md: .75rem;
-  --serena-radius-lg: 1rem;
-  --serena-shadow-card: 0 12px 30px rgb(51 75 84 / .08);
-  --serena-shadow-dialog: 0 24px 64px rgb(38 50 56 / .2);
-  --serena-duration: 180ms;
+  --serena-radius-sm: .7rem;
+  --serena-radius-md: 1rem;
+  --serena-radius-lg: 1.5rem;
+  --serena-shadow-card: 0 18px 48px rgb(51 75 84 / .09);
+  --serena-shadow-dialog: 0 28px 80px rgb(38 50 56 / .24);
+  --serena-shadow-soft: 0 8px 24px rgb(51 75 84 / .07);
+  --serena-duration: 220ms;
 }
 
 @theme inline {
@@ -43,8 +45,17 @@ body {
 
 html { scroll-behavior: smooth; }
 
-.serena-surface { background: radial-gradient(circle at 12% 0%, rgb(221 243 241 / .72), transparent 28rem), linear-gradient(180deg, #fbfcfa 0%, #f6faf7 100%); }
-.serena-card { border: 1px solid rgb(98 114 123 / .13); border-radius: 1.25rem; background: rgb(255 255 255 / .9); box-shadow: 0 18px 50px rgb(51 75 84 / .08); }
+.serena-surface { position: relative; isolation: isolate; background: radial-gradient(circle at 8% 0%, rgb(221 243 241 / .72), transparent 32rem), radial-gradient(circle at 94% 18%, rgb(248 237 210 / .38), transparent 26rem), linear-gradient(180deg, #fbfcfa 0%, #f5faf7 100%); }
+.serena-surface::before { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgb(51 75 84 / .025) 1px, transparent 1px), linear-gradient(90deg, rgb(51 75 84 / .025) 1px, transparent 1px); background-size: 34px 34px; content: ""; mask-image: linear-gradient(to bottom, black, transparent 72%); }
+.serena-card { border: 1px solid rgb(98 114 123 / .15); border-radius: var(--serena-radius-lg); background: rgb(255 255 255 / .88); box-shadow: var(--serena-shadow-card); backdrop-filter: blur(10px); }
+.serena-card:hover { border-color: var(--serena-border-strong); }
+.serena-app-shell { background: linear-gradient(135deg, #f5faf7 0%, var(--background) 52%, #f8f3ed 100%); }
+.serena-sidebar { background: linear-gradient(180deg, rgb(221 243 241 / .92), rgb(248 237 210 / .58)); }
+.serena-sidebar-patient { background: linear-gradient(180deg, var(--serena-ink), #405c64); }
+.serena-topbar { background: rgb(255 255 255 / .78); box-shadow: 0 1px 0 rgb(98 114 123 / .12), 0 10px 26px rgb(51 75 84 / .04); backdrop-filter: blur(16px); }
+.serena-main { min-height: calc(100vh - 5rem); }
+.serena-section-label { color: var(--serena-teal); font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.serena-nav-scroll { scrollbar-color: var(--serena-teal) transparent; scrollbar-width: thin; }
 .serena-kicker { color: var(--serena-teal); font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 
 button, a, input, select, textarea { transition-duration: var(--serena-duration); }
@@ -62,6 +73,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 1023px) {
+  .serena-nav-scroll { position: relative; scroll-padding-inline: .35rem 2.6rem; scroll-snap-type: x proximity; }
+  .serena-nav-scroll::before { position: absolute; top: 0; right: .15rem; bottom: .5rem; z-index: 1; width: 2.75rem; border-radius: .75rem; background: linear-gradient(90deg, transparent, rgb(248 237 210 / .96) 70%); color: var(--serena-teal); content: "→"; font-size: 1.1rem; font-weight: 900; line-height: 2.6rem; pointer-events: none; text-align: center; }
+  .serena-nav-scroll-patient::before { background: linear-gradient(90deg, transparent, rgb(64 92 100 / .98) 70%); color: white; }
+  .serena-nav-scroll > a { scroll-snap-align: start; }
 }
 
 ::selection {

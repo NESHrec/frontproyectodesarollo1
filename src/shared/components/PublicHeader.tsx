@@ -22,13 +22,13 @@ export async function PublicHeader() {
   const destination = staffSession.status === "active" ? staffDestinations[staffSession.identity.role] : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--serena-border)] bg-[var(--background)]/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-[var(--serena-border)] bg-white/80 shadow-[0_10px_26px_rgb(51_75_84_/_0.05)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <Link
           className="inline-flex items-center gap-3 text-lg font-extrabold tracking-tight text-[#334B54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]"
           href="/"
         >
-          <span aria-hidden="true" className="grid size-9 place-items-center rounded-full bg-[var(--serena-teal)] text-xs text-white">CS</span>
+          <span aria-hidden="true" className="grid size-10 place-items-center rounded-2xl bg-[var(--serena-ink)] text-xs font-black tracking-wide text-white shadow-[var(--serena-shadow-soft)]">CS</span>
           Clínica Serena
         </Link>
         <nav aria-label="Navegación pública" className="flex flex-wrap items-center gap-1">
