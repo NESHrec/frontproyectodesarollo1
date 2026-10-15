@@ -13,7 +13,7 @@ export default function HomePage() {
           <p className="serena-kicker">Atención dental con calma</p>
           <h1 className="mt-4 text-4xl font-black tracking-[-.04em] text-[#334B54] sm:text-5xl lg:text-6xl">Tu sonrisa, cuidada con cercanía y confianza.</h1>
           <p className="mt-6 text-lg leading-8 text-[#526871]">{clinicaInfo.descripcion}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link className={buttonLinkClasses} href="/reservar">Reservar una cita</Link><Link className={`${buttonLinkClasses} bg-white`} href="/medicos">Conocer profesionales</Link></div>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link className={buttonLinkClasses} href="/reservar">Reservar una cita</Link><Link className={`${buttonLinkClasses} bg-white !text-[var(--serena-ink)] hover:bg-[var(--serena-surface-info)]`} href="/medicos">Conocer profesionales</Link></div>
           <div className="mt-8 grid grid-cols-2 gap-3" aria-label="Resumen del catálogo"><Suspense fallback={<LoadingState message="Consultando disponibilidad..." />}><ResumenCatalogo /></Suspense></div>
         </div>
         <div className="relative overflow-hidden rounded-[2rem] bg-[var(--serena-surface-info)] shadow-[0_28px_80px_rgba(51,75,84,.18)]">

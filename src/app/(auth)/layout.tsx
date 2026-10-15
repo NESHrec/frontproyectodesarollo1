@@ -3,12 +3,13 @@ import Link from "next/link";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-[#FBFCFA]">
+    <main className="serena-surface flex min-h-screen flex-1 flex-col">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
         <Link
-          className="text-lg font-bold text-[#62727B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]"
+          className="inline-flex items-center gap-3 text-lg font-black tracking-tight text-[var(--serena-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#62727B]"
           href="/"
         >
+          <span aria-hidden="true" className="grid size-10 place-items-center rounded-2xl bg-[var(--serena-ink)] text-xs tracking-wide text-white">CS</span>
           Clínica Serena
         </Link>
         <Link

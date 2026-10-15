@@ -23,10 +23,10 @@ export function DataTable<T>({
   emptyMessage = "No hay registros para mostrar.",
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-[var(--serena-radius-md)] border border-[var(--serena-border)] bg-[var(--serena-surface)] shadow-[var(--serena-shadow-card)]" tabIndex={0}>
+    <div className="overflow-x-auto rounded-[var(--serena-radius-lg)] border border-[var(--serena-border)] bg-[var(--serena-surface)] shadow-[var(--serena-shadow-card)]" tabIndex={0}>
       <table className="min-w-full border-collapse text-left text-sm">
         <caption className="sr-only">{caption}</caption>
-        <thead className="bg-[#DDF3F1] text-[#62727B]">
+        <thead className="bg-[var(--serena-ink)] text-white">
           <tr>
             {columns.map((column) => (
               <th className={`whitespace-nowrap px-4 py-3 font-bold ${column.className ?? ""}`} key={column.key} scope="col">
@@ -37,7 +37,7 @@ export function DataTable<T>({
         </thead>
         <tbody className="divide-y divide-[#62727B]/10">
           {rows.length ? rows.map((row) => (
-            <tr className="align-top transition-colors hover:bg-[var(--background)]" key={getRowKey(row)}>
+            <tr className="align-top transition-colors hover:bg-[var(--serena-surface-info)]/45" key={getRowKey(row)}>
               {columns.map((column) => (
                 <td className={`px-4 py-4 text-[#62727B] ${column.className ?? ""}`} key={column.key}>
                   {column.render(row)}

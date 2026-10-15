@@ -23,7 +23,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-7 items-center rounded-full border border-[var(--serena-border)] px-3 py-1 text-xs font-semibold text-[var(--serena-text)]",
+        "inline-flex min-h-7 items-center rounded-full border border-[var(--serena-border)] px-3 py-1 text-xs font-bold text-[var(--serena-ink)] shadow-[0_2px_8px_rgb(51_75_84_/_0.04)]",
         toneClasses[tone],
         className,
       )}
