@@ -162,8 +162,19 @@ try {
   monitor(adminPage, errors, bearerRequests);
   await login(adminPage, credentials.accounts.admin, "/admin");
   await adminPage.goto(`${baseUrl}/admin/bitacora`, { waitUntil: "networkidle" });
-  await adminPage.getByText("Atención clínica registrada").waitFor();
-  await adminPage.getByText("Observación odontológica registrada").waitFor();
+  const auditTable = adminPage.getByRole("table", { name: "Bitácora persistida" });
+  const attentionEvents = auditTable.getByRole("cell", {
+    name: "Atención clínica registrada",
+    exact: true,
+  });
+  const dentalEvents = auditTable.getByRole("cell", {
+    name: "Observación odontológica registrada",
+    exact: true,
+  });
+  assert.ok((await attentionEvents.count()) >= 1);
+  assert.ok((await dentalEvents.count()) >= 1);
+  await attentionEvents.first().waitFor();
+  await dentalEvents.first().waitFor();
   await adminContext.close();
 
   assert.equal(mobileOverflow, false);

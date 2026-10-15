@@ -78,8 +78,7 @@ async function checkLayout(label) {
 }
 
 async function login(account, staff) {
-  await page.goto(`${baseUrl}/iniciar-sesion`);
-  await page.getByLabel("Tipo de acceso").selectOption(staff ? "staff" : "patient");
+  await page.goto(`${baseUrl}/iniciar-sesion`, { waitUntil: "networkidle" });
   await page.getByLabel("Correo electrónico").fill(account.email);
   await page.getByLabel("Contraseña").fill(account.password);
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
@@ -108,7 +107,8 @@ async function verifyNoBrowserSecrets() {
 }
 
 async function selectBillingAppointment(appointmentId) {
-  await page.getByLabel("Consultar cita por ID").fill(appointmentId);
+  await page.getByText("Búsqueda avanzada por ID").click();
+  await page.getByLabel("ID exacto de cita").fill(appointmentId);
   await page.getByRole("button", { name: "Consultar", exact: true }).click();
   await page.getByRole("heading", { name: `Cita ${appointmentId}` }).waitFor();
 }
@@ -204,8 +204,8 @@ try {
   const billingPanel = page.locator("section", { has: page.getByRole("heading", { name: `Cita ${appointment.id}` }) });
   if (process.env.BILLING_ALREADY_COMPLETE !== "true") {
     if (process.env.BILLING_PARTIAL_COMPLETE !== "true") {
-      assert.equal(await page.getByLabel("Cargo GTQ en centavos").count(), 1);
-      await page.getByLabel("Cargo GTQ en centavos").fill("50000");
+      assert.equal(await page.getByLabel("Cargo (GTQ)").count(), 1);
+      await page.getByLabel("Cargo (GTQ)").fill("500.00");
       await page.getByRole("button", { name: "Fijar cargo" }).click();
       await page.getByText("Cargo fijado y auditado.").waitFor();
 
@@ -228,7 +228,7 @@ try {
         });
       }
 
-      await page.getByLabel("Pago GTQ en centavos").fill("20000");
+      await page.getByLabel("Pago (GTQ)").fill("200.00");
       await page.getByLabel("Método interno").selectOption("TRANSFERENCIA");
       await page.getByLabel("Referencia interna opcional").fill(`REF-${process.env.SCENARIO}`);
       await page.getByRole("button", { name: "Registrar pago" }).click();
@@ -237,15 +237,15 @@ try {
         await page.reload();
         await page.getByRole("heading", { name: `Cita ${appointment.id}` }).waitFor();
         await page.getByText(/Pago pendiente de confirmación/).first().waitFor();
-        assert.equal(await page.getByLabel("Pago GTQ en centavos").isDisabled(), true);
+        assert.equal(await page.getByLabel("Pago (GTQ)").isDisabled(), true);
         assert.equal(await page.getByLabel("Método interno").isDisabled(), true);
         assert.equal(await page.getByLabel("Referencia interna opcional").isDisabled(), true);
         failHistory = false;
         await page.getByRole("button", { name: "Consultar historial nuevamente" }).click();
-        await page.getByText(/El pago sí quedó registrado/).waitFor();
+        await page.getByText("El pago quedó registrado correctamente; el saldo y el historial fueron actualizados.").waitFor();
         await page.unroute("**/api/staff/billing/**");
       } else {
-        await page.getByText(/El pago sí quedó registrado/).waitFor();
+        await page.getByText("El pago quedó registrado correctamente; el saldo y el historial fueron actualizados.").waitFor();
         await page.reload();
         await selectBillingAppointment(appointment.id);
       }
@@ -253,10 +253,10 @@ try {
     await billingPanel.getByText(/300[.,]00/).first().waitFor();
     assert.equal(await billingPanel.getByText(/TRANSFERENCIA/).count(), 1);
     await checkLayout("billing-after-real-reload");
-    await page.getByLabel("Pago GTQ en centavos").fill("30000");
+    await page.getByLabel("Pago (GTQ)").fill("300.00");
     await page.getByLabel("Método interno").selectOption("EFECTIVO");
     await page.getByRole("button", { name: "Registrar pago" }).click();
-    await page.getByText(/El pago sí quedó registrado/).waitFor();
+    await page.getByText("El pago quedó registrado correctamente; el saldo y el historial fueron actualizados.").waitFor();
     await page.reload();
     await selectBillingAppointment(appointment.id);
   }
