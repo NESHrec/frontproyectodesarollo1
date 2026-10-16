@@ -17,7 +17,7 @@ export default function HomePage() {
       <section className="serena-home-hero px-4 pb-10 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8 lg:pb-20 lg:pt-10">
         <div className="serena-home-frame mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] lg:min-h-[640px] lg:grid-cols-[1.05fr_.95fr] lg:rounded-[2.5rem]">
           <div className="serena-home-copy relative z-10 flex flex-col justify-center px-6 py-12 text-white sm:px-10 sm:py-16 lg:px-14 lg:py-20">
-            <p className="serena-home-eyebrow serena-enter serena-enter-1">Clínica Serena <span aria-hidden="true">·</span> Atención dental</p>
+            <p className="serena-home-eyebrow serena-enter serena-enter-1">Clínica Serena <span aria-hidden="true">·</span> Atención médica y odontológica</p>
             <h1 className="serena-enter serena-enter-2 mt-7 max-w-2xl text-[clamp(2.5rem,5.2vw,5.2rem)] font-black leading-[.99] tracking-[-.055em]">
               Tu sonrisa merece <span className="serena-home-highlight">sentirse bien cuidada.</span>
             </h1>
@@ -79,7 +79,11 @@ async function ResumenCatalogo() {
   const [specialties, doctors] = await Promise.all([getEspecialidades(), getMedicos()]);
   if (!specialties.ok || !doctors.ok) return <div className="sm:col-span-2"><ApiErrorState description="No pudimos consultar el resumen en este momento." title="Información temporalmente no disponible" /></div>;
   return <>
-    <div className="serena-home-stat bg-[var(--serena-success-soft)]"><strong>{doctors.data.length}</strong><span>Profesionales para conocer</span></div>
-    <div className="serena-home-stat bg-[var(--serena-surface-info)]"><strong>{specialties.data.length}</strong><span>Especialidades para explorar</span></div>
+    <Link aria-label={`Conocer ${doctors.data.length} profesionales`} className="serena-home-stat group bg-[var(--serena-success-soft)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--serena-shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--serena-focus)] motion-reduce:transform-none" href="/medicos">
+      <strong>{doctors.data.length}</strong><span>Profesionales para conocer</span><span aria-hidden="true" className="ml-auto text-xl transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+    </Link>
+    <Link aria-label={`Explorar ${specialties.data.length} especialidades`} className="serena-home-stat group bg-[var(--serena-surface-info)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--serena-shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--serena-focus)] motion-reduce:transform-none" href="/especialidades">
+      <strong>{specialties.data.length}</strong><span>Especialidades para explorar</span><span aria-hidden="true" className="ml-auto text-xl transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+    </Link>
   </>;
 }

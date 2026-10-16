@@ -49,7 +49,7 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
 
   return (
     <div className="space-y-6">
-      <Card className="grid gap-5 border-[var(--serena-border)] bg-white/90 shadow-[var(--serena-shadow-soft)] md:grid-cols-[1.15fr_0.85fr]">
+      <Card className="relative grid gap-5 overflow-hidden border-[var(--serena-border)] bg-white/90 shadow-[var(--serena-shadow-soft)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-[var(--serena-teal)] before:to-[#DDF3F1] md:grid-cols-[1.15fr_0.85fr]">
         <Input
           helperText="Busca por nombre o especialidad."
           id="busqueda-medico"
@@ -72,6 +72,10 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
         </SelectField>
       </Card>
 
+      <div className="serena-catalog-heading">
+        <div><p className="serena-kicker">Directorio Serena</p><h2 className="mt-2 text-2xl font-black tracking-tight text-[var(--serena-ink)]">Profesionales para conocerte</h2></div>
+        <StatusBadge tone="agua">{medicosFiltrados.length} {medicosFiltrados.length === 1 ? "resultado" : "resultados"}</StatusBadge>
+      </div>
       {isPending ? <p className="text-sm font-semibold text-[var(--serena-text)]" role="status">Actualizando profesionales...</p> : null}
 
       <div aria-busy={isPending} className={`transition-opacity duration-200 motion-reduce:transition-none ${isPending ? "opacity-60" : "opacity-100"}`}>
@@ -84,11 +88,11 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
                   <PractitionerPortrait practitioner={medico} />
                   <div>
                     {especialidad ? <StatusBadge tone="pistacho">{especialidad}</StatusBadge> : null}
-                    <h2 className="mt-4 text-xl font-bold text-[var(--serena-ink)]">{medico.fullName}</h2>
-                    {medico.licenseNumber ? <p className="mt-2 text-sm text-[var(--serena-text)]/80">Colegiado: {medico.licenseNumber}</p> : null}
+                    <h2 className="mt-4 text-xl font-black leading-tight text-[var(--serena-ink)]">{medico.fullName}</h2>
+                    {medico.licenseNumber ? <p className="mt-2 inline-flex items-center gap-2 text-sm text-[var(--serena-text)]/80"><span aria-hidden="true" className="size-1.5 rounded-full bg-[var(--serena-teal)]" />Colegiado: {medico.licenseNumber}</p> : null}
                   </div>
-                  <Link className={`${buttonLinkClasses} mt-auto w-full`} href={`/medicos/${encodeURIComponent(medico.id)}`}>
-                    Ver perfil y horarios
+                  <Link className={`${buttonLinkClasses} mt-auto w-full justify-between`} href={`/medicos/${encodeURIComponent(medico.id)}`}>
+                    Conocer perfil y horarios <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
                   </Link>
                 </Card>
               );

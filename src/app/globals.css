@@ -77,6 +77,11 @@ html { scroll-behavior: smooth; }
 .serena-auth-panel { position: relative; isolation: isolate; background: linear-gradient(145deg, #263238, #334B54 62%, #56777A); box-shadow: 0 30px 70px rgb(38 50 56 / .16); }
 .serena-auth-panel::before { position: absolute; right: -8rem; bottom: -10rem; z-index: -1; width: 28rem; height: 28rem; border: 1px solid rgb(221 243 241 / .28); border-radius: 50%; box-shadow: 0 0 0 4rem rgb(221 243 241 / .06), 0 0 0 8rem rgb(221 243 241 / .035); content: ""; pointer-events: none; }
 .serena-auth-panel::after { position: absolute; inset: 0; z-index: -1; background: repeating-linear-gradient(120deg, transparent 0 57px, rgb(221 243 241 / .035) 58px 59px); content: ""; pointer-events: none; }
+.serena-auth-card { position: relative; overflow: hidden; border-color: rgb(86 119 122 / .22); padding: clamp(1.35rem, 4vw, 2rem); box-shadow: 0 24px 68px rgb(38 50 56 / .1); }
+.serena-auth-card::before { position: absolute; top: 0; left: 0; width: 100%; height: .25rem; background: linear-gradient(90deg, var(--serena-teal), #DDF3F1 55%, #E5F1D8); content: ""; }
+.serena-auth-card h1 { letter-spacing: -.035em; }
+.serena-auth-card a { width: fit-content; border-radius: .35rem; font-weight: 600; text-decoration-color: transparent; text-underline-offset: .22em; transition: color var(--serena-duration) ease, text-decoration-color var(--serena-duration) ease; }
+.serena-auth-card a:hover { color: var(--serena-ink); text-decoration: underline; text-decoration-color: currentColor; }
 .serena-step { position: relative; min-height: 15rem; overflow: hidden; border: 1px solid var(--serena-border); border-radius: 1.5rem; background: #fff; padding: 1.6rem; box-shadow: var(--serena-shadow-soft); transition: transform var(--serena-duration) ease, border-color var(--serena-duration) ease, box-shadow var(--serena-duration) ease; }
 .serena-step::before { position: absolute; top: 0; left: 0; width: 100%; height: .3rem; background: linear-gradient(90deg, #56777A, #DDF3F1); content: ""; }
 .serena-step:nth-child(2)::before { background: linear-gradient(90deg, #8D4154, #F8E2E8); }
@@ -86,12 +91,19 @@ html { scroll-behavior: smooth; }
 
 .serena-page-banner { position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(120deg, #263238, #334B54 58%, #56777A); }
 .serena-page-banner::after { position: absolute; top: -11rem; right: -5rem; z-index: -1; width: 27rem; height: 27rem; border: 1px solid rgb(221 243 241 / .2); border-radius: 50%; box-shadow: 0 0 0 4rem rgb(221 243 241 / .04), 0 0 0 8rem rgb(221 243 241 / .035); content: ""; pointer-events: none; }
+.serena-page-eyebrow { display: flex; width: fit-content; align-items: center; gap: .65rem; border: 1px solid rgb(221 243 241 / .28); border-radius: 999px; background: rgb(221 243 241 / .1); padding: .45rem .8rem; color: #DDF3F1; font-size: .68rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.serena-page-eyebrow::before { width: .42rem; height: .42rem; border-radius: 50%; background: #E5F1D8; box-shadow: 0 0 0 .22rem rgb(229 241 216 / .12); content: ""; }
+.serena-page-mark { position: relative; z-index: 1; border-left: 1px solid rgb(221 243 241 / .28); padding-left: 2rem; }
+.serena-page-mark-symbol { display: grid; width: 5.5rem; height: 5.5rem; place-items: center; border: 1px solid rgb(221 243 241 / .42); border-radius: 1.8rem; background: linear-gradient(145deg, rgb(221 243 241 / .16), rgb(255 255 255 / .04)); color: #DDF3F1; font-size: 1.45rem; font-weight: 900; letter-spacing: -.06em; box-shadow: inset 0 0 0 .6rem rgb(255 255 255 / .025); }
 .serena-internal-header { position: relative; isolation: isolate; overflow: hidden; border: 1px solid var(--serena-border); border-radius: 1.5rem; background: linear-gradient(115deg, #fff, #F0F9F6); box-shadow: var(--serena-shadow-soft); }
 .serena-internal-header::before { position: absolute; top: 0; bottom: 0; left: 0; width: .35rem; background: linear-gradient(180deg, #56777A, #DDF3F1); content: ""; }
 .serena-internal-header::after { position: absolute; top: -5rem; right: -4rem; z-index: -1; width: 16rem; height: 16rem; border: 1px solid rgb(86 119 122 / .12); border-radius: 50%; box-shadow: 0 0 0 3rem rgb(221 243 241 / .25); content: ""; pointer-events: none; }
 .serena-public-nav-link { position: relative; }
 .serena-public-nav-link::after { position: absolute; right: 25%; bottom: .3rem; left: 25%; height: 2px; border-radius: 2px; background: var(--serena-teal); content: ""; transform: scaleX(0); transition: transform var(--serena-duration) ease; }
 .serena-public-nav-link:hover::after, .serena-public-nav-link:focus-visible::after { transform: scaleX(1); }
+.serena-public-nav-active::after { right: .8rem; left: .8rem; background: var(--serena-ink); transform: scaleX(1); }
+.serena-public-nav-active { font-weight: 800; }
+.serena-public-nav-link:not(.serena-public-nav-active):hover { border-color: var(--serena-border); }
 @keyframes serena-mobile-nav-reveal {
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -105,20 +117,20 @@ a:hover .serena-brand-mark { transform: rotate(-5deg) scale(1.05); box-shadow: 0
 .serena-metric-card::after { position: absolute; top: -2.5rem; right: -2.5rem; width: 7rem; height: 7rem; border: 1px solid rgb(51 75 84 / .1); border-radius: 50%; box-shadow: 0 0 0 1.4rem rgb(255 255 255 / .16); content: ""; pointer-events: none; }
 
 @keyframes serena-rise {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.serena-enter { animation: serena-rise 360ms cubic-bezier(.2,.8,.2,1) both; }
-.serena-enter-1 { animation-delay: 40ms; }
-.serena-enter-2 { animation-delay: 80ms; }
-.serena-enter-3 { animation-delay: 120ms; }
-.serena-enter-4 { animation-delay: 160ms; }
-.serena-stagger > * { animation: serena-rise 360ms cubic-bezier(.2,.8,.2,1) both; }
-.serena-stagger > :nth-child(1) { animation-delay: 40ms; }
-.serena-stagger > :nth-child(2) { animation-delay: 80ms; }
-.serena-stagger > :nth-child(3) { animation-delay: 120ms; }
-.serena-stagger > :nth-child(4) { animation-delay: 160ms; }
-.serena-stagger > :nth-child(n+5) { animation-delay: 200ms; }
+.serena-enter { animation: serena-rise 260ms cubic-bezier(.2,.75,.25,1) both; }
+.serena-enter-1 { animation-delay: 24ms; }
+.serena-enter-2 { animation-delay: 48ms; }
+.serena-enter-3 { animation-delay: 72ms; }
+.serena-enter-4 { animation-delay: 96ms; }
+.serena-stagger > * { animation: serena-rise 260ms cubic-bezier(.2,.75,.25,1) both; }
+.serena-stagger > :nth-child(1) { animation-delay: 24ms; }
+.serena-stagger > :nth-child(2) { animation-delay: 48ms; }
+.serena-stagger > :nth-child(3) { animation-delay: 72ms; }
+.serena-stagger > :nth-child(4) { animation-delay: 96ms; }
+.serena-stagger > :nth-child(n+5) { animation-delay: 120ms; }
 
 button, a, input, select, textarea { transition-duration: var(--serena-duration); }
 
@@ -134,16 +146,49 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  *, *::before, *::after { animation: none !important; animation-delay: 0ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; translate: none !important; scale: none !important; }
   .serena-step:hover, .serena-role-link:hover, .serena-home-visual:hover .serena-home-photo { transform: none; }
 }
 
 @media (max-width: 1023px) {
   .serena-nav-scroll { position: relative; scroll-padding-inline: .35rem 2.6rem; scroll-snap-type: x proximity; }
-  .serena-nav-scroll::before { position: absolute; top: 0; right: .15rem; bottom: .5rem; z-index: 1; width: 2.75rem; border-radius: .75rem; background: linear-gradient(90deg, transparent, rgb(248 237 210 / .96) 70%); color: var(--serena-teal); content: "→"; font-size: 1.1rem; font-weight: 900; line-height: 2.6rem; pointer-events: none; text-align: center; }
-  .serena-nav-scroll-patient::before { background: linear-gradient(90deg, transparent, rgb(64 92 100 / .98) 70%); color: white; }
+  .serena-nav-scroll-more::before { position: absolute; top: 0; right: .1rem; bottom: .5rem; z-index: 1; width: 2.7rem; border-radius: .75rem; background: linear-gradient(90deg, transparent, rgb(248 237 210 / .98) 68%); color: var(--serena-ink); content: "→"; font-size: 1.05rem; font-weight: 900; line-height: 2.6rem; pointer-events: none; text-align: center; }
+  .serena-nav-scroll-patient.serena-nav-scroll-more::before { background: linear-gradient(90deg, transparent, rgb(64 92 100 / .98) 68%); color: white; }
+  .serena-nav-scroll-earlier::after { position: absolute; top: 0; bottom: .5rem; left: .1rem; z-index: 1; display: grid; width: 2.2rem; place-items: center; border-radius: .75rem; background: linear-gradient(90deg, rgb(248 237 210 / .98), transparent); color: var(--serena-ink); content: "←"; font-size: 1.05rem; font-weight: 900; pointer-events: none; }
+  .serena-nav-scroll-patient.serena-nav-scroll-earlier::after { background: linear-gradient(90deg, rgb(64 92 100 / .98), transparent); color: white; }
   .serena-nav-scroll > a { scroll-snap-align: start; }
 }
+
+.serena-practitioner-placeholder { position: relative; display: grid; place-items: center; overflow: hidden; isolation: isolate; border: 1px solid rgb(86 119 122 / .2); background: radial-gradient(circle at 50% 38%, rgb(255 255 255 / .85) 0 16%, transparent 16.5%), linear-gradient(145deg, #DDF3F1, #F8EDD2); color: var(--serena-ink); }
+.serena-practitioner-placeholder-1 { background: radial-gradient(circle at 50% 38%, rgb(255 255 255 / .9) 0 16%, transparent 16.5%), linear-gradient(145deg, #E5F1D8, #DDF3F1 72%); }
+.serena-practitioner-placeholder-2 { background: radial-gradient(circle at 50% 38%, rgb(255 255 255 / .85) 0 16%, transparent 16.5%), linear-gradient(145deg, #F8E2E8, #F8EDD2 78%); }
+.serena-practitioner-orbit { position: absolute; top: 8%; right: 8%; width: 64%; aspect-ratio: 1; border: 1px solid rgb(86 119 122 / .22); border-radius: 50%; box-shadow: 0 0 0 1.2rem rgb(255 255 255 / .2), 0 0 0 2.4rem rgb(255 255 255 / .13); }
+.serena-practitioner-monogram { position: relative; z-index: 1; display: grid; width: clamp(5rem, 36%, 7rem); aspect-ratio: 1; place-items: center; border: 1px solid rgb(86 119 122 / .2); border-radius: 42% 58% 55% 45% / 46% 43% 57% 54%; background: linear-gradient(145deg, rgb(255 255 255 / .92), rgb(221 243 241 / .88)); box-shadow: 0 15px 36px rgb(51 75 84 / .12); color: var(--serena-teal); font-size: clamp(1.8rem, 8vw, 2.8rem); font-weight: 900; letter-spacing: -.06em; }
+.serena-practitioner-specialty { position: absolute; top: 1rem; left: 1rem; z-index: 1; max-width: calc(100% - 2rem); overflow: hidden; border: 1px solid rgb(255 255 255 / .75); border-radius: 999px; background: rgb(255 255 255 / .78); padding: .35rem .55rem; color: var(--serena-ink); font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.serena-practitioner-caption { position: absolute; right: 1rem; bottom: 1rem; color: rgb(51 75 84 / .55); font-size: .62rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.serena-public-route-entry { animation: serena-rise 280ms cubic-bezier(.2,.75,.25,1) both; }
+.serena-public-route-entry > * { min-width: 0; }
+.serena-specialty-card:nth-child(3n+2)::before { background: linear-gradient(90deg, #8D4154, #F8E2E8); }
+.serena-specialty-card:nth-child(3n)::before { background: linear-gradient(90deg, #56777A, #E5F1D8); }
+.serena-catalog-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .75rem; border-bottom: 1px solid var(--serena-border); padding-bottom: 1rem; }
+.serena-reservation-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.serena-reservation-step { position: relative; display: flex; min-width: 0; align-items: center; gap: .55rem; color: rgb(98 114 123 / .72); font-size: .72rem; font-weight: 700; }
+.serena-reservation-step:not(:last-child)::after { height: 1px; flex: 1; background: var(--serena-border); content: ""; }
+.serena-reservation-step[data-state="complete"] { color: var(--serena-teal); }
+.serena-reservation-step[data-state="current"] { color: var(--serena-ink); }
+.serena-reservation-step-index { display: grid; width: 1.75rem; height: 1.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--serena-border); border-radius: 50%; background: white; font-size: .68rem; }
+.serena-reservation-step[data-state="complete"] .serena-reservation-step-index { border-color: var(--serena-teal); background: var(--serena-success-soft); }
+.serena-reservation-step[data-state="current"] .serena-reservation-step-index { border-color: var(--serena-ink); background: var(--serena-ink); color: white; }
+.serena-reservation-step-copy { display: grid; min-width: 0; gap: .12rem; }
+.serena-reservation-step-status { color: var(--serena-text); font-size: .6rem; font-weight: 600; line-height: 1.2; }
+.serena-reservation-step[data-state="current"] .serena-reservation-step-status { color: var(--serena-ink); font-weight: 800; }
+.serena-reservation-step[data-state="complete"] .serena-reservation-step-status { color: var(--serena-teal); }
+.serena-patient-quick-link { position: relative; overflow: hidden; }
+.serena-patient-quick-link::before { position: absolute; top: 0; left: 0; width: .25rem; height: 0; background: var(--serena-teal); content: ""; transition: height var(--serena-duration) ease; }
+.serena-patient-quick-link:hover::before, .serena-patient-quick-link:focus-visible::before { height: 100%; }
+.serena-patient-quick-arrow { transition: color var(--serena-duration) ease, background-color var(--serena-duration) ease, transform var(--serena-duration) ease; }
+.serena-patient-quick-link:hover .serena-patient-quick-arrow { transform: translateX(2px); background: var(--serena-surface-info); color: var(--serena-ink); }
+@media (max-width: 520px) { .serena-reservation-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem 1rem; } .serena-reservation-step::after { display: none; } }
 
 ::selection {
   background: #DDF3F1;

@@ -40,6 +40,12 @@ export function PatientAppointmentForm({
     [professionals, specialtyId],
   );
   const visibleSlots = professionalId === selectedProfessionalId ? slots : [];
+  const bookingSteps = [
+    { label: "Especialidad", state: specialtyId ? "complete" : "current" },
+    { label: "Profesional", state: professionalId ? "complete" : specialtyId ? "current" : "upcoming" },
+    { label: "Horario", state: selectedSlotId ? "complete" : professionalId ? "current" : "upcoming" },
+    { label: "Confirmación", state: selectedSlotId ? "current" : "upcoming" },
+  ] as const;
   function selectSpecialty(nextSpecialtyId: string) {
     setSpecialtyId(nextSpecialtyId);
     const nextProfessional = professionals.find((professional) => professional.specialtyId === nextSpecialtyId);
@@ -102,6 +108,12 @@ export function PatientAppointmentForm({
 
   return (
     <form className="serena-stagger space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <ol aria-label="Pasos de la reserva" className="serena-reservation-steps rounded-[var(--serena-radius-md)] border border-[var(--serena-border)] bg-white/85 p-4 shadow-[var(--serena-shadow-soft)] sm:p-5">
+        {bookingSteps.map((step, index) => <li aria-current={step.state === "current" ? "step" : undefined} className="serena-reservation-step" data-state={step.state} key={step.label}>
+          <span aria-hidden="true" className="serena-reservation-step-index">{step.state === "complete" ? "✓" : String(index + 1).padStart(2, "0")}</span>
+          <span className="truncate">{step.label}</span>
+        </li>)}
+      </ol>
       <Card className="space-y-5">
         <SelectField error={errors.specialtyId?.message} id="patient-specialty" label="Especialidad" value={specialtyId} onChange={(event) => selectSpecialty(event.target.value)}>
           <option value="">Selecciona una especialidad</option>

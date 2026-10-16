@@ -31,6 +31,8 @@ test("el menú público móvil conserva rutas, abre, cierra y responde a Escape"
   const navigation = screen.getByRole("navigation", { name: "Navegación pública", hidden: true });
   const toggle = screen.getByRole("button", { name: "Abrir menú" });
 
+  assert.equal(navigation.querySelectorAll('[aria-current="page"]').length, 1);
+  assert.equal(navigation.querySelector('[href="/"]')?.getAttribute("aria-current"), "page");
   assert.equal(toggle.getAttribute("aria-expanded"), "false");
   assert.ok(navigation.className.includes("hidden"));
   fireEvent.click(toggle);

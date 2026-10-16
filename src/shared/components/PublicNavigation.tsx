@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { MorphIcon } from "morphicons/react";
 import { buttonLinkClasses } from "@/shared/components/Button";
@@ -22,6 +23,7 @@ type Destination = { href: string; label: string } | null;
 export function PublicNavigation({ destination }: { destination: Destination }) {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname() ?? "/";
 
   return (
     <div className="w-full lg:w-auto" onKeyDown={(event) => {
@@ -48,7 +50,8 @@ export function PublicNavigation({ destination }: { destination: Destination }) 
       >
         {publicLinks.map((link) => (
           <Link
-            className="serena-public-nav-link rounded-xl px-3 py-2.5 text-sm font-semibold text-[#526871] transition hover:bg-[#DDF3F1] hover:text-[#334B54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] lg:min-w-max lg:rounded-full lg:py-2"
+            aria-current={pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`)) ? "page" : undefined}
+            className={`serena-public-nav-link rounded-xl border px-3 py-2.5 text-sm font-semibold transition hover:bg-[#DDF3F1] hover:text-[#334B54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] lg:min-w-max lg:rounded-full lg:py-2 ${pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`)) ? "serena-public-nav-active border-[var(--serena-border-strong)] bg-[var(--serena-surface-info)] text-[var(--serena-ink)] shadow-[inset_0_0_0_1px_rgb(86_119_122_/_0.08)]" : "border-transparent text-[#526871]"}`}
             href={link.href}
             key={link.href}
             onClick={() => setOpen(false)}

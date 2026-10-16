@@ -67,7 +67,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="serena-auth-card w-full max-w-md">
       <StatusBadge tone="pistacho">Acceso seguro</StatusBadge>
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Iniciar sesión</h1>
       {sessionExpired ? (
@@ -121,7 +121,7 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="serena-auth-card w-full max-w-lg">
       <StatusBadge tone="pistacho">Cuenta de paciente</StatusBadge>
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Registro</h1>
       <p className="mt-3 text-sm text-[#62727B]">Crea una identidad nueva. No se vinculará automáticamente con expedientes históricos.</p>
@@ -166,7 +166,7 @@ export function RecoverPasswordForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="serena-auth-card w-full max-w-md">
       <StatusBadge tone="crema">Recuperación segura</StatusBadge>
       <h1 className="mt-5 text-2xl font-bold text-[#62727B]">Recuperar contraseña</h1>
       <p className="mt-3 text-sm text-[#62727B]">Si la cuenta existe y está verificada, recibirás un enlace de un solo uso.</p>

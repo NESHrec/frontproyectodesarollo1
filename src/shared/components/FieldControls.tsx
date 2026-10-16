@@ -18,17 +18,22 @@ export function SelectField({ label, error, helperText, className, id, ...props 
       <label className="block text-sm font-semibold text-[#62727B]" htmlFor={fieldId}>
         {label}
       </label>
-      <select
-        aria-describedby={describedBy}
-        aria-invalid={Boolean(error)}
-        className={cn(
-          "min-h-11 w-full rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--serena-text)] outline-none transition focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)]",
-          error ? "border-[var(--serena-danger)] bg-[var(--serena-danger-soft)]/30" : null,
-          className,
-        )}
-        id={fieldId}
-        {...props}
-      />
+      <span className="group relative block">
+        <select
+          aria-describedby={describedBy}
+          aria-invalid={Boolean(error)}
+          className={cn(
+            "min-h-12 w-full appearance-none rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 pr-11 text-sm font-medium text-[var(--serena-text)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--serena-border-strong)] focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)] focus:shadow-[0_0_0_3px_rgb(86_119_122_/_0.12)]",
+            error ? "border-[var(--serena-danger)] bg-[var(--serena-danger-soft)]/30" : null,
+            className,
+          )}
+          id={fieldId}
+          {...props}
+        />
+        <svg aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[var(--serena-teal)] transition-transform duration-200 group-focus-within:rotate-180 motion-reduce:transform-none" fill="none" viewBox="0 0 20 20">
+          <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+        </svg>
+      </span>
       {helperText && !error ? <p className="text-xs text-[#62727B]/80" id={`${fieldId}-helper`}>{helperText}</p> : null}
       {error ? <p className="rounded-md bg-[#F8E2E8] px-3 py-2 text-sm" id={`${fieldId}-error`}>{error}</p> : null}
     </div>
