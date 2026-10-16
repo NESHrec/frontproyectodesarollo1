@@ -84,15 +84,15 @@ export function ConsultationForm({ appointmentId, patientName }: { appointmentId
   const confirming = state.kind === "confirming";
 
   return (
-    <form className="grid gap-7" noValidate onSubmit={handleSubmit((values) => setState({ kind: "confirming", values }))}>
-      <div className="rounded-2xl bg-[#DDF3F1]/45 px-4 py-3"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Paso 1 · Evaluación clínica</p><p className="mt-1 text-sm text-[#334B54]">Documenta el contexto clínico antes de preparar la receta.</p></div>
-      <fieldset className="grid gap-6 border-b border-[#62727B]/15 pb-7 sm:grid-cols-2" disabled={confirming || busy}>
+    <form aria-busy={busy} className="grid gap-8" noValidate onSubmit={handleSubmit((values) => setState({ kind: "confirming", values }))}>
+      <div className="flex items-start gap-4 rounded-2xl border border-[#56777A]/10 bg-[#DDF3F1]/45 px-4 py-4"><span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-[#334B54] text-sm font-black text-white">1</span><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Evaluación clínica</p><p className="mt-1 text-sm leading-6 text-[#334B54]">Documenta el contexto clínico antes de preparar la receta.</p></div></div>
+      <fieldset className="grid gap-6 rounded-2xl border border-[#62727B]/12 bg-white p-4 shadow-[0_14px_38px_-34px_rgba(38,50,56,.6)] sm:grid-cols-2 sm:p-6" disabled={confirming || busy}>
         <TextareaField error={errors.reason?.message} id="reason" label="Motivo de consulta" rows={3} {...register("reason")} />
         <TextareaField error={errors.findings?.message} id="findings" label="Hallazgos y exploración (opcional)" rows={3} {...register("findings")} />
         <TextareaField error={errors.diagnosis?.message} id="diagnosis" label="Diagnóstico" rows={3} {...register("diagnosis")} />
         <TextareaField error={errors.treatmentPlan?.message} id="treatmentPlan" label="Plan e indicaciones (opcional)" rows={3} {...register("treatmentPlan")} />
       </fieldset>
-      <div className="rounded-2xl bg-[#E5F1D8]/55 px-4 py-3"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Paso 2 · Receta e indicaciones</p><p className="mt-1 text-sm text-[#334B54]">Agrega medicamentos únicamente cuando correspondan a esta atención.</p></div>
+      <div className="flex items-start gap-4 rounded-2xl border border-[#56777A]/10 bg-[#E5F1D8]/55 px-4 py-4"><span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-[#56777A] text-sm font-black text-white">2</span><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Receta e indicaciones</p><p className="mt-1 text-sm leading-6 text-[#334B54]">Agrega medicamentos únicamente cuando correspondan a esta atención.</p></div></div>
       <PrescriptionFields control={control} disabled={confirming || busy} errors={errors} register={register} />
       {state.kind === "error" ? (
         <div className="space-y-2 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm" role="alert">
@@ -101,7 +101,7 @@ export function ConsultationForm({ appointmentId, patientName }: { appointmentId
         </div>
       ) : null}
       {confirming ? (
-        <div className="space-y-3 rounded-lg border border-[#62727B]/20 bg-[#F8EDD2] p-4" role="alertdialog" aria-labelledby="confirm-title">
+        <div className="space-y-3 rounded-2xl border border-[#8D6B2E]/20 bg-[#F8EDD2] p-5 shadow-[0_16px_40px_-32px_rgba(38,50,56,.55)]" role="alertdialog" aria-labelledby="confirm-title">
           <p className="font-bold" id="confirm-title">¿Guardar la atención de {patientName}?</p>
           <p className="text-sm">
             Se registrará con tu autoría y la fecha actual, y la cita quedará completada. El registro no podrá modificarse después.
@@ -112,7 +112,7 @@ export function ConsultationForm({ appointmentId, patientName }: { appointmentId
           </div>
         </div>
       ) : (
-        <div><Button type="submit">Revisar atención</Button></div>
+        <div className="flex justify-end border-t border-[#62727B]/12 pt-6"><Button type="submit">Revisar atención</Button></div>
       )}
     </form>
   );

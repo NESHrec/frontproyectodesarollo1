@@ -17,15 +17,16 @@ export default async function DoctorDashboardPage() {
   return (
     <div className="space-y-8">
       {header}
-      <section className="grid overflow-hidden rounded-[1.75rem] border border-[#62727B]/15 bg-[#334B54] text-white shadow-[0_24px_65px_-40px_rgba(38,50,56,0.8)] lg:grid-cols-[1.5fr_1fr]">
-        <div className="p-6 sm:p-8">
+      <section className="relative isolate grid overflow-hidden rounded-[2rem] border border-[#62727B]/15 bg-[#334B54] text-white shadow-[0_28px_75px_-42px_rgba(38,50,56,0.85)] lg:grid-cols-[1.5fr_1fr]">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-28 size-72 rounded-full bg-[#DDF3F1]/10 blur-3xl" />
+        <div className="relative p-6 sm:p-8 lg:p-10">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#DDF3F1]/75">Prioridad clínica</p>
-          <div className="mt-5 flex items-end gap-4"><span className="text-6xl font-black tracking-tight">{arrived.length}</span><p className="max-w-xs pb-2 text-sm leading-6 text-white/75">pacientes con llegada registrada y atención pendiente.</p></div>
-          <Link className="mt-7 inline-flex min-h-11 items-center rounded-full bg-[#DDF3F1] px-5 text-sm font-bold text-[#334B54] transition-[background-color,transform] duration-200 hover:bg-white active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none" href="/medico/agenda">Abrir agenda clínica</Link>
+          <div className="mt-5 flex items-end gap-4"><span className="text-6xl font-black tracking-tight sm:text-7xl">{arrived.length}</span><p className="max-w-xs pb-2 text-sm leading-6 text-white/75">pacientes con llegada registrada y atención pendiente.</p></div>
+          <Link className="mt-7 inline-flex min-h-12 items-center rounded-full bg-[#DDF3F1] px-6 text-sm font-black text-[#334B54] shadow-[0_12px_30px_-18px_rgba(221,243,241,0.8)] transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-white active:scale-[.98] motion-reduce:translate-none motion-reduce:scale-100 motion-reduce:transition-none" href="/medico/agenda">Abrir agenda clínica <span aria-hidden className="ml-2">→</span></Link>
         </div>
         <dl className="grid grid-cols-2 border-t border-white/10 bg-white/5 lg:grid-cols-1 lg:border-l lg:border-t-0">
-          <div className="p-5 sm:p-6"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Por atender</dt><dd className="mt-2 text-3xl font-black">{pending.length}</dd></div>
-          <div className="border-l border-white/10 p-5 sm:p-6 lg:border-l-0 lg:border-t"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Documentadas</dt><dd className="mt-2 text-3xl font-black">{documented.length}</dd></div>
+          <div className="p-5 sm:p-6 lg:flex lg:flex-col lg:justify-center"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Por atender</dt><dd className="mt-2 text-3xl font-black">{pending.length}</dd><p className="mt-1 text-xs text-white/55">requieren seguimiento</p></div>
+          <div className="border-l border-white/10 p-5 sm:p-6 lg:flex lg:flex-col lg:justify-center lg:border-l-0 lg:border-t"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Documentadas</dt><dd className="mt-2 text-3xl font-black">{documented.length}</dd><p className="mt-1 text-xs text-white/55">registros completados</p></div>
         </dl>
       </section>
       <section className="min-w-0 space-y-4">
