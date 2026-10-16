@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PatientForm } from "@/modules/pacientes/components/PatientForm";
 import { Button, DataTable, EmptyState, Input, InternalPageHeader, LoadingState, ModalDialog, SearchFilters, type DataTableColumn } from "@/shared/components";
 import { PatientLinkInitiator } from "@/modules/recepcion/components/PatientLinkInitiator";
+import { HighlightMatch } from "@/shared/components/HighlightMatch";
 
 type AdministrativePatient = {
   patientId: string;
@@ -20,14 +21,16 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("es-GT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
-const columns: DataTableColumn<AdministrativePatient>[] = [
-  { key: "patient", label: "Paciente", render: (item) => <div><p className="font-semibold">{item.fullName ?? "Sin nombre disponible"}</p><p className="text-xs text-[#62727B]/70">{item.patientId}</p></div> },
-  { key: "phone", label: "Teléfono", render: (item) => item.phone ?? "No informado" },
-  { key: "email", label: "Correo de contacto", render: (item) => item.email ?? "No informado" },
+function columnsForSearch(query: string): DataTableColumn<AdministrativePatient>[] {
+  return [
+  { key: "patient", label: "Paciente", render: (item) => <div><p className="font-semibold"><HighlightMatch query={query} text={item.fullName ?? "Sin nombre disponible"} /></p><p className="text-xs text-[#62727B]/70">{item.patientId}</p></div> },
+  { key: "phone", label: "Teléfono", render: (item) => <HighlightMatch query={query} text={item.phone ?? "No informado"} /> },
+  { key: "email", label: "Correo de contacto", render: (item) => <HighlightMatch query={query} text={item.email ?? "No informado"} /> },
   { key: "type", label: "Origen", render: (item) => item.recordType === "AUTORREGISTRADO+EXPEDIENTE_ADMINISTRATIVO" ? "Cuenta y expediente" : item.recordType === "AUTORREGISTRADO" ? "Cuenta autorregistrada" : item.recordType === "EXPEDIENTE_ADMINISTRATIVO" ? "Expediente administrativo" : "Registro histórico" },
   { key: "created", label: "Alta", render: (item) => item.createdAt ? formatDate(item.createdAt) : "No disponible" },
   { key: "link", label: "Vinculación", render: (item) => item.patientAccountLinked ? "Cuenta vinculada" : item.recordType === "EXPEDIENTE_ADMINISTRATIVO" ? <PatientLinkInitiator patientId={item.patientId}/> : "No aplica" },
-];
+  ];
+}
 
 export function ReceptionPatientsClient() {
   const [patients, setPatients] = useState<AdministrativePatient[] | null>(null);
@@ -65,6 +68,6 @@ export function ReceptionPatientsClient() {
     {error === "service" ? <section className="space-y-3 rounded-lg bg-[#F8E2E8] p-5" role="alert"><h2 className="font-bold">No se pudo cargar el directorio</h2><p className="text-sm">El servicio no respondió.</p><Button onClick={() => void load(search)}>Intentar nuevamente</Button></section> : null}
     {patients ? <div className="flex flex-col gap-2 rounded-lg border border-[#62727B]/15 bg-[#DDF3F1] px-4 py-3 text-sm text-[#334B54] sm:flex-row sm:items-center sm:justify-between" role="status"><span className="font-bold">{patients.length} {patients.length === 1 ? "paciente encontrado" : "pacientes encontrados"}</span><span>{appliedSearch ? `Filtro activo: “${appliedSearch}”` : "Directorio completo disponible"}</span></div> : null}
     {patients?.length === 0 ? <EmptyState description={appliedSearch ? "No hay pacientes que coincidan con la búsqueda. Revisa el término o limpia el filtro." : "No hay pacientes persistidos en el directorio."} title={appliedSearch ? "Sin coincidencias" : "Directorio vacío"} /> : null}
-    {patients && patients.length > 0 ? <section className="space-y-3" aria-labelledby="patient-results-title"><div className="flex flex-col gap-1 border-b border-[#56777A]/15 pb-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-extrabold tracking-[-0.02em] text-[#334B54]" id="patient-results-title">Resultados administrativos</h2><p className="mt-1 text-sm text-[#62727B]">La información clínica no se muestra en esta vista.</p></div><span className="w-fit rounded-full bg-[#DDF3F1] px-3 py-1 text-xs font-bold text-[#334B54]">{patients.length} {patients.length === 1 ? "registro" : "registros"}</span></div><div aria-label="Resultados de pacientes" className="overflow-x-auto rounded-2xl border border-[#62727B]/15 bg-white shadow-[0_12px_32px_rgba(51,75,84,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#56777A]" role="region" tabIndex={0}><p className="border-b border-[#62727B]/10 bg-[#FBFCFA] px-3 py-2 text-xs font-medium text-[#62727B] md:hidden">Desliza horizontalmente para recorrer las columnas.</p><DataTable caption="Directorio persistido de pacientes" columns={columns} getRowKey={(item) => item.patientId} rows={patients} /></div></section> : null}
+    {patients && patients.length > 0 ? <section className="space-y-3" aria-labelledby="patient-results-title"><div className="flex flex-col gap-1 border-b border-[#56777A]/15 pb-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-extrabold tracking-[-0.02em] text-[#334B54]" id="patient-results-title">Resultados administrativos</h2><p className="mt-1 text-sm text-[#62727B]">La información clínica no se muestra en esta vista.</p></div><span className="w-fit rounded-full bg-[#DDF3F1] px-3 py-1 text-xs font-bold text-[#334B54]">{patients.length} {patients.length === 1 ? "registro" : "registros"}</span></div><div aria-label="Resultados de pacientes" className="overflow-x-auto rounded-2xl border border-[#62727B]/15 bg-white shadow-[0_12px_32px_rgba(51,75,84,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#56777A]" role="region" tabIndex={0}><p className="border-b border-[#62727B]/10 bg-[#FBFCFA] px-3 py-2 text-xs font-medium text-[#62727B] md:hidden">Desliza horizontalmente para recorrer las columnas.</p><DataTable caption="Directorio persistido de pacientes" columns={columnsForSearch(appliedSearch)} getRowKey={(item) => item.patientId} rows={patients} /></div></section> : null}
   </div>;
 }

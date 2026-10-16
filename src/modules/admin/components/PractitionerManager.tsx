@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import type { Especialidad, Medico } from "@/shared/types/catalogo-medico";
-import { Button, Card, EmptyState, LoadingState, StatusBadge } from "@/shared/components";
+import { Button, Card, EmptyState, Input, LoadingState, SelectField, StatusBadge } from "@/shared/components";
 import { getCsrfToken } from "@/modules/auth/csrf-client";
 import { PractitionerPortrait } from "@/modules/catalogo-medico/components/PractitionerPortrait";
 
@@ -60,10 +60,10 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
           <p className="mt-2 text-sm text-white/65">Datos de catálogo y fotografía autorizada.</p>
         </div>
         <form className="mt-6 space-y-5" onSubmit={save}>
-          <label className="block text-sm font-semibold">Nombre completo<input className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/></label>
-          <label className="block text-sm font-semibold">Especialidad<select className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-          <label className="block text-sm font-semibold">Número de colegiado<input className="mt-2 min-h-11 w-full rounded-xl border border-[#62727B]/25 bg-white p-3 outline-none focus:border-[#56777A] focus:ring-2 focus:ring-[#DDF3F1]" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/></label>
-          <div className="rounded-2xl border border-dashed border-[#56777A]/35 bg-[#DDF3F1]/25 p-4"><label className="block text-sm font-bold">Fotografía profesional<input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-3 block min-h-11 w-full text-sm" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /></label><p className="mt-2 text-xs leading-5 text-[#62727B]" id="photo-help">JPEG o PNG, máximo 2 MB. El servidor valida nuevamente contenido y tamaño.</p></div>
+          <Input id="practitioner-name" label="Nombre completo" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/>
+          <SelectField id="practitioner-specialty" label="Especialidad" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
+          <Input id="practitioner-license" label="Número de colegiado" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/>
+          <div className="rounded-2xl border border-dashed border-[#56777A]/35 bg-[#DDF3F1]/25 p-4"><label className="block text-sm font-bold" htmlFor="practitioner-photo">Fotografía profesional</label><input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-3 block min-h-11 w-full rounded-xl border border-[#56777A]/20 bg-white/75 p-2 text-sm text-[#334B54] file:mr-3 file:rounded-lg file:border-0 file:bg-[#DDF3F1] file:px-3 file:py-2 file:font-bold file:text-[#334B54] hover:file:bg-[#E5F1D8]" id="practitioner-photo" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /><p className="mt-2 text-xs leading-5 text-[#62727B]" id="photo-help">JPEG o PNG, máximo 2 MB. El servidor valida nuevamente contenido y tamaño.</p></div>
           {preview ? <Image alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-2xl object-cover" height={176} src={preview} unoptimized width={480}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
           <div className="flex flex-wrap gap-2"><Button disabled={busy} type="submit">{busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
         </form>

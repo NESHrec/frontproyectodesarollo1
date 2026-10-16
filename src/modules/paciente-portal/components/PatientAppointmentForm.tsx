@@ -132,7 +132,7 @@ export function PatientAppointmentForm({
           <div className="serena-stagger mt-5 grid gap-3 sm:grid-cols-2">
             {visibleSlots.map((slot) => {
               const selected = selectedSlotId === slot.id;
-              return <button aria-pressed={selected} className={`rounded-md border px-4 py-3 text-left text-sm font-semibold transition hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none ${selected ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/20 bg-[#FBFCFA] hover:bg-[#F8EDD2]"}`} key={slot.id} onClick={() => { setSelectedSlotId(slot.id); setValue("slotId", slot.id); setMessage(""); }} type="button"><span className="block">{slot.fecha}</span><span className="mt-1 block text-lg">{slot.horaInicio} – {slot.horaFin}</span></button>;
+              return <button aria-pressed={selected} className={`serena-slot rounded-xl border px-4 py-3 text-left text-sm font-semibold transition hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none ${selected ? "border-[#62727B] bg-[#DDF3F1] shadow-[var(--serena-shadow-soft)]" : "border-[#62727B]/20 bg-[#FBFCFA] hover:bg-[#F8EDD2]"}`} key={slot.id} onClick={() => { setSelectedSlotId(slot.id); setValue("slotId", slot.id); setMessage(""); }} type="button"><span className="block">{slot.fecha}</span><span className="mt-1 block text-lg">{slot.horaInicio} – {slot.horaFin}</span></button>;
             })}
           </div>
         ) : <p className="mt-5 rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold">No hay horarios disponibles para este profesional.</p>}

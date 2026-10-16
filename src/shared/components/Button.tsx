@@ -28,7 +28,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] px-5 py-2 text-sm font-bold transition hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none",
+        "serena-action inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] px-5 py-2 text-sm font-bold transition hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none",
         variantClasses[variant],
         className,
       )}
@@ -44,4 +44,4 @@ export function Button({
 }
 
 export const buttonLinkClasses =
-  "inline-flex min-h-11 items-center justify-center rounded-[var(--serena-radius-sm)] border border-transparent bg-[var(--serena-teal)] px-5 py-2 text-sm font-bold text-white shadow-[var(--serena-shadow-soft)] transition hover:-translate-y-px hover:bg-[var(--serena-ink)] active:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none";
+  "serena-action inline-flex min-h-11 items-center justify-center rounded-[var(--serena-radius-sm)] border border-transparent bg-[var(--serena-teal)] px-5 py-2 text-sm font-bold text-white shadow-[var(--serena-shadow-soft)] transition hover:-translate-y-px hover:bg-[var(--serena-ink)] active:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none";

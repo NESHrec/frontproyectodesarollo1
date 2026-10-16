@@ -31,7 +31,7 @@ export function Input({
         aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         className={cn(
-          "min-h-11 w-full rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-white/80 px-4 py-3 text-sm text-[var(--serena-text)] outline-none transition placeholder:text-[var(--serena-text)]/55 focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)] focus:shadow-[0_0_0_4px_rgb(86_119_122_/_0.12)]",
+          "serena-field-control min-h-11 w-full rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-white/80 px-4 py-3 text-sm text-[var(--serena-text)] outline-none transition placeholder:text-[var(--serena-text)]/55 focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)] focus:shadow-[0_0_0_4px_rgb(86_119_122_/_0.12)]",
           error ? "border-[var(--serena-danger)] bg-[var(--serena-danger-soft)]/30" : null,
           className,
         )}

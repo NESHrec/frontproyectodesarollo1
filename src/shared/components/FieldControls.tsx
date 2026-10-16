@@ -23,7 +23,7 @@ export function SelectField({ label, error, helperText, className, id, ...props 
           aria-describedby={describedBy}
           aria-invalid={Boolean(error)}
           className={cn(
-            "min-h-12 w-full appearance-none rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 pr-11 text-sm font-medium text-[var(--serena-text)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--serena-border-strong)] focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)] focus:shadow-[0_0_0_3px_rgb(86_119_122_/_0.12)]",
+            "serena-field-control min-h-12 w-full appearance-none rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 pr-11 text-sm font-medium text-[var(--serena-text)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--serena-border-strong)] focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)] focus:shadow-[0_0_0_3px_rgb(86_119_122_/_0.12)]",
             error ? "border-[var(--serena-danger)] bg-[var(--serena-danger-soft)]/30" : null,
             className,
           )}
@@ -53,7 +53,7 @@ export function TextareaField({ label, error, helperText, className, id, ...prop
         aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         className={cn(
-          "min-h-24 w-full rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--serena-text)] outline-none transition placeholder:text-[var(--serena-text)]/60 focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)]",
+          "serena-field-control min-h-24 w-full rounded-[var(--serena-radius-sm)] border border-[var(--serena-border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--serena-text)] outline-none transition placeholder:text-[var(--serena-text)]/60 focus:border-[var(--serena-focus)] focus:bg-[var(--serena-surface-info)]",
           error ? "border-[var(--serena-danger)] bg-[var(--serena-danger-soft)]/30" : null,
           className,
         )}

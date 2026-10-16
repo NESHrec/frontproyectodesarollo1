@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { getCsrfToken } from "@/modules/auth/csrf-client";
+import { DentalArchVisual } from "@/modules/odontologia/components/DentalArchVisual";
 import { permanentRows, primaryRows, surfaceLabels, surfaces, type DentalSurface } from "@/modules/odontologia/data";
 import type { DentalObservation } from "@/modules/odontologia/schemas";
 import { Button, EmptyState, Input } from "@/shared/components";
@@ -209,10 +210,14 @@ export function Odontogram({
 
   return (
     <section aria-labelledby="odontogram-title" className="min-w-0 space-y-7 rounded-[2rem] border border-[#62727B]/15 bg-white p-4 shadow-[0_28px_75px_-48px_rgba(38,50,56,0.7)] sm:p-7">
-      <div className="relative overflow-hidden rounded-[1.5rem] bg-[#334B54] p-5 text-white before:pointer-events-none before:absolute before:-right-12 before:-top-20 before:size-56 before:rounded-full before:bg-[#DDF3F1]/10 before:blur-3xl sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/70">Mapa clínico interactivo</p>
-        <h2 className="mt-2 text-2xl font-black text-white" id="odontogram-title">Esquema de superficies dentales FDI</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/70">Cada contorno representa una pieza y organiza las superficies admitidas por el registro clínico. Es un esquema de selección, no un odontograma anatómico completo.</p>
+      <div className="serena-dental-hero grid items-center gap-5 overflow-hidden rounded-[1.5rem] p-5 text-white sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] lg:gap-8">
+        <div className="relative z-10">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/80">Mapa clínico interactivo</p>
+          <h2 className="mt-3 max-w-xl text-2xl font-black tracking-tight text-white sm:text-3xl" id="odontogram-title">Esquema de superficies dentales FDI</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80">Selecciona una pieza y una superficie en el esquema de abajo para consultar o registrar observaciones. La ilustración muestra la anatomía como referencia visual; el historial clínico permanece en el esquema FDI.</p>
+          <p className="mt-6 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-[#DDF3F1]">Pieza → superficie → observación</p>
+        </div>
+        <DentalArchVisual />
       </div>
       <div aria-label="Leyenda del esquema" className="grid gap-2 rounded-2xl border border-[#62727B]/10 bg-[#F6FAFA] p-4 text-xs sm:grid-cols-2 sm:text-sm lg:grid-cols-4">
         <span className="flex items-center gap-2"><span aria-hidden className="size-3 rounded-sm border border-[#62727B]/25 bg-white" />Sin observación</span>

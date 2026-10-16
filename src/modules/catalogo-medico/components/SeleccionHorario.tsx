@@ -33,7 +33,7 @@ export function SeleccionHorario({ bloques, medicoId, patientSessionActive, spec
           return (
             <button
               aria-pressed={isSelected}
-              className={`min-h-20 rounded-[var(--serena-radius-sm)] border px-4 py-3 text-left text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--serena-focus)] ${isSelected ? "border-[var(--serena-focus)] bg-[var(--serena-surface-info)] text-[var(--serena-ink)] shadow-[0_8px_22px_rgb(51_75_84_/_0.1)]" : "border-[var(--serena-border)] bg-[var(--serena-surface)] text-[var(--serena-text)] hover:-translate-y-px hover:border-[var(--serena-border-strong)] hover:bg-[var(--serena-warning-soft)] motion-reduce:transform-none motion-reduce:translate-none"}`}
+              className={`serena-slot min-h-20 rounded-[var(--serena-radius-sm)] border px-4 py-3 text-left text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--serena-focus)] ${isSelected ? "border-[var(--serena-focus)] bg-[var(--serena-surface-info)] text-[var(--serena-ink)] shadow-[0_8px_22px_rgb(51_75_84_/_0.1)]" : "border-[var(--serena-border)] bg-[var(--serena-surface)] text-[var(--serena-text)] hover:-translate-y-px hover:border-[var(--serena-border-strong)] hover:bg-[var(--serena-warning-soft)] motion-reduce:transform-none motion-reduce:translate-none"}`}
               key={bloque.id}
               onClick={() => setBloqueId(bloque.id)}
               type="button"

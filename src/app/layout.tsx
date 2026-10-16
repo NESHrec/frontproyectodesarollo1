@@ -13,6 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       lang="es"
       className="h-full antialiased"
+      data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col bg-[#FBFCFA] text-[#62727B]">
         {children}
