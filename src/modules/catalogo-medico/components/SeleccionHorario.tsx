@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { buttonLinkClasses } from "@/shared/components";
 import type { BloqueHorarioVista } from "@/shared/types/catalogo-medico";
+import { AvailabilityCalendar, availabilityDateKey } from "@/modules/catalogo-medico/components/AvailabilityCalendar";
 
 type SeleccionHorarioProps = {
   bloques: BloqueHorarioVista[];
@@ -15,6 +16,8 @@ type SeleccionHorarioProps = {
 
 export function SeleccionHorario({ bloques, medicoId, patientSessionActive, specialtyId, staffSessionActive }: SeleccionHorarioProps) {
   const [bloqueId, setBloqueId] = useState("");
+  const [selectedDate, setSelectedDate] = useState(() => availabilityDateKey(bloques[0].startAt));
+  const visibleBloques = bloques.filter((bloque) => availabilityDateKey(bloque.startAt) === selectedDate);
   const bloqueSeleccionado = bloques.find((bloque) => bloque.id === bloqueId);
   const reservationPath = bloqueSeleccionado
     ? `/paciente/citas/nueva?${new URLSearchParams({ especialidadId: specialtyId, medicoId, slotId: bloqueSeleccionado.id })}`
@@ -27,8 +30,13 @@ export function SeleccionHorario({ bloques, medicoId, patientSessionActive, spec
         <div><p className="serena-kicker">Paso 3 · Horario</p><h3 className="mt-1 text-lg font-black text-[var(--serena-ink)]">Elige el momento que te funcione</h3></div>
         <span aria-hidden="true" className="grid size-10 place-items-center rounded-2xl bg-[var(--serena-surface-info)] text-xl font-bold text-[var(--serena-teal)]">◷</span>
       </div>
+      <AvailabilityCalendar bloques={bloques} selectedDate={selectedDate} onSelect={(date) => {
+        setSelectedDate(date);
+        setBloqueId("");
+      }} />
+      <p className="text-sm font-semibold text-[var(--serena-text)]" role="status">{visibleBloques.length} {visibleBloques.length === 1 ? "horario disponible" : "horarios disponibles"} para el día seleccionado</p>
       <div className="grid gap-3 sm:grid-cols-2">
-        {bloques.map((bloque) => {
+        {visibleBloques.map((bloque) => {
           const isSelected = bloque.id === bloqueId;
           return (
             <button

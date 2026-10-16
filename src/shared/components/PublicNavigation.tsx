@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { MorphIcon } from "morphicons/react";
 import { buttonLinkClasses } from "@/shared/components/Button";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { ThemeSwitcher } from "@/shared/components/ThemeSwitcher";
 
 const publicLinks = [
   { href: "/", label: "Inicio" },
@@ -63,6 +64,7 @@ export function PublicNavigation({ destination }: { destination: Destination }) 
           <span className="px-3 py-1 lg:px-0"><StatusBadge tone="pistacho">Sesión de personal activa</StatusBadge></span>
           <Link className={buttonLinkClasses} href={destination.href} onClick={() => setOpen(false)}>{destination.label}</Link>
         </> : <Link className={buttonLinkClasses} href="/iniciar-sesion" onClick={() => setOpen(false)}>Iniciar sesión</Link>}
+        <ThemeSwitcher />
       </nav>
     </div>
   );

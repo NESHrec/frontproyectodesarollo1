@@ -44,6 +44,7 @@ export async function HorariosDisponibles({
     return (
       <SeleccionHorario
         bloques={bloques}
+        key={medicoId}
         medicoId={medicoId}
         patientSessionActive={patientSessionActive}
         specialtyId={specialtyId}

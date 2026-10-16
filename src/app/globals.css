@@ -219,3 +219,110 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: #DDF3F1;
   color: #62727B;
 }
+
+/* Dental scene, built from the supplied dental artwork and video. */
+.serena-clinic-scene { background: radial-gradient(circle at 75% 45%, rgb(137 197 198 / .3), transparent 27rem), linear-gradient(125deg, #263238, #334b54 65%, #456b70); box-shadow: 0 32px 76px rgb(38 50 56 / .18); }
+.serena-dental-scene { --dental-rotate-x: 0deg; --dental-rotate-y: 0deg; position: relative; isolation: isolate; display: grid; min-width: 0; place-items: center; overflow: hidden; aspect-ratio: 1.12; margin: 0; border: 1px solid rgb(221 243 241 / .24); border-radius: 1.7rem; background: radial-gradient(circle at 50% 50%, rgb(221 243 241 / .22), transparent 58%), linear-gradient(150deg, rgb(110 169 174 / .22), rgb(31 55 63 / .55)); perspective: 900px; }
+.serena-dental-scene-video { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(20px) saturate(.8); mix-blend-mode: screen; object-fit: cover; opacity: .27; pointer-events: none; }
+.serena-dental-scene-orbit { position: absolute; width: 72%; aspect-ratio: 1; border: 1px solid rgb(221 243 241 / .28); border-radius: 50%; box-shadow: 0 0 0 2rem rgb(221 243 241 / .045), 0 0 0 4rem rgb(221 243 241 / .025); }
+.serena-dental-scene-image { position: relative; z-index: 1; width: 82%; height: auto; filter: drop-shadow(0 28px 24px rgb(8 24 27 / .38)); transform: rotateX(var(--dental-rotate-x)) rotateY(var(--dental-rotate-y)); transition: transform 360ms cubic-bezier(.2,.75,.25,1); }
+.serena-dental-scene-caption { position: absolute; right: 1rem; bottom: 1rem; left: 1rem; z-index: 2; color: #eef8f5; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-align: center; }
+.serena-dental-scene-compact { aspect-ratio: 1; border: 0; background: transparent; }
+.serena-dental-scene-compact .serena-dental-scene-image { width: 96%; }
+
+/* Scroll-led reveal uses normal document scrolling; it never traps wheel or touch events. */
+.serena-scroll-story { --story-inset: 8%; overflow: hidden; background: linear-gradient(160deg, #e6f3f0, #f7faf7 58%, #f9f1e4); }
+.serena-scroll-story-frame { position: relative; display: grid; min-height: 20rem; overflow: hidden; place-items: center; border: 1px solid rgb(255 255 255 / .55); border-radius: 2rem; background: #334b54; box-shadow: 0 26px 65px rgb(38 50 56 / .15); clip-path: inset(0 var(--story-inset) round 2rem); }
+.serena-scroll-story-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .35; filter: blur(16px); }
+.serena-scroll-story-art { position: relative; z-index: 1; width: min(76%, 27rem); height: auto; max-height: 32rem; margin-block: 2rem; object-fit: contain; filter: drop-shadow(0 20px 18px rgb(8 24 27 / .35)); }
+.serena-scroll-story-frame::after { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgb(17 39 44 / .52)); content: ""; pointer-events: none; }
+.serena-scroll-story-label { position: absolute; bottom: 1.25rem; left: 1.5rem; z-index: 2; color: white; font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+
+/* Shader-inspired feature cards in the clinic palette. */
+.serena-shader-card { isolation: isolate; }
+.serena-shader-field { position: absolute; top: -6rem; right: -7rem; z-index: -1; width: 18rem; height: 18rem; border-radius: 43% 57% 52% 48%; background: radial-gradient(circle at 25% 24%, rgb(221 243 241 / .9), transparent 35%), conic-gradient(from 15deg, rgb(86 119 122 / .18), rgb(229 241 216 / .65), rgb(248 226 232 / .36), rgb(221 243 241 / .8), rgb(86 119 122 / .18)); filter: blur(7px); opacity: .7; animation: serena-shader-drift 12s ease-in-out infinite alternate; }
+.serena-shader-card:nth-child(2) .serena-shader-field { background: radial-gradient(circle at 25% 24%, rgb(248 226 232 / .8), transparent 35%), conic-gradient(from 45deg, rgb(141 65 84 / .19), rgb(248 237 210 / .8), rgb(221 243 241 / .5), rgb(248 226 232 / .8)); animation-delay: -4s; }
+.serena-shader-card:nth-child(3) .serena-shader-field { background: radial-gradient(circle at 25% 24%, rgb(229 241 216 / .8), transparent 35%), conic-gradient(from 80deg, rgb(86 119 122 / .2), rgb(221 243 241 / .7), rgb(229 241 216 / .8), rgb(248 237 210 / .4)); animation-delay: -8s; }
+@keyframes serena-shader-drift { to { transform: translate(-1.4rem, 1.1rem) rotate(26deg) scale(1.12); } }
+.serena-reservation-guide { border: 1px solid var(--serena-border); background: linear-gradient(120deg, var(--serena-surface-info), var(--serena-success-soft)); }
+.serena-particle-button { position: relative; overflow: visible; }
+.serena-particle-burst { position: absolute; inset: 0; pointer-events: none; }
+.serena-particle-burst i { --angle: calc(var(--particle-index) * 45deg); position: absolute; top: 50%; left: 50%; width: .45rem; height: .45rem; border-radius: 50%; background: #8d4154; animation: serena-particle-flight 650ms ease-out both; }
+.serena-particle-burst i:nth-child(even) { background: #56777a; }
+@keyframes serena-particle-flight { to { opacity: 0; transform: rotate(var(--angle)) translateX(3.5rem) scale(.25); } }
+
+/* Availability calendar is a view of real published slots. */
+.serena-availability-calendar { width: min(100%, 26rem); border: 1px solid var(--serena-border); border-radius: 1.25rem; background: var(--serena-surface); padding: 1.25rem; box-shadow: var(--serena-shadow-soft); }
+.serena-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .25rem; }
+.serena-calendar-weekday { padding-block: .35rem; color: var(--serena-text); font-size: .7rem; font-weight: 800; text-align: center; }
+.serena-calendar-day { position: relative; display: grid; width: 100%; min-height: 2.55rem; place-items: center; border: 1px solid transparent; border-radius: .7rem; color: var(--serena-text); font-size: .82rem; font-weight: 700; }
+.serena-calendar-day:not(:disabled):hover { border-color: var(--serena-border-strong); background: var(--serena-surface-info); color: var(--serena-ink); }
+.serena-calendar-day:disabled { opacity: .42; cursor: not-allowed; }
+.serena-calendar-day[aria-pressed="true"] { background: #334b54; color: white; }
+.serena-calendar-dot { position: absolute; bottom: .23rem; width: .25rem; height: .25rem; border-radius: 50%; background: var(--serena-teal); }
+.serena-calendar-day[aria-pressed="true"] .serena-calendar-dot { background: #ddf3f1; }
+.serena-calendar-legend-dot { display: inline-block; width: .4rem; height: .4rem; margin-right: .3rem; border-radius: 50%; background: var(--serena-teal); vertical-align: middle; }
+.serena-calendar-arrow { display: grid; width: 2rem; height: 2rem; place-items: center; border: 1px solid var(--serena-border); border-radius: .65rem; background: var(--serena-surface-info); color: var(--serena-ink); font-size: 1.35rem; line-height: 1; }
+.serena-calendar-arrow:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Public navigation and appearance controls. */
+.serena-public-nav-link { isolation: isolate; overflow: hidden; }
+.serena-public-nav-link::before { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: radial-gradient(circle at 50% 90%, rgb(221 243 241 / .9), transparent 72%); content: ""; opacity: 0; transform: scale(.7); transition: opacity 240ms ease, transform 240ms ease; }
+.serena-public-nav-link:hover::before, .serena-public-nav-link:focus-visible::before, .serena-public-nav-active::before { opacity: .7; transform: scale(1); }
+.serena-theme-switcher { display: inline-flex; width: fit-content; align-items: center; gap: .15rem; border: 1px solid var(--serena-border); border-radius: 999px; background: var(--serena-surface); padding: .2rem; }
+.serena-theme-choice { display: grid; width: 1.9rem; height: 1.9rem; place-items: center; border-radius: 50%; color: var(--serena-text); font-size: 1rem; line-height: 1; }
+.serena-theme-choice:hover { background: var(--serena-surface-info); }
+.serena-theme-choice[aria-pressed="true"] { background: var(--serena-ink); color: var(--serena-surface); box-shadow: 0 2px 9px rgb(38 50 56 / .16); }
+
+/* A calmer dark choice scoped to public and account access pages. */
+:root[data-serena-theme="dark"] .serena-public-theme,
+:root[data-serena-theme="dark"] .serena-auth-theme { --background: #17272d; --foreground: #dceae7; --serena-ink: #edf7f3; --serena-text: #bfd0ce; --serena-teal: #86b5af; --serena-surface: #243940; --serena-surface-info: #2e4a4d; --serena-success-soft: #304b43; --serena-warning-soft: #504738; --serena-danger-soft: #513b43; --serena-border: rgb(221 243 241 / .2); --serena-border-strong: rgb(221 243 241 / .4); --serena-focus: #9ddbd1; color: var(--serena-text); background: #17272d; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-surface,
+:root[data-serena-theme="dark"] .serena-auth-theme.serena-surface { background: radial-gradient(circle at 8% 0%, rgb(62 100 103 / .34), transparent 30rem), linear-gradient(180deg, #17272d, #1d3036); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-hero,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-steps,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-scroll-story { background: linear-gradient(150deg, #1d3238, #263d42); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header { background: rgb(25 44 50 / .94); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header a,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header button { color: var(--serena-ink); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header nav { background-color: #21383e; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header .serena-brand-mark { background: #466f73; color: white; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header button[aria-controls="serena-public-navigation"] { border-color: var(--serena-border); background: #2f4b50; color: white; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-step,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-card,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-stat,
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-card { background-color: #243940 !important; color: var(--serena-text); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-stat strong,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-stat span { color: var(--serena-ink); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-visual-card { border-color: rgb(221 243 241 / .3); background: rgb(31 52 59 / .93) !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-visual-card p { color: #e6f2ee; }
+:root[data-serena-theme="dark"] .serena-public-theme a.serena-action { background: #456f71 !important; color: white !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-copy a[href="/reservar"] { background: #bde5dd !important; color: #20373d !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-home-copy a[href="/medicos"] { background: rgb(255 255 255 / .1) !important; color: white !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-scroll-story a,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-header a[href="/iniciar-sesion"] { background: #456f71; color: white; }
+:root[data-serena-theme="dark"] .serena-public-theme footer { background: #13262c; }
+:root[data-serena-theme="dark"] .serena-public-theme footer a,
+:root[data-serena-theme="dark"] .serena-public-theme footer p { color: #e6f2ee; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-card h2,
+:root[data-serena-theme="dark"] .serena-public-theme .serena-card p { color: var(--serena-ink) !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-card li { background: #345157 !important; color: #e7f3ef !important; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-theme-choice[aria-pressed="true"] { background: #52787a; color: white; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-public-nav-active { background: #345156; }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-reservation-guide { background: linear-gradient(120deg, #2b484b, #314940); }
+:root[data-serena-theme="dark"] .serena-public-theme .serena-calendar-day[aria-pressed="true"] { background: #476e70; }
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card h1,
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card a,
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card .text-\[\#62727B\] { color: var(--serena-ink); }
+:root[data-serena-theme="dark"] .serena-auth-theme > div:first-child a { color: var(--serena-ink); }
+:root[data-serena-theme="dark"] .serena-auth-theme > div:first-child .serena-brand-mark { background: #466f73; color: white; }
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card label { color: var(--serena-ink); }
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card p:not([class*="bg-"]) { color: var(--serena-text); }
+:root[data-serena-theme="dark"] .serena-auth-theme .serena-auth-card input { background: #f7faf8; color: #263a3e; }
+
+@media (prefers-reduced-motion: reduce) {
+  .serena-dental-scene-video, .serena-scroll-story-video { display: none; }
+  .serena-dental-scene-image { transform: none !important; transition: none; }
+  .serena-scroll-story-frame { clip-path: none; }
+  .serena-shader-field, .serena-particle-burst { animation: none; }
+}

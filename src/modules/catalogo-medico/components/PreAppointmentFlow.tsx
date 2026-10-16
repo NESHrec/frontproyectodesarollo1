@@ -35,7 +35,7 @@ export function PreAppointmentFlow({ medicos, medicoId, children }: PreAppointme
           <span aria-hidden="true" className="serena-reservation-step-index">{step.state === "complete" ? "✓" : String(index + 1).padStart(2, "0")}</span>
           <span className="serena-reservation-step-copy">
             <span className="truncate">{step.label}</span>
-            <span className="serena-reservation-step-status">{step.state === "current" ? "Paso actual" : step.state === "complete" ? "Completado" : "Pendiente"}</span>
+            <span className="serena-reservation-step-status">{step.state === "current" ? "Paso actual" : step.state === "complete" ? "Completado" : step.label === "Especialidad" ? "Con profesional" : "Pendiente"}</span>
           </span>
         </li>)}
       </ol>

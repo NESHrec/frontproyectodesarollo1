@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { clinicaInfo } from "@/modules/catalogo-medico/data";
 import { getEspecialidades, getMedicos } from "@/modules/catalogo-medico/api";
 import { ApiErrorState, LoadingState, buttonLinkClasses } from "@/shared/components";
+import { ScrollDentalStory } from "@/shared/components/ScrollDentalStory";
+import { ReservationGuide } from "@/shared/components/ReservationGuide";
 
 const steps = [
   { number: "01", title: "Explora especialidades", description: "Conoce los servicios disponibles y elige según tus necesidades." },
@@ -56,6 +58,7 @@ export default function HomePage() {
           <Suspense fallback={<LoadingState message="Consultando disponibilidad..." />}><ResumenCatalogo /></Suspense>
         </div>
       </section>
+      <ScrollDentalStory />
       <section className="serena-home-steps border-t border-[var(--serena-border)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-5 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
@@ -63,12 +66,14 @@ export default function HomePage() {
             <p className="max-w-xl text-base leading-8 text-[var(--serena-text)] lg:justify-self-end">Encuentra la atención que necesitas, sin pasos confusos. Tres decisiones claras para reservar con tranquilidad.</p>
           </div>
           <div className="serena-stagger mt-10 grid gap-4 md:grid-cols-3">
-            {steps.map((step) => <article className="serena-step" key={step.number}>
+            {steps.map((step) => <article className="serena-step serena-shader-card" key={step.number}>
+              <span aria-hidden="true" className="serena-shader-field" />
               <span aria-hidden="true" className="serena-step-number">{step.number}</span>
               <h3 className="mt-10 text-xl font-black tracking-tight text-[var(--serena-ink)]">{step.title}</h3>
               <p className="mt-3 max-w-xs leading-7 text-[var(--serena-text)]">{step.description}</p>
             </article>)}
           </div>
+          <ReservationGuide />
         </div>
       </section>
     </>
