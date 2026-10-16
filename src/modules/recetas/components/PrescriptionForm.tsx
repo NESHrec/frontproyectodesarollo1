@@ -18,18 +18,18 @@ export function PrescriptionFields({ control, register, errors, disabled }: Pres
   const { fields, append, remove } = useFieldArray({ control, name: "prescription" });
 
   return (
-    <fieldset className="space-y-4" disabled={disabled}>
-      <legend className="text-lg font-bold text-[#62727B]">Receta</legend>
+    <fieldset className="space-y-5 rounded-2xl border border-[#62727B]/12 bg-white p-4 shadow-[0_14px_38px_-34px_rgba(38,50,56,.6)] sm:p-6" disabled={disabled}>
+      <legend className="px-2 text-lg font-black text-[#334B54]">Receta</legend>
       <p className="text-sm text-[#62727B]/80">
         Agrega hasta {MAX_PRESCRIPTION_ITEMS} medicamentos. Deja la receta vacía si no se indica ninguno.
       </p>
-      {fields.length === 0 ? <p className="rounded-md bg-[#F8EDD2] px-4 py-3 text-sm">Sin medicamentos agregados.</p> : null}
+      {fields.length === 0 ? <div className="rounded-2xl border border-dashed border-[#8D6B2E]/25 bg-[#F8EDD2]/65 px-4 py-5 text-center"><p className="text-sm font-semibold text-[#334B54]">Sin medicamentos agregados</p><p className="mt-1 text-xs text-[#62727B]">La atención puede guardarse sin receta.</p></div> : null}
       {fields.map((field, index) => {
         const itemErrors = errors.prescription?.[index];
         return (
-          <div className="space-y-4 rounded-lg border border-[#62727B]/15 p-4" key={field.id}>
+          <div className="space-y-4 rounded-2xl border border-[#62727B]/15 bg-[#FBFCFA] p-4 sm:p-5" key={field.id}>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-bold">Medicamento {index + 1}</p>
+              <p className="inline-flex items-center gap-2 text-sm font-bold text-[#334B54]"><span aria-hidden className="grid size-7 place-items-center rounded-full bg-[#DDF3F1] text-xs">{index + 1}</span>Medicamento {index + 1}</p>
               <Button onClick={() => remove(index)} variant="ghost">Quitar</Button>
             </div>
             <Input error={itemErrors?.medicine?.message} id={`prescription-${index}-medicine`} label="Medicamento" {...register(`prescription.${index}.medicine`)} />
