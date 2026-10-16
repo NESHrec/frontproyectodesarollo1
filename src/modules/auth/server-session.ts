@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 export const PATIENT_SESSION_COOKIE = "clinica_serena_patient_session";
 export const PATIENT_CSRF_COOKIE = "clinica_serena_csrf";
+const BACKEND_REQUEST_TIMEOUT_MS = 12_000;
 
 export type PatientIdentity = {
   patientId: string;
@@ -54,7 +55,11 @@ export async function backendFetch(path: string, init: RequestInit = {}) {
   const baseUrl = backendApiBaseUrl();
   if (!baseUrl) return null;
   try {
-    return await fetch(`${baseUrl}${path}`, { ...init, cache: "no-store" });
+    return await fetch(`${baseUrl}${path}`, {
+      ...init,
+      cache: "no-store",
+      signal: init.signal ?? AbortSignal.timeout(BACKEND_REQUEST_TIMEOUT_MS),
+    });
   } catch {
     return null;
   }
