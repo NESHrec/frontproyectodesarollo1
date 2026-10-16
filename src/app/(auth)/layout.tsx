@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </Link>
       </div>
       <section className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[.95fr_1.05fr] lg:gap-12 lg:px-8 lg:py-10">
-        <div className="serena-auth-panel serena-enter hidden min-h-[34rem] flex-col justify-between overflow-hidden rounded-[2rem] p-10 text-white lg:flex xl:p-14">
+        <div className="serena-auth-panel serena-enter serena-stagger hidden min-h-[34rem] flex-col justify-between overflow-hidden rounded-[2rem] p-10 text-white lg:flex xl:p-14">
           <div className="relative z-10">
             <p className="serena-home-eyebrow">Clínica Serena · Tu espacio</p>
             <p className="mt-12 max-w-md text-[clamp(2.8rem,3.7vw,4.4rem)] font-black leading-[1.03] tracking-[-.05em]">Cuidarte empieza aquí.</p>

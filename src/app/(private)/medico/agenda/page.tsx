@@ -18,7 +18,7 @@ export default async function DoctorAgendaPage({ searchParams }: { searchParams:
     <div className="space-y-7">
       <InternalPageHeader actions={<Link className={buttonLinkClasses} href="/medico/horarios">Consultar horarios</Link>} description="Solo se muestran citas persistidas asignadas a tu profesional vinculado." eyebrow="Médico / Odontólogo" title="Mi agenda" />
       <div className="grid gap-5 lg:grid-cols-[18rem_1fr]">
-        <form action="/medico/agenda" className="self-start rounded-[1.5rem] border border-[#62727B]/15 bg-white p-5 shadow-[0_16px_45px_-36px_rgba(38,50,56,0.55)]">
+        <form action="/medico/agenda" className="self-start rounded-[1.5rem] border border-[var(--serena-border)] bg-white p-5 shadow-[var(--serena-shadow-soft)] lg:sticky lg:top-24">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Vista de agenda</p>
           <h2 className="mt-2 text-xl font-black text-[#263238]">Filtrar citas</h2>
           <div className="mt-5"><SearchFilters><SelectField defaultValue={status ?? ""} id="estado" label="Estado" name="estado"><option value="">Todos</option>{STATUSES.map((item) => <option key={item} value={item}>{appointmentStatusLabel[item]}</option>)}</SelectField><div className="flex items-end"><Button type="submit">Aplicar filtro</Button></div></SearchFilters></div>

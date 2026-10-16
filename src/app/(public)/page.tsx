@@ -52,7 +52,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="mx-auto mt-5 grid max-w-7xl gap-3 sm:grid-cols-2">
+        <div className="serena-stagger mx-auto mt-5 grid max-w-7xl gap-3 sm:grid-cols-2">
           <Suspense fallback={<LoadingState message="Consultando disponibilidad..." />}><ResumenCatalogo /></Suspense>
         </div>
       </section>
@@ -62,7 +62,7 @@ export default function HomePage() {
             <div><p className="serena-kicker">Una experiencia sencilla</p><h2 className="mt-4 max-w-xl text-3xl font-black leading-tight tracking-[-.04em] text-[var(--serena-ink)] sm:text-5xl">Tu próxima visita comienza aquí.</h2></div>
             <p className="max-w-xl text-base leading-8 text-[var(--serena-text)] lg:justify-self-end">Encuentra la atención que necesitas, sin pasos confusos. Tres decisiones claras para reservar con tranquilidad.</p>
           </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="serena-stagger mt-10 grid gap-4 md:grid-cols-3">
             {steps.map((step) => <article className="serena-step" key={step.number}>
               <span aria-hidden="true" className="serena-step-number">{step.number}</span>
               <h3 className="mt-10 text-xl font-black tracking-tight text-[var(--serena-ink)]">{step.title}</h3>

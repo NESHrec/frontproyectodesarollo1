@@ -75,7 +75,7 @@ export function PatientProfileForm() {
   if (error === "service" || !profile) return <ErrorState description="No pudimos consultar tu perfil. Intenta nuevamente cuando el servicio esté disponible." onRetry={() => void load()} title="Perfil no disponible" />;
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+    <form className="serena-enter serena-stagger space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <Card className="space-y-5">
         <Input error={errors.fullName?.message} helperText="Es el único dato personal editable en esta fase." label="Nombre completo" {...register("fullName")} defaultValue={profile.fullName ?? ""} />
         <Input helperText="El correo requiere un proceso adicional de verificación y no puede cambiarse aquí." label="Correo asociado a tu cuenta" readOnly value={profile.email} type="email" />

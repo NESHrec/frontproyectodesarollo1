@@ -10,7 +10,7 @@ export default function ClinicaPage() {
         title="Un entorno digital sereno para atención en salud"
       />
       <section className="serena-surface px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.9fr]">
+        <div className="serena-stagger mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.9fr]">
           <Card className="bg-[var(--serena-warning-soft)]">
             <StatusBadge tone="agua">Información general</StatusBadge>
             <h2 className="mt-5 text-2xl font-bold text-[#62727B]">{clinicaInfo.nombre}</h2>

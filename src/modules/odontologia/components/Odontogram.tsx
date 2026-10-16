@@ -36,7 +36,7 @@ function ToothSurfaceDiagram({
   return (
     <div
       aria-label={`Esquema de superficies de la pieza dental FDI ${number}`}
-      className={`min-w-0 rounded-[1.4rem] border-2 p-2 transition ${
+      className={`min-w-0 rounded-[1.4rem] border-2 p-2 transition-[background-color,border-color,box-shadow] duration-200 motion-reduce:transition-none ${
         toothSelected ? "border-[#62727B] bg-[#DDF3F1]/45" : hasHistory ? "border-[#D99AAE] bg-[#F8E2E8]/35" : "border-[#62727B]/20 bg-white"
       }`}
       role="group"
@@ -44,7 +44,7 @@ function ToothSurfaceDiagram({
       <button
         aria-label={`Pieza dental FDI ${number}${hasHistory ? ", con observaciones" : ""}`}
         aria-pressed={toothSelected}
-        className="mb-2 min-h-9 w-full rounded-full border border-[#62727B]/25 bg-white text-sm font-bold text-[#62727B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B]"
+        className="mb-2 min-h-9 w-full rounded-full border border-[#62727B]/25 bg-white text-sm font-bold text-[#62727B] transition-[background-color,border-color,transform] duration-200 hover:border-[#56777A] hover:bg-[#DDF3F1]/45 active:scale-[.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:transform-none motion-reduce:transition-none"
         onClick={() => onSelectTooth(number)}
         type="button"
       >
@@ -59,7 +59,7 @@ function ToothSurfaceDiagram({
             <button
               aria-label={`Pieza dental FDI ${number}, superficie ${surfaceLabels[surface]}${observed ? ", con observaciones" : ""}`}
               aria-pressed={surfaceSelected}
-              className={`min-h-8 min-w-0 rounded-md border px-1 py-1 text-[11px] font-semibold leading-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] ${
+              className={`min-h-8 min-w-0 rounded-md border px-1 py-1 text-[11px] font-semibold leading-tight transition-[background-color,border-color,transform] duration-200 active:scale-[.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:transform-none motion-reduce:transition-none ${
                 surfaceSelected
                   ? "border-[#405158] bg-[#405158] text-white"
                   : observed
@@ -266,7 +266,7 @@ export function Odontogram({
                 <button
                   aria-label={`Seleccionar observación de pieza ${item.toothNumber}, ${isDentalSurface(item.surface) ? `superficie ${surfaceLabels[item.surface]}` : "sin superficie especificada"}: ${item.observation}`}
                   aria-pressed={selectedObservationId === item.id}
-                  className={`w-full rounded-lg border p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] ${selectedObservationId === item.id ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/15 bg-white hover:bg-[#F6FAFA]"}`}
+                  className={`w-full rounded-lg border p-3 text-left text-sm transition-[background-color,border-color,transform] duration-200 active:scale-[.995] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:transform-none motion-reduce:transition-none ${selectedObservationId === item.id ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/15 bg-white hover:bg-[#F6FAFA]"}`}
                   onClick={() => selectHistory(item)}
                   type="button"
                 >

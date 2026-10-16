@@ -47,9 +47,9 @@ async function EspecialidadesListado() {
   }
 
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <div className="serena-stagger grid gap-5 md:grid-cols-2 lg:grid-cols-3">
       {result.data.map((especialidad) => (
-        <Card className="flex flex-col" key={especialidad.id}>
+        <Card className="group relative flex flex-col overflow-hidden border-[var(--serena-border)] transition-[transform,box-shadow,border-color] duration-200 before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-[var(--serena-teal)] hover:-translate-y-1 hover:border-[var(--serena-border-strong)] hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none" key={especialidad.id}>
           <StatusBadge className="self-start" tone="agua">
             Especialidad
           </StatusBadge>

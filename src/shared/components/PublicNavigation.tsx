@@ -43,7 +43,7 @@ export function PublicNavigation({ destination }: { destination: Destination }) 
       </button>
       <nav
         aria-label="Navegación pública"
-        className={`${open ? "serena-mobile-nav-open flex" : "hidden"} flex-col gap-1 rounded-2xl border border-[var(--serena-border)] bg-white p-2 shadow-[var(--serena-shadow-soft)] lg:flex lg:flex-row lg:flex-wrap lg:items-center lg:gap-1 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}
+        className={`${open ? "serena-mobile-nav-open serena-stagger flex" : "hidden"} flex-col gap-1 rounded-2xl border border-[var(--serena-border)] bg-white p-2 shadow-[var(--serena-shadow-soft)] lg:flex lg:flex-row lg:flex-wrap lg:items-center lg:gap-1 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}
         id="serena-public-navigation"
       >
         {publicLinks.map((link) => (

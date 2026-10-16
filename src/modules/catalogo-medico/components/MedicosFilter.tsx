@@ -49,7 +49,7 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
 
   return (
     <div className="space-y-6">
-      <Card className="grid gap-5 md:grid-cols-[1.15fr_0.85fr]">
+      <Card className="grid gap-5 border-[var(--serena-border)] bg-white/90 shadow-[var(--serena-shadow-soft)] md:grid-cols-[1.15fr_0.85fr]">
         <Input
           helperText="Busca por nombre o especialidad."
           id="busqueda-medico"
@@ -74,13 +74,13 @@ export function MedicosFilter({ especialidades, medicos, especialidadId }: Medic
 
       {isPending ? <p className="text-sm font-semibold text-[var(--serena-text)]" role="status">Actualizando profesionales...</p> : null}
 
-      <div aria-busy={isPending} className={isPending ? "opacity-60 transition-opacity" : undefined}>
+      <div aria-busy={isPending} className={`transition-opacity duration-200 motion-reduce:transition-none ${isPending ? "opacity-60" : "opacity-100"}`}>
         {medicosFiltrados.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="serena-stagger grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {medicosFiltrados.map((medico) => {
               const especialidad = medico.specialtyName ?? nombresEspecialidad.get(medico.specialtyId);
               return (
-                <Card className="flex flex-col gap-4 transition hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none" key={medico.id}>
+                <Card className="group flex flex-col gap-4 overflow-hidden transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-[var(--serena-border-strong)] hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none" key={medico.id}>
                   <PractitionerPortrait practitioner={medico} />
                   <div>
                     {especialidad ? <StatusBadge tone="pistacho">{especialidad}</StatusBadge> : null}

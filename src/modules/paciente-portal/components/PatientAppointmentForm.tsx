@@ -101,7 +101,7 @@ export function PatientAppointmentForm({
   }
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <form className="serena-stagger space-y-6" onSubmit={handleSubmit(onSubmit)}>
       <Card className="space-y-5">
         <SelectField error={errors.specialtyId?.message} id="patient-specialty" label="Especialidad" value={specialtyId} onChange={(event) => selectSpecialty(event.target.value)}>
           <option value="">Selecciona una especialidad</option>
@@ -117,10 +117,10 @@ export function PatientAppointmentForm({
         <p className="mt-2 text-sm text-[var(--serena-text)]/75">Disponibilidad actualizada y mostrada en hora de Guatemala.</p>
         {initialSlotUnavailable ? <p className="mt-4 rounded-md bg-[#F8E2E8] px-4 py-3 text-sm font-semibold" role="alert">El horario elegido ya no está disponible. Selecciona otro horario actualizado.</p> : null}
         {visibleSlots.length > 0 ? (
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="serena-stagger mt-5 grid gap-3 sm:grid-cols-2">
             {visibleSlots.map((slot) => {
               const selected = selectedSlotId === slot.id;
-              return <button aria-pressed={selected} className={`rounded-md border px-4 py-3 text-left text-sm font-semibold transition ${selected ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/20 bg-[#FBFCFA] hover:bg-[#F8EDD2]"}`} key={slot.id} onClick={() => { setSelectedSlotId(slot.id); setValue("slotId", slot.id); setMessage(""); }} type="button"><span className="block">{slot.fecha}</span><span className="mt-1 block text-lg">{slot.horaInicio} – {slot.horaFin}</span></button>;
+              return <button aria-pressed={selected} className={`rounded-md border px-4 py-3 text-left text-sm font-semibold transition hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none motion-reduce:translate-none ${selected ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/20 bg-[#FBFCFA] hover:bg-[#F8EDD2]"}`} key={slot.id} onClick={() => { setSelectedSlotId(slot.id); setValue("slotId", slot.id); setMessage(""); }} type="button"><span className="block">{slot.fecha}</span><span className="mt-1 block text-lg">{slot.horaInicio} – {slot.horaFin}</span></button>;
             })}
           </div>
         ) : <p className="mt-5 rounded-md bg-[#F8EDD2] px-4 py-3 text-sm font-semibold">No hay horarios disponibles para este profesional.</p>}

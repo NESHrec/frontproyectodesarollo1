@@ -55,13 +55,13 @@ export function ReceptionSummaryClient() {
       <MetricCard detail="Registros de llegada persistidos dentro de la vista cargada." label="Llegadas registradas" tone="crema" value={String(arrivals)} />
       <MetricCard detail="Citas canceladas dentro de la vista cargada." label="Canceladas" tone="rosa" value={String(cancelled)} />
     </section>
-    <Card className="border-[#56777A]/20 bg-white/90 p-5 sm:p-6">
+    <Card className="border-[#56777A]/20 bg-white/90 p-5 transition-[border-color,box-shadow] duration-220 hover:border-[#56777A]/35 hover:shadow-md motion-reduce:transition-none sm:p-6">
       <h2 className="text-lg font-bold text-[#334B54]">Acciones frecuentes</h2>
       <p className="mt-2 text-sm leading-6 text-[#62727B]">Continúa en el módulo correspondiente. Este resumen no muestra diagnósticos, notas clínicas, recetas ni expedientes.</p>
       <nav aria-label="Acciones frecuentes de recepción" className="mt-5 grid gap-3 sm:grid-cols-3">
-        <Link className={buttonLinkClasses} href="/recepcion/agenda">Revisar agenda</Link>
-        <Link className={buttonLinkClasses} href="/recepcion/pacientes">Buscar paciente</Link>
-        <Link className={buttonLinkClasses} href="/recepcion/cobros">Consultar cobros</Link>
+        <Link className={`${buttonLinkClasses} transition-[background-color,box-shadow,transform] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#334B54] motion-reduce:transform-none motion-reduce:transition-none`} href="/recepcion/agenda">Revisar agenda</Link>
+        <Link className={`${buttonLinkClasses} transition-[background-color,box-shadow,transform] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#334B54] motion-reduce:transform-none motion-reduce:transition-none`} href="/recepcion/pacientes">Buscar paciente</Link>
+        <Link className={`${buttonLinkClasses} transition-[background-color,box-shadow,transform] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#334B54] motion-reduce:transform-none motion-reduce:transition-none`} href="/recepcion/cobros">Consultar cobros</Link>
       </nav>
     </Card>
   </div>;

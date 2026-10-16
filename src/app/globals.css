@@ -105,14 +105,20 @@ a:hover .serena-brand-mark { transform: rotate(-5deg) scale(1.05); box-shadow: 0
 .serena-metric-card::after { position: absolute; top: -2.5rem; right: -2.5rem; width: 7rem; height: 7rem; border: 1px solid rgb(51 75 84 / .1); border-radius: 50%; box-shadow: 0 0 0 1.4rem rgb(255 255 255 / .16); content: ""; pointer-events: none; }
 
 @keyframes serena-rise {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.serena-enter { animation: serena-rise 520ms cubic-bezier(.2,.8,.2,1) both; }
-.serena-enter-1 { animation-delay: 60ms; }
-.serena-enter-2 { animation-delay: 130ms; }
-.serena-enter-3 { animation-delay: 210ms; }
-.serena-enter-4 { animation-delay: 290ms; }
+.serena-enter { animation: serena-rise 360ms cubic-bezier(.2,.8,.2,1) both; }
+.serena-enter-1 { animation-delay: 40ms; }
+.serena-enter-2 { animation-delay: 80ms; }
+.serena-enter-3 { animation-delay: 120ms; }
+.serena-enter-4 { animation-delay: 160ms; }
+.serena-stagger > * { animation: serena-rise 360ms cubic-bezier(.2,.8,.2,1) both; }
+.serena-stagger > :nth-child(1) { animation-delay: 40ms; }
+.serena-stagger > :nth-child(2) { animation-delay: 80ms; }
+.serena-stagger > :nth-child(3) { animation-delay: 120ms; }
+.serena-stagger > :nth-child(4) { animation-delay: 160ms; }
+.serena-stagger > :nth-child(n+5) { animation-delay: 200ms; }
 
 button, a, input, select, textarea { transition-duration: var(--serena-duration); }
 
@@ -129,6 +135,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .serena-step:hover, .serena-role-link:hover, .serena-home-visual:hover .serena-home-photo { transform: none; }
 }
 
 @media (max-width: 1023px) {
