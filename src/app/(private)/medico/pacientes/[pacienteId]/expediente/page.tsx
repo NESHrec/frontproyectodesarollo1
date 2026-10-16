@@ -32,29 +32,29 @@ export default async function PatientRecordPage({ params, searchParams }: {
   const { patient, recordId, recordCreatedAt, clinicalProfile, clinicalProfileHistory, attentions } = result.data;
   const appointmentHref = `/medico/citas/${encodeURIComponent(citaId)}`;
   return (
-    <div className="space-y-7">
+    <div className="space-y-8">
       {header(patient.fullName ?? "Paciente sin nombre registrado")}
-      <Card className="border-l-4 border-l-[#DDF3F1]">
+      <Card className="relative overflow-hidden rounded-[2rem] border-0 bg-[#334B54] text-white shadow-[0_28px_75px_-42px_rgba(38,50,56,0.82)] before:pointer-events-none before:absolute before:-right-12 before:-top-24 before:size-64 before:rounded-full before:bg-[#DDF3F1]/10 before:blur-3xl">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-[#62727B]/65">Paciente</p>
-            <h2 className="mt-1 text-xl font-bold text-[#62727B]">{patient.fullName ?? "Sin nombre registrado"}</h2>
-            <p className="mt-1 text-sm text-[#62727B]/75">Registrado {formatDateTime(patient.registeredAt)}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/70">Paciente</p>
+            <h2 className="mt-2 text-2xl font-black text-white">{patient.fullName ?? "Sin nombre registrado"}</h2>
+            <p className="mt-1 text-sm text-white/65">Registrado {formatDateTime(patient.registeredAt)}</p>
           </div>
           <StatusBadge tone={patient.status === "ACTIVO" ? "pistacho" : "rosa"}>{patient.status === "ACTIVO" ? "Activo" : "Inactivo"}</StatusBadge>
         </div>
-        <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-          <div><dt className="font-semibold">Expediente</dt><dd>{recordId ? `Abierto ${formatDateTime(recordCreatedAt)}` : "Se abrirá con la primera atención"}</dd></div>
-          <div><dt className="font-semibold">Atenciones</dt><dd>{attentions.length}</dd></div>
+        <dl className="relative mt-6 grid gap-3 border-t border-white/10 pt-5 text-sm sm:grid-cols-2">
+          <div className="rounded-xl bg-white/5 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Expediente</dt><dd className="mt-1 font-semibold">{recordId ? `Abierto ${formatDateTime(recordCreatedAt)}` : "Se abrirá con la primera atención"}</dd></div>
+          <div className="rounded-xl bg-white/5 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-white/60">Atenciones</dt><dd className="mt-1 text-2xl font-black">{attentions.length}</dd></div>
         </dl>
-        <Link className="mt-5 inline-flex text-sm font-bold text-[#62727B] underline-offset-4 hover:underline" href={appointmentHref}>Volver a la cita</Link>
+        <Link className="mt-5 inline-flex text-sm font-bold text-[#DDF3F1] underline-offset-4 hover:underline" href={appointmentHref}>Volver a la cita</Link>
       </Card>
-      <Card><h2 className="text-xl font-bold text-[#62727B]">Información clínica declarada</h2><div className="mt-4"><ClinicalProfileForm appointmentId={citaId} initial={clinicalProfile}/></div>{clinicalProfileHistory.length>0?<details className="mt-5"><summary className="cursor-pointer font-semibold">Historial de versiones ({clinicalProfileHistory.length})</summary><ol className="mt-3 space-y-2">{clinicalProfileHistory.map(version=><li className="rounded-md bg-[#F6FAFA] p-3 text-sm" key={version.id}><p>{formatDateTime(version.recordedAt)} · {version.authorName??version.authorAccountId}</p><p>Alergias: {version.allergies??"No indicado"}</p><p>Condiciones: {version.relevantConditions??"No indicado"}</p><p>Medicamentos: {version.currentMedications??"No indicado"}</p><p>Antecedentes odontológicos: {version.dentalHistory??"No indicado"}</p></li>)}</ol></details>:<p className="mt-3 text-sm text-[#62727B]/75">Aún no se ha registrado información clínica explícita.</p>}</Card>
+      <Card className="rounded-[1.75rem] border-[#62727B]/12 shadow-[0_20px_55px_-44px_rgba(38,50,56,.65)]"><div className="border-b border-[#62727B]/12 pb-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Perfil longitudinal</p><h2 className="mt-1 text-xl font-black text-[#334B54]">Información clínica declarada</h2></div><div className="mt-5"><ClinicalProfileForm appointmentId={citaId} initial={clinicalProfile}/></div>{clinicalProfileHistory.length>0?<details className="group mt-6 rounded-2xl border border-[#62727B]/12 bg-[#FBFCFA] p-4"><summary className="cursor-pointer font-bold text-[#334B54] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#56777A]">Historial de versiones ({clinicalProfileHistory.length})</summary><ol className="mt-4 space-y-3">{clinicalProfileHistory.map(version=><li className="rounded-xl border border-[#62727B]/10 bg-white p-4 text-sm leading-6" key={version.id}><p className="font-bold text-[#334B54]">{formatDateTime(version.recordedAt)} · {version.authorName??version.authorAccountId}</p><p className="mt-2"><strong>Alergias:</strong> {version.allergies??"No indicado"}</p><p><strong>Condiciones:</strong> {version.relevantConditions??"No indicado"}</p><p><strong>Medicamentos:</strong> {version.currentMedications??"No indicado"}</p><p><strong>Antecedentes odontológicos:</strong> {version.dentalHistory??"No indicado"}</p></li>)}</ol></details>:<p className="mt-4 rounded-xl bg-[#F8EDD2]/60 p-4 text-sm text-[#62727B]">Aún no se ha registrado información clínica explícita.</p>}</Card>
       <section>
-        <h2 className="text-xl font-bold text-[#62727B]">Historial de atenciones</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Cronología clínica</p><h2 className="mt-1 text-2xl font-black text-[#263238]">Historial de atenciones</h2>
         {attentions.length === 0
           ? <div className="mt-5"><EmptyState description="Este paciente aún no tiene atenciones documentadas." title="Sin atenciones" /></div>
-          : <ol className="mt-5 space-y-4 border-l-2 border-[#DDF3F1] pl-5">{attentions.map((attention) => <li key={attention.id}><AttentionCard attention={attention} /></li>)}</ol>}
+          : <ol className="mt-5 space-y-5 border-l-2 border-[#DDF3F1] pl-4 sm:pl-6">{attentions.map((attention) => <li className="relative before:absolute before:-left-[1.35rem] before:mt-7 before:size-3 before:rounded-full before:border-2 before:border-white before:bg-[#56777A] sm:before:-left-[1.85rem]" key={attention.id}><AttentionCard attention={attention} /></li>)}</ol>}
       </section>
     </div>
   );

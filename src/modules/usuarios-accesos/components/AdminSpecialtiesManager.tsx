@@ -38,7 +38,8 @@ export function AdminSpecialtiesManager() {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-[1.5rem] bg-[#334B54] p-5 text-white sm:p-6">
+        <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/70">Catálogo clínico</p><h2 className="mt-2 text-2xl font-black">Especialidades disponibles</h2><p className="mt-1 text-sm text-white/65">{specialties.length} {specialties.length === 1 ? "especialidad registrada" : "especialidades registradas"}</p></div>
         <ModalDialog description="La especialidad se guardará en el catálogo persistente." title="Nueva especialidad" triggerLabel="Agregar especialidad">
           <SpecialtyForm onSaved={() => void load()} />
         </ModalDialog>
@@ -46,7 +47,7 @@ export function AdminSpecialtiesManager() {
       {specialties.length === 0 ? <EmptyState description="Aún no hay especialidades publicadas." title="Catálogo vacío" /> : (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {specialties.map((specialty) => (
-            <Card key={specialty.id}>
+            <Card className="flex min-h-56 flex-col rounded-[1.5rem] border-[#62727B]/15 shadow-[0_18px_50px_-42px_rgba(38,50,56,0.5)] transition duration-200 hover:-translate-y-0.5 hover:border-[#56777A]/35" key={specialty.id}>
               <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide">{specialty.id}</p><h2 className="mt-2 text-lg font-bold">{specialty.name}</h2></div><StatusBadge tone="pistacho">Activa</StatusBadge></div>
               <p className="mt-4 text-sm text-[#62727B]/80">{specialty.description}</p>
               <div className="mt-5"><ModalDialog description="Conserva el identificador y las asociaciones existentes." title="Editar especialidad" triggerLabel="Editar" triggerVariant="secondary"><SpecialtyForm onSaved={() => void load()} specialty={specialty} /></ModalDialog></div>

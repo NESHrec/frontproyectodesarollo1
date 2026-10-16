@@ -14,15 +14,15 @@ export function InternalPageHeader({
   actions,
 }: InternalPageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 border-b border-[#62727B]/15 pb-6 md:flex-row md:items-end md:justify-between">
+    <header className="serena-internal-header flex flex-col gap-4 px-6 py-7 sm:px-8 md:flex-row md:items-end md:justify-between">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#62727B]/70">
+        <p className="serena-section-label">
           {eyebrow}
         </p>
-        <h1 className="mt-2 text-2xl font-bold text-[#62727B] sm:text-3xl">{title}</h1>
+        <h1 className="serena-enter serena-enter-1 mt-2 text-3xl font-black tracking-[-.04em] text-[var(--serena-ink)] sm:text-4xl">{title}</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#62727B]/80">{description}</p>
       </div>
-      {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+      {actions ? <div className="relative flex flex-wrap gap-2">{actions}</div> : null}
     </header>
   );
 }

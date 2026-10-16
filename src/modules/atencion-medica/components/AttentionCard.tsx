@@ -5,7 +5,7 @@ import { AddendumForm } from "@/modules/atencion-medica/components/AddendumForm"
 
 export function AttentionCard({ attention }: { attention: Attention }) {
   return (
-    <Card>
+    <Card className="rounded-[1.5rem] border-[#62727B]/12 bg-white shadow-[0_18px_48px_-40px_rgba(38,50,56,.6)]">
       <div className="flex flex-wrap justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-[#62727B]/65">
@@ -15,10 +15,10 @@ export function AttentionCard({ attention }: { attention: Attention }) {
         </div>
         <StatusBadge tone="pistacho">Documentada</StatusBadge>
       </div>
-      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <div className="sm:col-span-2"><dt className="font-semibold">Diagnóstico</dt><dd className="whitespace-pre-line">{attention.diagnosis}</dd></div>
-        {attention.findings ? <div><dt className="font-semibold">Hallazgos</dt><dd className="whitespace-pre-line">{attention.findings}</dd></div> : null}
-        {attention.treatmentPlan ? <div><dt className="font-semibold">Plan</dt><dd className="whitespace-pre-line">{attention.treatmentPlan}</dd></div> : null}
+      <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+        <div className="rounded-xl bg-[#FBFCFA] p-4 sm:col-span-2"><dt className="text-xs font-bold uppercase tracking-wider text-[#62727B]/70">Diagnóstico</dt><dd className="mt-2 whitespace-pre-line leading-6 text-[#263238]">{attention.diagnosis}</dd></div>
+        {attention.findings ? <div className="rounded-xl border border-[#62727B]/10 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-[#62727B]/70">Hallazgos</dt><dd className="mt-2 whitespace-pre-line leading-6">{attention.findings}</dd></div> : null}
+        {attention.treatmentPlan ? <div className="rounded-xl border border-[#62727B]/10 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-[#62727B]/70">Plan</dt><dd className="mt-2 whitespace-pre-line leading-6">{attention.treatmentPlan}</dd></div> : null}
       </dl>
       <div className="mt-4">
         <h4 className="text-sm font-semibold">Receta</h4>

@@ -8,7 +8,9 @@ import type { BillingAppointment, PaymentMethod } from "@/modules/pagos/billing-
 import { createOrReusePaymentIntent, paymentIntentWasPersisted } from "@/modules/pagos/payment-intent";
 import { parsePaymentIntentStatus, type PaymentIntent, type PersistedPaymentIntent } from "@/modules/pagos/payment-intent";
 import { appointmentDateInGuatemala, filterBillingAppointments, formatGtq, parseGtqToCents } from "@/modules/pagos/search-and-money";
+import { MorphIcon } from "morphicons/react";
 import { Button, EmptyState, Input, InternalPageHeader, LoadingState, MetricCard, SelectField, StatusBadge } from "@/shared/components";
+import { HighlightMatch } from "@/shared/components/HighlightMatch";
 
 type LoadError = "service" | "forbidden" | "expired" | null;
 
@@ -29,6 +31,7 @@ export function ReceptionBillingClient() {
   const [appointments, setAppointments] = useState<BillingAppointment[] | null>(null);
   const [selected, setSelected] = useState<BillingAppointment | null>(null);
   const [query, setQuery] = useState("");
+  const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
   const [patientQuery, setPatientQuery] = useState("");
   const [dateQuery, setDateQuery] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
@@ -265,9 +268,9 @@ export function ReceptionBillingClient() {
     setMessage(success);
   }
 
-  return <div className="space-y-7">
+  return <div className="space-y-6 lg:space-y-7">
     <InternalPageHeader description="Cobros de citas atendidas y constancias internas de pago recibido." eyebrow="Recepción" title="Cobros y pagos" />
-    <section className="grid gap-4 sm:grid-cols-3">
+    <section aria-label="Resumen de cobros" className="grid gap-3 sm:grid-cols-3 [&>*]:min-h-[8rem]">
       <MetricCard detail="Citas atendidas consultadas" label="Citas" tone="agua" value={String(metrics.count)} />
       <MetricCard detail="Constancias internas" label="Pagado (GTQ)" tone="pistacho" value={money(metrics.paid)} />
       <MetricCard detail="Saldo pendiente actualizado" label="Pendiente (GTQ)" tone="rosa" value={money(metrics.pending)} />
@@ -283,31 +286,44 @@ export function ReceptionBillingClient() {
 
     {pendingPayment ? <Notice tone="warn" title="Pago pendiente de confirmación" text={`Pago de ${money(pendingPayment.amount)} para la cita ${pendingPayment.appointmentId}. Sus datos están bloqueados hasta confirmar el historial.`} action={<Button disabled={busy !== null} onClick={() => void consultPendingPayment()}>Consultar historial nuevamente</Button>} /> : null}
 
-    <section className="space-y-4 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-4">
-      <h2 className="text-lg font-bold text-[#62727B]">Buscar cita</h2>
-      <p className="text-sm text-[#62727B]/75">Busca por nombre parcial o fecha entre las citas cargadas. La consulta está limitada a estos resultados.</p>
+    <section className="overflow-hidden rounded-[1.5rem] border border-[#56777A]/20 bg-[#FBFCFA] shadow-[0_12px_32px_rgba(51,75,84,0.07)]">
+      <div className="border-b border-[#56777A]/15 bg-gradient-to-r from-[#DDF3F1]/75 via-[#FBFCFA] to-[#F8EDD2]/25 px-4 py-4 sm:px-6"><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#56777A]">Localizar atención</p><h2 className="mt-1 text-lg font-extrabold tracking-[-0.02em] text-[#334B54]">Buscar cita</h2><p className="mt-1 text-sm leading-5 text-[#62727B]">Busca por nombre parcial o fecha entre las citas cargadas. La consulta está limitada a estos resultados.</p></div>
+      <div className="space-y-4 p-4 sm:p-6">
       <div className="grid gap-3 md:grid-cols-2"><Input disabled={paymentLocked} id="billing-patient-query" label="Nombre del paciente" placeholder="Ej. María" value={patientQuery} onChange={(event) => setPatientQuery(event.target.value)} /><Input disabled={paymentLocked} id="billing-date-query" label="Fecha de cita (Guatemala)" type="date" value={dateQuery} onChange={(event) => setDateQuery(event.target.value)} /></div>
-      <details><summary className="cursor-pointer font-semibold">Búsqueda avanzada por ID</summary><form className="mt-3 grid gap-3 md:grid-cols-[1fr_auto]" onSubmit={findAppointment}><Input disabled={paymentLocked} id="billing-appointment-query" label="ID exacto de cita" value={query} onChange={(event) => setQuery(event.target.value)} /><Button className="self-end" disabled={paymentLocked || busy === "search"} type="submit">{busy === "search" ? "Consultando..." : "Consultar"}</Button></form></details>
+      <details onToggle={(event) => setAdvancedSearchOpen(event.currentTarget.open)} className="serena-disclosure rounded-xl border border-[#62727B]/15 bg-white/80 px-3 py-2 transition-[border-color,background-color,box-shadow] duration-200 open:border-[#56777A]/35 open:bg-white open:shadow-sm motion-reduce:transition-none">
+        <summary aria-expanded={advancedSearchOpen} className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg px-2 font-bold text-[#334B54] outline-none transition-colors duration-180 hover:bg-[#DDF3F1]/45 hover:text-[#334B54] focus-visible:ring-2 focus-visible:ring-[#56777A] motion-reduce:transition-none">
+          <span>Búsqueda avanzada por ID</span>
+          <MorphIcon aria-hidden="true" className="shrink-0 text-[#56777A]" icon={advancedSearchOpen ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6"} reducedMotion="user" size={18} strokeWidth={2} />
+        </summary>
+        <form className="grid gap-3 border-t border-[#62727B]/10 pt-3 md:grid-cols-[1fr_auto]" onSubmit={findAppointment}><Input disabled={paymentLocked} id="billing-appointment-query" label="ID exacto de cita" value={query} onChange={(event) => setQuery(event.target.value)} /><Button className="self-end" disabled={paymentLocked || busy === "search"} type="submit">{busy === "search" ? "Consultando..." : "Consultar"}</Button></form>
+      </details>
+      </div>
     </section>
 
     {appointments?.length === 0 ? <EmptyState description="No hay citas atendidas con cobros para mostrar." title="Lista vacía" /> : null}
     {appointments && visibleAppointments.length === 0 ? <EmptyState description="No hay citas que coincidan con los filtros disponibles." title="Sin resultados" /> : null}
-    {visibleAppointments.length > 0 ? <div className="overflow-x-auto rounded-lg border border-[#62727B]/15 bg-[#FBFCFA]">
-      <table className="min-w-full text-left text-sm">
-        <caption className="sr-only">Citas atendidas para cobro</caption>
-        <thead className="bg-[#DDF3F1] text-[#62727B]"><tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Paciente</th><th className="px-4 py-3">Cargo</th><th className="px-4 py-3">Saldo</th><th className="px-4 py-3">Estado</th><th className="px-4 py-3">Acción</th></tr></thead>
-        <tbody>{visibleAppointments.map((item) => <tr className="border-t border-[#62727B]/10" key={item.id}><td className="px-4 py-3">{dateTime(item.scheduledAt)}<span className="block text-xs text-[#62727B]/60">{appointmentDateInGuatemala(item.scheduledAt)}</span></td><td className="px-4 py-3 font-semibold">{item.patientName ?? item.patientId}</td><td className="px-4 py-3">{money(item.chargeAmount)}</td><td className="px-4 py-3 font-bold">{money(item.balanceAmount)}</td><td className="px-4 py-3"><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></td><td className="px-4 py-3"><Button disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">Ver</Button></td></tr>)}</tbody>
-      </table>
-    </div> : null}
+    {visibleAppointments.length > 0 ? <section className="space-y-4" aria-labelledby="billing-results-title">
+      <div className="flex flex-col gap-2 border-b border-[#56777A]/15 pb-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-extrabold tracking-[-0.02em] text-[#334B54]" id="billing-results-title">Citas disponibles para cobro</h2><p className="mt-1 text-sm text-[#62727B]">Selecciona una cita para revisar el cargo, saldo e historial.</p></div><p className="w-fit rounded-full bg-[#DDF3F1] px-3 py-1 text-xs font-bold text-[#334B54]">{visibleAppointments.length} resultados</p></div>
+      <ul className="space-y-3 border-l-2 border-[#DDF3F1] pl-3 md:hidden sm:pl-4" aria-label="Citas atendidas para cobro">
+        {visibleAppointments.map((item) => <li className={`rounded-2xl border bg-white p-4 shadow-[0_8px_22px_rgba(51,75,84,0.05)] ${selected?.id === item.id ? "border-[#56777A] ring-2 ring-[#DDF3F1]" : "border-[#62727B]/15"}`} key={item.id}><div className="flex items-start justify-between gap-3"><div><p className="font-extrabold text-[#334B54]"><HighlightMatch query={patientQuery} text={item.patientName ?? item.patientId} /></p><p className="mt-1 text-xs text-[#62727B]">{dateTime(item.scheduledAt)}</p></div><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></div><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><Item label="Cargo (GTQ)" value={money(item.chargeAmount)} /><Item label="Saldo (GTQ)" value={money(item.balanceAmount)} /></dl><Button className="mt-4 w-full" disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">{selected?.id === item.id ? "Cita seleccionada" : "Abrir cita"}</Button></li>)}
+      </ul>
+      <div aria-label="Tabla de citas disponibles para cobro" className="hidden overflow-x-auto rounded-2xl border border-[#62727B]/15 bg-white shadow-[0_12px_32px_rgba(51,75,84,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#56777A] md:block" role="region" tabIndex={0}>
+        <table className="min-w-[58rem] text-left text-sm">
+          <caption className="sr-only">Citas atendidas para cobro</caption>
+          <thead className="bg-[#DDF3F1] text-[#334B54]"><tr><th className="px-4 py-3" scope="col">Fecha</th><th className="px-4 py-3" scope="col">Paciente</th><th className="px-4 py-3" scope="col">Cargo</th><th className="px-4 py-3" scope="col">Saldo</th><th className="px-4 py-3" scope="col">Estado</th><th className="px-4 py-3" scope="col">Acción</th></tr></thead>
+          <tbody className="divide-y divide-[#62727B]/10">{visibleAppointments.map((item) => <tr className={`transition-colors duration-200 hover:bg-[#FBFCFA] motion-reduce:transition-none ${selected?.id === item.id ? "bg-[#DDF3F1]/45" : ""}`} key={item.id}><td className="whitespace-nowrap px-4 py-4">{dateTime(item.scheduledAt)}<span className="block text-xs text-[#62727B]/60">{appointmentDateInGuatemala(item.scheduledAt)}</span></td><td className="px-4 py-4 font-semibold"><HighlightMatch query={patientQuery} text={item.patientName ?? item.patientId} /></td><td className="px-4 py-4">{money(item.chargeAmount)}</td><td className="px-4 py-4 font-bold">{money(item.balanceAmount)}</td><td className="px-4 py-4"><StatusBadge tone={item.balanceAmount === 0 ? "pistacho" : item.chargeDefined ? "crema" : "rosa"}>{item.balanceAmount === 0 ? "Pagado" : item.chargeDefined ? "Saldo" : "Sin cargo"}</StatusBadge></td><td className="px-4 py-4"><Button disabled={paymentLocked && item.id !== pendingPayment?.appointmentId} onClick={() => setSelected(item)} variant="ghost">Ver</Button></td></tr>)}</tbody>
+        </table>
+      </div>
+    </section> : null}
 
-    {selected ? <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-      <div className="space-y-4 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-5">
-        <h2 className="text-lg font-bold text-[#62727B]">Cita {selected.id}</h2>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientName ?? selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Saldo (GTQ)" value={money(selected.balanceAmount)} /></dl>
+    {selected ? <section className="grid scroll-mt-4 gap-4 rounded-[1.5rem] border border-[#56777A]/15 bg-[#FBFCFA] p-3 sm:gap-5 sm:p-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]" aria-labelledby="selected-appointment-title">
+      <div className="space-y-5 rounded-2xl border border-[#56777A]/25 bg-gradient-to-br from-[#DDF3F1]/50 to-[#FBFCFA] p-4 sm:p-6">
+        <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#62727B]/70">Detalle seleccionado</p><h2 className="mt-1 break-all text-lg font-bold text-[#334B54]" id="selected-appointment-title">Cita {selected.id}</h2></div>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Paciente" value={selected.patientName ?? selected.patientId} /><Item label="Profesional" value={selected.practitionerId} /><Item label="Fecha" value={dateTime(selected.scheduledAt)} /><Item label="Cargo (GTQ)" value={money(selected.chargeAmount)} /><Item label="Pagado (GTQ)" value={money(selected.paidAmount)} /><Item label="Saldo (GTQ)" value={money(selected.balanceAmount)} /></dl>
         {!selected.chargeDefined ? <form className="space-y-3" onSubmit={setCharge}><Input disabled={paymentLocked} id="billing-charge-amount" label="Cargo (GTQ)" inputMode="decimal" placeholder="100.00" value={chargeAmount} onChange={(event) => setChargeAmount(event.target.value)} /><Button disabled={paymentLocked || busy === "charge"} type="submit">{busy === "charge" ? "Guardando..." : "Fijar cargo"}</Button></form> : null}
         {selected.chargeDefined && selected.balanceAmount !== 0 ? <form className="space-y-3" onSubmit={registerPayment}><Input disabled={paymentLocked} id="billing-payment-amount" label="Pago (GTQ)" inputMode="decimal" placeholder="40.00" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} /><SelectField disabled={paymentLocked} id="billing-payment-method" label="Método interno" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="OTRO">Otro</option></SelectField><Input disabled={paymentLocked} id="billing-payment-reference" label="Referencia interna opcional" value={reference} onChange={(event) => setReference(event.target.value)} /><Button disabled={busy !== null || (!intentChecked && !pendingPayment)} type="submit">{busy === "payment" ? "Registrando..." : paymentLocked ? "Reintentar el mismo pago" : "Registrar pago"}</Button></form> : null}
       </div>
-      <div className="space-y-3 rounded-lg border border-[#62727B]/15 bg-[#FBFCFA] p-5">
+      <div className="space-y-3 rounded-2xl border border-[#62727B]/15 bg-white p-4 shadow-[0_8px_24px_rgba(51,75,84,0.05)] sm:p-6">
         <h2 className="text-lg font-bold text-[#62727B]">Historial</h2>
         {selected.payments.length === 0 ? <p className="text-sm text-[#62727B]/70">Sin pagos registrados.</p> : selected.payments.map((payment) => <div className="rounded-md border border-[#62727B]/10 p-3 text-sm" key={payment.id}><p className="font-bold">{money(payment.amount)} · {payment.method}</p><p className="text-[#62727B]/70">{dateTime(payment.registeredAt)}</p><p className="text-xs text-[#62727B]/65">{payment.reference ?? "Sin referencia"} · {payment.registeredByAccountId}</p></div>)}
       </div>

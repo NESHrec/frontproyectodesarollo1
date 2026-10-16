@@ -1,5 +1,6 @@
 import { clinicaInfo } from "@/modules/catalogo-medico/data";
 import { Card, PageHeader, StatusBadge } from "@/shared/components";
+import { DentalScene } from "@/shared/components/DentalScene";
 
 export default function ClinicaPage() {
   return (
@@ -9,9 +10,19 @@ export default function ClinicaPage() {
         eyebrow="Nuestra clínica"
         title="Un entorno digital sereno para atención en salud"
       />
-      <section className="bg-[#FBFCFA] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.9fr]">
-          <Card className="bg-[#F8EDD2]">
+      <section className="px-4 pt-10 sm:px-6 lg:px-8">
+        <div className="serena-clinic-scene mx-auto grid max-w-6xl items-center gap-8 overflow-hidden rounded-[2rem] p-6 sm:p-10 lg:grid-cols-[.85fr_1.15fr] lg:p-14">
+          <div className="relative z-10">
+            <p className="serena-home-eyebrow">Cuidado con perspectiva</p>
+            <h2 className="mt-7 text-3xl font-black leading-tight tracking-[-.04em] text-white sm:text-5xl">Cada detalle cuenta para sentirte bien atendido.</h2>
+            <p className="mt-5 max-w-lg leading-8 text-white/80">Una vista dental inspirada en nuestros recursos visuales acompaña la experiencia. Explora especialidades médicas y odontológicas según tus necesidades.</p>
+          </div>
+          <DentalScene caption="Ilustración interactiva · mueve el cursor para explorarla" />
+        </div>
+      </section>
+      <section className="serena-surface px-4 py-12 sm:px-6 lg:px-8">
+        <div className="serena-stagger mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.9fr]">
+          <Card className="bg-[var(--serena-warning-soft)]">
             <StatusBadge tone="agua">Información general</StatusBadge>
             <h2 className="mt-5 text-2xl font-bold text-[#62727B]">{clinicaInfo.nombre}</h2>
             <p className="mt-4 leading-7 text-[#62727B]/85">{clinicaInfo.descripcion}</p>

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { medicalScheduleErrorText } from "../src/modules/agenda-citas/medical-schedule-errors.ts";
 
 const root = process.cwd();
 const source = (relative) => readFileSync(join(root, relative), "utf8");
@@ -40,9 +41,12 @@ test("pantallas administrativas refrescan después de éxito y exponen errores d
   assert.match(form, /response\.status === 409/);
   assert.match(form, /onSaved\(\)/);
   assert.match(schedule, /await load\(\)/);
-  assert.match(schedule, /response\.status === 409/);
-  assert.match(schedule, /state === "service"/);
-  assert.match(schedule, /Edición\/retiro de bloques queda pendiente/);
+  assert.equal(medicalScheduleErrorText(409), "El horario entra en conflicto o cambió simultáneamente.");
+  assert.equal(medicalScheduleErrorText(409, "SCHEDULE_BLOCK_HAS_APPOINTMENTS"), "El bloque conserva una cita asociada.");
+  assert.match(schedule, /medicalScheduleErrorText\([^)]*\.status/);
+  assert.ok(schedule.includes("No se pudo consultar el servicio de horarios."));
+  assert.ok(schedule.includes("Editar"));
+  assert.ok(schedule.includes("Retirar"));
 });
 
 test("la sesión de personal conserva Bearer solo en servidor y la cookie de sesión es HttpOnly", () => {

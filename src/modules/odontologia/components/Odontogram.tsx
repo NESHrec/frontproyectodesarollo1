@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { getCsrfToken } from "@/modules/auth/csrf-client";
+import { DentalArchVisual } from "@/modules/odontologia/components/DentalArchVisual";
 import { permanentRows, primaryRows, surfaceLabels, surfaces, type DentalSurface } from "@/modules/odontologia/data";
 import type { DentalObservation } from "@/modules/odontologia/schemas";
 import { Button, EmptyState, Input } from "@/shared/components";
@@ -36,15 +37,15 @@ function ToothSurfaceDiagram({
   return (
     <div
       aria-label={`Esquema de superficies de la pieza dental FDI ${number}`}
-      className={`min-w-0 rounded-[1.4rem] border-2 p-2 transition ${
-        toothSelected ? "border-[#62727B] bg-[#DDF3F1]/45" : hasHistory ? "border-[#D99AAE] bg-[#F8E2E8]/35" : "border-[#62727B]/20 bg-white"
+      className={`min-w-0 rounded-[1.4rem] border-2 p-2 transition-[background-color,border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 motion-reduce:translate-none motion-reduce:transition-none ${
+        toothSelected ? "border-[#334B54] bg-[#DDF3F1]/60 shadow-[0_12px_28px_-20px_rgba(38,50,56,.75)]" : hasHistory ? "border-[#D99AAE] bg-[#F8E2E8]/35" : "border-[#62727B]/20 bg-white"
       }`}
       role="group"
     >
       <button
         aria-label={`Pieza dental FDI ${number}${hasHistory ? ", con observaciones" : ""}`}
         aria-pressed={toothSelected}
-        className="mb-2 min-h-9 w-full rounded-full border border-[#62727B]/25 bg-white text-sm font-bold text-[#62727B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B]"
+        className="mb-2 min-h-10 w-full rounded-full border border-[#62727B]/25 bg-white text-sm font-black text-[#334B54] transition-[background-color,border-color,transform] duration-200 hover:border-[#56777A] hover:bg-[#DDF3F1]/45 active:scale-[.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:scale-100 motion-reduce:transition-none"
         onClick={() => onSelectTooth(number)}
         type="button"
       >
@@ -59,7 +60,7 @@ function ToothSurfaceDiagram({
             <button
               aria-label={`Pieza dental FDI ${number}, superficie ${surfaceLabels[surface]}${observed ? ", con observaciones" : ""}`}
               aria-pressed={surfaceSelected}
-              className={`min-h-8 min-w-0 rounded-md border px-1 py-1 text-[11px] font-semibold leading-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] ${
+              className={`min-h-9 min-w-0 rounded-lg border px-1 py-1 text-[11px] font-semibold leading-tight transition-[background-color,border-color,transform] duration-200 active:scale-[.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:scale-100 motion-reduce:transition-none ${
                 surfaceSelected
                   ? "border-[#405158] bg-[#405158] text-white"
                   : observed
@@ -208,28 +209,33 @@ export function Odontogram({
   };
 
   return (
-    <section aria-labelledby="odontogram-title" className="min-w-0 space-y-6 rounded-xl border border-[#62727B]/15 bg-white p-4 sm:p-5">
-      <div>
-        <h2 className="text-lg font-bold text-[#62727B]" id="odontogram-title">Esquema de superficies dentales FDI</h2>
-        <p className="mt-1 text-sm text-[#62727B]/75">Cada contorno representa una pieza y organiza las superficies admitidas por el registro clínico. Es un esquema de selección, no un odontograma anatómico completo.</p>
+    <section aria-labelledby="odontogram-title" className="min-w-0 space-y-7 rounded-[2rem] border border-[#62727B]/15 bg-white p-4 shadow-[0_28px_75px_-48px_rgba(38,50,56,0.7)] sm:p-7">
+      <div className="serena-dental-hero grid items-center gap-5 overflow-hidden rounded-[1.5rem] p-5 text-white sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] lg:gap-8">
+        <div className="relative z-10">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#DDF3F1]/80">Mapa clínico interactivo</p>
+          <h2 className="mt-3 max-w-xl text-2xl font-black tracking-tight text-white sm:text-3xl" id="odontogram-title">Esquema de superficies dentales FDI</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80">Selecciona una pieza y una superficie en el esquema de abajo para consultar o registrar observaciones. La ilustración muestra la anatomía como referencia visual; el historial clínico permanece en el esquema FDI.</p>
+          <p className="mt-6 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-[#DDF3F1]">Pieza → superficie → observación</p>
+        </div>
+        <DentalArchVisual />
       </div>
-      <div aria-label="Leyenda del esquema" className="flex flex-wrap gap-4 rounded-lg bg-[#F6FAFA] p-3 text-sm">
-        <span>Blanco: sin observación</span>
-        <span className="font-semibold text-[#9A3F5D]">Rosa ●: con observaciones</span>
-        <span className="rounded bg-[#405158] px-2 text-white">Oscuro: selección actual</span>
+      <div aria-label="Leyenda del esquema" className="grid gap-2 rounded-2xl border border-[#62727B]/10 bg-[#F6FAFA] p-4 text-xs sm:grid-cols-2 sm:text-sm lg:grid-cols-4">
+        <span className="flex items-center gap-2"><span aria-hidden className="size-3 rounded-sm border border-[#62727B]/25 bg-white" />Sin observación</span>
+        <span className="flex items-center gap-2 font-semibold text-[#8D4154]"><span aria-hidden className="size-3 rounded-sm border border-[#D99AAE] bg-[#F8E2E8]" />Con observaciones</span>
+        <span className="flex items-center gap-2"><span aria-hidden className="size-3 rounded-sm bg-[#405158]" />Selección actual</span>
         <span><strong>*</strong> Historial sin superficie especificada</span>
       </div>
       <ToothChart {...chartProps} rows={permanentRows} title="Dentición permanente" />
       <ToothChart {...chartProps} rows={primaryRows} title="Dentición temporal" />
 
-      <p aria-live="polite" className="rounded-md bg-[#F6FAFA] px-3 py-2 text-sm font-semibold text-[#52636B]" role="status">
+      <p aria-live="polite" className="sticky bottom-3 z-10 rounded-2xl border border-[#56777A]/20 bg-[#DDF3F1]/95 px-4 py-3 text-sm font-bold text-[#334B54] shadow-[0_16px_36px_-24px_rgba(38,50,56,.7)] backdrop-blur-sm" role="status">
         {selection?.surface ? `Pieza ${selection.tooth}, superficie ${surfaceLabels[selection.surface]} seleccionada.` : selection ? `Pieza ${selection.tooth} seleccionada; elige una superficie.` : "Selecciona una superficie dentro del esquema dental."}
       </p>
 
       {!appointmentId ? (
         <p className="rounded-md bg-[#F8EDD2] px-3 py-2 text-sm" role="status">Abre desde una cita propia para registrar. Puedes consultar y seleccionar el historial existente.</p>
       ) : (
-        <form className="space-y-4" onSubmit={submit}>
+        <form aria-busy={busy} className="space-y-4 rounded-2xl border border-[#62727B]/15 bg-[linear-gradient(145deg,#fbfcfa,#f6fafa)] p-5 sm:p-6" onSubmit={submit}>
           <Input
             disabled={busy}
             helperText={selection?.surface ? `Se guardará en la pieza ${selection.tooth}, superficie ${surfaceLabels[selection.surface]}.` : "Selecciona primero una superficie en el esquema."}
@@ -247,7 +253,7 @@ export function Odontogram({
       {message ? <p className={message.tone === "ok" ? "rounded-md bg-[#E5F1D8] px-3 py-2 text-sm" : "rounded-md bg-[#F8E2E8] px-3 py-2 text-sm"} role={message.tone === "error" ? "alert" : "status"}>{message.text}</p> : null}
 
       {selectedObservation ? (
-        <aside aria-live="polite" className="rounded-lg border-2 border-[#62727B] bg-[#F6FAFA] p-4" aria-labelledby="selected-observation-title">
+        <aside aria-live="polite" className="rounded-2xl border-2 border-[#56777A] bg-[#DDF3F1]/35 p-5" aria-labelledby="selected-observation-title">
           <h3 className="font-bold" id="selected-observation-title">Observación seleccionada</h3>
           <p className="mt-1 text-sm"><strong>Pieza {selectedObservation.toothNumber}</strong> · {isDentalSurface(selectedObservation.surface) ? surfaceLabels[selectedObservation.surface] : "Sin superficie especificada (registro histórico)"}</p>
           <p className="mt-2 whitespace-pre-line text-sm">{selectedObservation.observation}</p>
@@ -257,7 +263,7 @@ export function Odontogram({
       {observations.length === 0 ? (
         <EmptyState description="No hay observaciones persistidas para este paciente." title="Odontograma vacío" />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 border-t border-[#62727B]/15 pt-6">
           <h3 className="font-bold">Historial</h3>
           <ol className="space-y-2">
             {observations.map((item) => (
@@ -265,7 +271,7 @@ export function Odontogram({
                 <button
                   aria-label={`Seleccionar observación de pieza ${item.toothNumber}, ${isDentalSurface(item.surface) ? `superficie ${surfaceLabels[item.surface]}` : "sin superficie especificada"}: ${item.observation}`}
                   aria-pressed={selectedObservationId === item.id}
-                  className={`w-full rounded-lg border p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] ${selectedObservationId === item.id ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/15 bg-white hover:bg-[#F6FAFA]"}`}
+                  className={`w-full rounded-xl border p-4 text-left text-sm transition-[background-color,border-color,transform] duration-200 active:scale-[.995] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62727B] motion-reduce:scale-100 motion-reduce:transition-none ${selectedObservationId === item.id ? "border-[#62727B] bg-[#DDF3F1]" : "border-[#62727B]/15 bg-white hover:bg-[#F6FAFA]"}`}
                   onClick={() => selectHistory(item)}
                   type="button"
                 >

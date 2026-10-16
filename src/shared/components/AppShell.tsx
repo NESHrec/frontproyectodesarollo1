@@ -11,11 +11,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const role = getRoleFromPathname(pathname);
 
   return (
-    <div className={role === "paciente" ? "min-h-screen bg-[linear-gradient(135deg,#F6FAF7_0%,#FBFCFA_55%,#F3F8F0_100%)] lg:flex" : "min-h-screen bg-[#FBFCFA] lg:flex"}>
+    <div className={`serena-app-shell min-h-screen lg:flex ${role === "paciente" ? "bg-[linear-gradient(135deg,#F6FAF7_0%,var(--background)_55%,#F3F8F0_100%)]" : ""}`}>
       <RoleSidebar role={role} />
       <div className="min-w-0 flex-1">
         <Topbar role={role} />
-        <main className={role === "paciente" ? "mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-10" : "mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8"}>{children}</main>
+        <main className={`serena-main mx-auto w-full p-4 sm:p-6 lg:p-8 ${role === "paciente" ? "max-w-6xl lg:p-10" : "max-w-[1500px]"}`}>{children}</main>
       </div>
     </div>
   );

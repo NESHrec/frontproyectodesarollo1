@@ -88,7 +88,7 @@ export function PractitionerLinkPanel({ practitioners }: { practitioners: Practi
             const chosen = selection[account.accountId] ?? account.practitionerId ?? "";
             const confirming = pending?.accountId === account.accountId;
             return (
-              <li className="rounded-lg border border-[#62727B]/15 bg-white p-4" key={account.accountId}>
+              <li className="rounded-2xl border border-[#62727B]/15 bg-gradient-to-br from-white to-[#FBFCFA] p-4 shadow-sm transition-shadow hover:shadow-md motion-reduce:transition-none sm:p-5" key={account.accountId}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-semibold break-words">{account.fullName}</p>

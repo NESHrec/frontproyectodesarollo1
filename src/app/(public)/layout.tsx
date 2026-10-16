@@ -4,10 +4,10 @@ import { PublicHeader } from "@/shared/components/PublicHeader";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <div className="serena-public-theme flex min-h-screen flex-col">
       <PublicHeader />
       <main className="serena-surface flex-1">{children}</main>
       <PublicFooter />
-    </>
+    </div>
   );
 }

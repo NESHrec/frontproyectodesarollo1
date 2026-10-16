@@ -14,7 +14,7 @@ export default async function MedicosPage({ searchParams }: { searchParams: Page
         eyebrow="Profesionales"
         title="Listado de médicos"
       />
-      <section className="bg-[#FBFCFA] px-4 py-12 sm:px-6 lg:px-8">
+      <section className="serena-surface px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <Suspense fallback={<LoadingState message="Cargando profesionales..." />}>
             <MedicosCatalogo specialtyId={specialtyId} />

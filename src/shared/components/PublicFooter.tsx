@@ -3,8 +3,8 @@ import { clinicaInfo } from "@/modules/catalogo-medico/data";
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#62727B]/10 bg-[#334B54] text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:px-6 md:grid-cols-3 lg:px-8">
+    <footer className="border-t border-[var(--serena-border)] bg-[var(--serena-ink)] text-white">
+      <div className="serena-stagger mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
           <p className="text-base font-bold">{clinicaInfo.nombre}</p>
           <p className="mt-2 leading-6 text-white/75">{clinicaInfo.lema}</p>
