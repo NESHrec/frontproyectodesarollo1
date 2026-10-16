@@ -11,7 +11,7 @@ export async function AdminCatalogSummary() {
   if (specialties.data.length === 0) {
     return <EmptyState description="El catálogo respondió correctamente y no contiene especialidades publicadas." title="Catálogo vacío" />;
   }
-  return <section aria-label="Indicadores de catálogo" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  return <section aria-label="Indicadores de catálogo" className="grid gap-4">
     <MetricCard detail={ADMIN_CATALOG_DETAIL} label="Especialidades publicadas" tone="crema" value={String(specialties.data.length)} />
   </section>;
 }
