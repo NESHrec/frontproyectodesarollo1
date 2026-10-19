@@ -6,7 +6,7 @@
 - Rama de trabajo: `fix/CS-022-security-headers`
 - Commit base: `ebf7fbe723416a45ad43c3357b2a1a9c18c2151a`
 - Rama de integración de referencia: `security/integration`
-- Producción: no modificada y no desplegada desde esta rama.
+- Producción: desplegada en la VPS mediante la copia de despliegue validada.
 
 ## Cambios realizados
 
@@ -36,17 +36,17 @@
 - Revisión UX con Chrome del sistema en escritorio y móvil: sin errores de consola, sin overflow horizontal y sin encabezados de autorización expuestos.
 - Verificación HTTP local de la build: CSP, `nosniff`, `DENY`, `no-referrer` y `Permissions-Policy` presentes; no apareció `X-Powered-By`.
 - Gate adicional de publicación: se repitieron lint, typecheck, las pruebas de seguridad/BFF/rutas/auditoría/billing y el build de producción; todos terminaron correctamente. Lint conserva únicamente un warning preexistente sobre `staff` no usado.
+- Smoke test público posterior al despliegue: HTTPS 200, HSTS/CSP/encabezados defensivos presentes, `X-Powered-By` ausente y la página principal carga sus marcadores esperados.
 
 ## Riesgos y pendientes
 
 - La CSP conserva `script-src 'unsafe-inline'` porque eliminarlo requiere revisar los scripts inline/nonce de toda la aplicación. `unsafe-eval` sí queda bloqueado en producción.
 - La entrega HTTPS y HSTS se completa en Caddy; el build debe realizarse con `ENABLE_HTTPS_UPGRADE=true`.
-- El dominio y el proxy real todavía deben validarse en la VPS antes de pasar a `main`.
-- La validación de Caddy no pudo ejecutarse porque Docker Desktop estaba pausado durante la revisión; el archivo fue revisado y `docker compose config --quiet` sí validó el compose.
+- El dominio y el proxy real ya fueron validados en la VPS; la integración a `main` debe seguir el proceso de revisión del equipo.
 
 ## Rollback
 
-Antes de publicar, revisar y crear un commit propio de esta rama. Si el cambio se aprueba y luego debe revertirse, revertir ese commit y reconstruir la imagen frontend. No se requieren cambios de base de datos.
+Si el cambio debe revertirse, restaurar la imagen frontend anterior y el Caddyfile/compose desde `/opt/clinica-serena/backups/pre-deploy-20261019081308-config.tgz`. No se requieren cambios de base de datos.
 
 ## Secretos
 
