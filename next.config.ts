@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 // React usa eval() solo en desarrollo para depuración; producción nunca lo permite.
 const isDevelopment = process.env.NODE_ENV === "development";
+const enableHttpsUpgrade = process.env.ENABLE_HTTPS_UPGRADE === "true";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -11,6 +12,7 @@ const contentSecurityPolicy = [
   "frame-src 'none'",
   "form-action 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob:",
   "font-src 'self'",
@@ -18,10 +20,11 @@ const contentSecurityPolicy = [
   "media-src 'self'",
   "manifest-src 'self'",
   "worker-src 'self'",
-  "upgrade-insecure-requests",
+  ...(enableHttpsUpgrade ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   async headers() {
     return [
       {
