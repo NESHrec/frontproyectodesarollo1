@@ -1,8 +1,14 @@
 import { randomUUID } from "crypto";
+import { isIP } from "node:net";
 import { NextRequest } from "next/server";
 import { backendFetch, parsePatientIdentity } from "@/modules/auth/server-session";
 import { parseStaffIdentity } from "@/modules/auth/staff-session";
 import { hasValidCsrf, jsonNoStore, setPatientSessionCookies, setStaffSessionCookies } from "@/modules/auth/session-security";
+
+function clientAddressHeaders(request: NextRequest): Record<string, string> {
+  const candidate = request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim();
+  return candidate && isIP(candidate) ? { "X-Forwarded-For": candidate } : {};
+}
 
 export async function POST(request: NextRequest) {
   if (!hasValidCsrf(request)) return jsonNoStore({ ok: false, reason: "csrf" }, { status: 403 });
@@ -12,7 +18,11 @@ export async function POST(request: NextRequest) {
   }
   const login = await backendFetch("/auth/login-unified", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...clientAddressHeaders(request),
+    },
     body: JSON.stringify({ email: input.email, password: input.password }),
   });
   if (!login) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });

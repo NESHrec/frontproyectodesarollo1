@@ -18,7 +18,7 @@ type UnifiedFixture = {
 function requestFor(
   email: string,
   password: string,
-  options: { csrf?: boolean } = {},
+  options: { csrf?: boolean; forwardedFor?: string } = {},
 ) {
   const headers = new Headers({
     "Content-Type": "application/json",
@@ -29,6 +29,7 @@ function requestFor(
     headers.set("cookie", "clinica_serena_csrf=csrf-test");
     headers.set("x-csrf-token", "csrf-test");
   }
+  if (options.forwardedFor) headers.set("x-forwarded-for", options.forwardedFor);
   return new NextRequest("http://localhost:3010/api/session/login", {
     method: "POST",
     headers,
@@ -124,6 +125,28 @@ test("el BFF exige CSRF antes de contactar al backend", async () => {
   assert.equal(body.reason, "csrf");
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal(calls.length, 0);
+});
+
+test("el BFF reenvía al login solo la primera IP válida entregada por el proxy", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "198.51.100.24, 10.0.0.5",
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.get("x-forwarded-for"), "198.51.100.24");
+});
+
+test("el BFF no reenvía una cabecera de IP con formato inválido", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "not-an-ip",
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.has("x-forwarded-for"), false);
 });
 
 test("rechazo incorrecto, paciente no verificado e inexistente no crean sesión ni entregan token", async () => {
