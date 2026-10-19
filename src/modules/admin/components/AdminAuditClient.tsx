@@ -16,6 +16,17 @@ export const actionLabels: Record<string, string> = {
   APPOINTMENT_BOOKED: "Cita reservada",
   CLINICAL_ATTENTION_RECORDED: "Atención clínica registrada",
   DENTAL_OBSERVATION_RECORDED: "Observación odontológica registrada",
+  STAFF_LOGIN_SUCCEEDED: "Inicio de sesión exitoso",
+  STAFF_LOGIN_FAILED: "Inicio de sesión fallido",
+  STAFF_LOGIN_BLOCKED: "Intento bloqueado por límite de acceso",
+  AUTH_LOGIN_FAILED: "Inicio de sesión fallido",
+  AUTH_LOGIN_BLOCKED: "Intento bloqueado por límite de acceso",
+  PATIENT_LOGIN_SUCCEEDED: "Acceso de paciente exitoso",
+  PATIENT_LOGOUT: "Cierre de sesión de paciente",
+  STAFF_LOGOUT: "Cierre de sesión",
+  HTTP_401: "Acceso sin autenticación (401)",
+  HTTP_403: "Acceso denegado (403)",
+  HTTP_500: "Error interno (500)",
 };
 
 const columns: DataTableColumn<AuditEvent>[] = [
@@ -23,6 +34,7 @@ const columns: DataTableColumn<AuditEvent>[] = [
   { key: "actor", label: "Actor", render: (item) => <span className="font-semibold">{item.actorType} · {item.actorRole} · {item.actorAccountId}</span> },
   { key: "action", label: "Acción", render: (item) => actionLabels[item.action] ?? item.action.replaceAll("_", " ").toLowerCase() },
   { key: "entity", label: "Recurso", render: (item) => <span className="text-sm">{item.entityType.replaceAll("_", " ").toLowerCase()} · {item.entityId}</span> },
+  { key: "ip", label: "IP de origen", render: (item) => <span className="font-mono text-xs">{item.clientIp ?? "No disponible"}</span> },
 ];
 
 export function AdminAuditClient() {

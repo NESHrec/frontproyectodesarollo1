@@ -30,6 +30,21 @@ export async function forwardStaffRequest(
   return jsonNoStore(body, { status: response.status });
 }
 
+/** Removes an internal account identifier from successful BFF responses that do not need it. */
+export async function omitAccountIdFromStaffResponse(response: Response) {
+  if (!response.ok || response.status === 204) return response;
+  const body: unknown = await response.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return jsonNoStore(body, { status: response.status });
+  }
+  const publicBody = Object.fromEntries(Object.entries(body).filter(([key]) => key !== "accountId"));
+  return jsonNoStore(publicBody, { status: response.status });
+}
+
+export function omitStaffAccountId<T extends { accountId?: unknown }>(body: T) {
+  return Object.fromEntries(Object.entries(body).filter(([key]) => key !== "accountId"));
+}
+
 /** Valida CSRF al entrar al BFF, antes de que el handler consuma JSON o multipart. */
 export function rejectInvalidStaffCsrf(request: NextRequest) {
   return hasValidCsrf(request) ? null : jsonNoStore({ ok: false, reason: "csrf" }, { status: 403 });

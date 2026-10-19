@@ -17,12 +17,6 @@ const appointment = {
   arrivalAt: null, arrivalByAccountId: null,
 };
 
-const account = {
-  accountId: "account-1", email: "admin@example.test", fullName: "Administración sintética",
-  role: "ADMIN" as const, status: "ACTIVA" as const, practitionerLinkStatus: "NO_APLICA" as const,
-  practitionerId: null, practitionerName: null, practitionerLinkedAt: null,
-};
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
@@ -68,17 +62,11 @@ test("recepción separa vacío, error con reintento y permiso denegado", async (
 test("administración calcula únicamente sobre la lista completa validada", async () => {
   const { cleanup, render } = await import("@testing-library/react");
   const { AdminAccountsSummaryClient } = await import("../src/modules/admin/components/AdminAccountsSummaryClient");
-  const accounts = [
-    account,
-    { ...account, accountId: "account-2", email: "reception@example.test", role: "RECEPCION" as const },
-    { ...account, accountId: "account-3", email: "doctor@example.test", role: "MEDICO" as const,
-      practitionerLinkStatus: "PENDIENTE_VINCULACION" as const },
-  ];
-  globalThis.fetch = (async () => json(accounts)) as typeof fetch;
+  globalThis.fetch = (async () => json({ total: 3, active: 3, rolesPresent: 3, pendingLinks: 1 })) as typeof fetch;
 
   const screen = render(<AdminAccountsSummaryClient />);
   await screen.findByText("Cuentas de personal");
-  assert.ok(screen.getByText("Lista completa de GET /staff/accounts, sin paginación."));
+  assert.ok(screen.getByText("Total de cuentas de personal."));
   assert.ok(screen.getByText("Vinculaciones pendientes"));
   assert.equal(screen.queryByText("Eventos simulados de hoy"), null);
   cleanup();
@@ -88,7 +76,7 @@ test("administración separa vacío, error con reintento y permiso denegado", as
   const { cleanup, fireEvent, render } = await import("@testing-library/react");
   const { AdminAccountsSummaryClient } = await import("../src/modules/admin/components/AdminAccountsSummaryClient");
   let calls = 0;
-  globalThis.fetch = (async () => ++calls === 1 ? json(null, 503) : json([])) as typeof fetch;
+  globalThis.fetch = (async () => ++calls === 1 ? json(null, 503) : json({ total: 0, active: 0, rolesPresent: 0, pendingLinks: 0 })) as typeof fetch;
 
   let screen = render(<AdminAccountsSummaryClient />);
   await screen.findByText("No se pudo cargar el resumen");

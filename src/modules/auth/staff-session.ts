@@ -12,7 +12,6 @@ export const STAFF_SESSION_COOKIE = "clinica_serena_staff_session";
 export type StaffRole = "ADMIN" | "RECEPCION" | "MEDICO";
 export type PractitionerLinkStatus = "VINCULADA" | "PENDIENTE_VINCULACION" | "NO_APLICA";
 export type StaffIdentity = {
-  accountId: string;
   email: string;
   fullName: string;
   role: StaffRole;
@@ -23,7 +22,6 @@ export function parseStaffIdentity(value: unknown): StaffIdentity | null {
   if (!value || typeof value !== "object") return null;
   const identity = value as Record<string, unknown>;
   if (
-    typeof identity.accountId !== "string" || !identity.accountId ||
     typeof identity.email !== "string" || !identity.email ||
     typeof identity.fullName !== "string" || !identity.fullName ||
     !["ADMIN", "RECEPCION", "MEDICO"].includes(String(identity.role))
@@ -32,7 +30,6 @@ export function parseStaffIdentity(value: unknown): StaffIdentity | null {
     ? identity.practitionerLinkStatus as PractitionerLinkStatus
     : identity.role === "MEDICO" ? "PENDIENTE_VINCULACION" : "NO_APLICA";
   return {
-    accountId: identity.accountId,
     email: identity.email,
     fullName: identity.fullName,
     role: identity.role as StaffRole,

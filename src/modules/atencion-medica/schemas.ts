@@ -75,6 +75,23 @@ export const clinicalRecordSchema = z.object({
   attentions: z.array(attentionSchema),
 });
 
+function withoutAuthorAccountId<T extends { authorAccountId: string }>(value: T): Omit<T, "authorAccountId"> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => key !== "authorAccountId")) as Omit<T, "authorAccountId">;
+}
+
+/** Patient-facing projection omits internal staff account identifiers returned for staff workflows. */
+export const patientClinicalRecordSchema = clinicalRecordSchema.transform((record) => ({
+  ...record,
+  clinicalProfile: record.clinicalProfile
+    ? withoutAuthorAccountId(record.clinicalProfile)
+    : null,
+  clinicalProfileHistory: record.clinicalProfileHistory.map(withoutAuthorAccountId),
+  attentions: record.attentions.map((attention) => ({
+    ...withoutAuthorAccountId(attention),
+    addenda: attention.addenda.map(withoutAuthorAccountId),
+  })),
+}));
+
 export const staffAccountSchema = z.object({
   accountId: z.string(),
   email: z.string(),
@@ -88,9 +105,26 @@ export const staffAccountSchema = z.object({
 });
 
 export const staffAccountsSchema = z.array(staffAccountSchema);
+export const staffAccountSummarySchema = z.object({
+  total: z.number().int().nonnegative(),
+  active: z.number().int().nonnegative(),
+  rolesPresent: z.number().int().nonnegative(),
+  pendingLinks: z.number().int().nonnegative(),
+});
+export function summarizeStaffAccounts(accounts: z.infer<typeof staffAccountsSchema>) {
+  return {
+    total: accounts.length,
+    active: accounts.filter((account) => account.status === "ACTIVA").length,
+    rolesPresent: new Set(accounts.map((account) => account.role)).size,
+    pendingLinks: accounts.filter((account) =>
+      account.role === "MEDICO" && account.practitionerLinkStatus === "PENDIENTE_VINCULACION"
+    ).length,
+  };
+}
 
 export type MedicalAppointment = z.infer<typeof medicalAppointmentSchema>;
 export type MedicalAppointmentDetail = z.infer<typeof medicalAppointmentDetailSchema>;
 export type Attention = z.infer<typeof attentionSchema>;
 export type ClinicalRecord = z.infer<typeof clinicalRecordSchema>;
+export type PatientClinicalRecord = z.infer<typeof patientClinicalRecordSchema>;
 export type StaffAccount = z.infer<typeof staffAccountSchema>;

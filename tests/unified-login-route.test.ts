@@ -101,6 +101,9 @@ test("el BFF resuelve PACIENTE, ADMIN, RECEPCION y MEDICO sin selector", async (
     assert.equal(body.identity?.role, fixture.role);
     assert.equal(destinationForRole(fixture.role), fixture.role === "PACIENTE" ? "/paciente" : `/${fixture.role.toLowerCase()}`);
     assert.equal(body.accessToken, undefined);
+    if (fixture.accountType === "PERSONAL") {
+      assert.equal((body.identity as Record<string, unknown>).accountId, undefined);
+    }
     assert.equal(response.headers.get("cache-control"), "no-store");
 
     const setCookie = response.headers.get("set-cookie") ?? "";

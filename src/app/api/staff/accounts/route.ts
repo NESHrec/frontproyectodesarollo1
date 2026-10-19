@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { staffBackendFetch } from "@/modules/auth/staff-session";
 import { hasValidCsrf, jsonNoStore } from "@/modules/auth/session-security";
-import { forwardStaffRequest } from "@/modules/auth/staff-proxy";
+import { forwardStaffRequest, omitStaffAccountId } from "@/modules/auth/staff-proxy";
 
 const ROLES = ["ADMIN", "RECEPCION", "MEDICO"];
 
@@ -19,5 +19,7 @@ export async function POST(request: NextRequest) {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
   });
   if (!response) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
-  return jsonNoStore(await response.json().catch(() => ({ ok: false, reason: "service" })), { status: response.status });
+  const accountPayload = await response.json().catch(() => ({ ok: false, reason: "service" })) as Record<string, unknown>;
+  const publicBody = omitStaffAccountId(accountPayload);
+  return jsonNoStore(publicBody, { status: response.status });
 }
