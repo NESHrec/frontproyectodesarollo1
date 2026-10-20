@@ -9,6 +9,7 @@ import {
 import { staffAreaFallback } from "../src/modules/auth/components/StaffAreaGuard";
 
 process.env.BACKEND_API_BASE_URL = "http://backend.test/api/v1";
+process.env.TRUSTED_PROXY_SHARED_SECRET = "proxy-test-secret-with-at-least-32-chars";
 
 type UnifiedFixture = {
   accountType: "PACIENTE" | "PERSONAL";
@@ -18,7 +19,7 @@ type UnifiedFixture = {
 function requestFor(
   email: string,
   password: string,
-  options: { csrf?: boolean } = {},
+  options: { csrf?: boolean; forwardedFor?: string; trustedProxy?: boolean; forwardedProto?: string; forwardedHost?: string } = {},
 ) {
   const headers = new Headers({
     "Content-Type": "application/json",
@@ -29,6 +30,10 @@ function requestFor(
     headers.set("cookie", "clinica_serena_csrf=csrf-test");
     headers.set("x-csrf-token", "csrf-test");
   }
+  if (options.forwardedFor) headers.set("x-forwarded-for", options.forwardedFor);
+  if (options.forwardedProto) headers.set("x-forwarded-proto", options.forwardedProto);
+  if (options.forwardedHost) headers.set("x-forwarded-host", options.forwardedHost);
+  if (options.trustedProxy) headers.set("x-clinica-proxy-secret", process.env.TRUSTED_PROXY_SHARED_SECRET!);
   return new NextRequest("http://localhost:3010/api/session/login", {
     method: "POST",
     headers,
@@ -127,6 +132,69 @@ test("el BFF exige CSRF antes de contactar al backend", async () => {
   assert.equal(body.reason, "csrf");
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal(calls.length, 0);
+});
+
+test("el BFF reenvía al login solo la primera IP válida entregada por el proxy", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "198.51.100.24, 10.0.0.5",
+    trustedProxy: true,
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.get("x-forwarded-for"), "198.51.100.24");
+});
+
+test("el BFF ignora forwarded headers aunque sean válidos cuando falta autenticación del proxy", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "198.51.100.99",
+    forwardedProto: "https",
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.has("x-forwarded-for"), false);
+  assert.doesNotMatch(response.headers.get("set-cookie") ?? "", /; Secure/i);
+});
+
+test("el BFF acepta IPv6 únicamente desde el proxy autenticado", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "2001:db8::24",
+    trustedProxy: true,
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.get("x-forwarded-for"), "2001:db8::24");
+});
+
+test("CS-028 marca cookies Secure solo con HTTPS autenticado por el proxy", async () => {
+  installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const request = requestFor("account@example.test", "password-test", {
+    trustedProxy: true,
+    forwardedProto: "https",
+    forwardedHost: "qa.clinica.example",
+  });
+  request.headers.set("origin", "https://qa.clinica.example");
+  const response = await postLogin(request);
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("set-cookie") ?? "", /; Secure/i);
+});
+
+test("el BFF no reenvía una cabecera de IP con formato inválido", async () => {
+  const calls = installBackend({ accountType: "PACIENTE", role: "PACIENTE" });
+  const response = await postLogin(requestFor("account@example.test", "password-test", {
+    forwardedFor: "not-an-ip",
+    trustedProxy: true,
+  }));
+
+  assert.equal(response.status, 200);
+  const loginHeaders = new Headers(calls[0]?.init?.headers);
+  assert.equal(loginHeaders.has("x-forwarded-for"), false);
 });
 
 test("rechazo incorrecto, paciente no verificado e inexistente no crean sesión ni entregan token", async () => {
