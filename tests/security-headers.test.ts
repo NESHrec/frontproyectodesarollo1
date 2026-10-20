@@ -3,6 +3,8 @@ import test from "node:test";
 
 (process.env as { NODE_ENV?: string }).NODE_ENV = "production";
 process.env.ENABLE_HTTPS_UPGRADE = "true";
+const TEST_PROXY_SECRET = "proxy-test-secret-with-at-least-32-chars";
+process.env.TRUSTED_PROXY_SHARED_SECRET = TEST_PROXY_SECRET;
 
 let nextConfig: (typeof import("../next.config"))["default"];
 let NextRequest: (typeof import("next/server"))["NextRequest"];
@@ -35,6 +37,7 @@ test("las cookies de sesión son Secure detrás de Caddy con X-Forwarded-Proto H
     headers: {
       host: "clinicaserena.fyi",
       "x-forwarded-proto": "https",
+      "x-clinica-proxy-secret": TEST_PROXY_SECRET,
     },
   });
   const response = NextResponse.json({ ok: true });
