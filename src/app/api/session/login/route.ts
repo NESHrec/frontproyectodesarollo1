@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
-import { isIP } from "node:net";
 import { NextRequest } from "next/server";
 import { backendFetch, parsePatientIdentity } from "@/modules/auth/server-session";
 import { parseStaffIdentity } from "@/modules/auth/staff-session";
 import { hasValidCsrf, jsonNoStore, setPatientSessionCookies, setStaffSessionCookies } from "@/modules/auth/session-security";
+import { trustedClientAddress } from "@/modules/auth/trusted-proxy";
 
 function clientAddressHeaders(request: NextRequest): Record<string, string> {
-  const candidate = request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim();
-  return candidate && isIP(candidate) ? { "X-Forwarded-For": candidate } : {};
+  const address = trustedClientAddress(request);
+  return address ? { "X-Forwarded-For": address } : {};
 }
 
 export async function POST(request: NextRequest) {

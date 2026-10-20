@@ -4,23 +4,20 @@ import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { PATIENT_CSRF_COOKIE, PATIENT_SESSION_COOKIE } from "@/modules/auth/server-session";
 import { STAFF_SESSION_COOKIE } from "@/modules/auth/staff-session";
+import { trustedForwardedValue } from "@/modules/auth/trusted-proxy";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" } as const;
 
-function firstForwardedValue(value: string | null) {
-  return value?.split(",", 1)[0]?.trim().toLowerCase() ?? null;
-}
-
 export function isSecureRequest(request: NextRequest) {
-  return request.nextUrl.protocol === "https:" || firstForwardedValue(request.headers.get("x-forwarded-proto")) === "https";
+  return request.nextUrl.protocol === "https:" || trustedForwardedValue(request, "x-forwarded-proto") === "https";
 }
 
 export function hasSameOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
 
-  const protocol = firstForwardedValue(request.headers.get("x-forwarded-proto")) ?? request.nextUrl.protocol.replace(":", "");
-  const host = firstForwardedValue(request.headers.get("x-forwarded-host")) ?? request.headers.get("host") ?? request.nextUrl.host;
+  const protocol = trustedForwardedValue(request, "x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  const host = trustedForwardedValue(request, "x-forwarded-host") ?? request.headers.get("host") ?? request.nextUrl.host;
 
   try {
     return new URL(origin).origin === new URL(`${protocol}://${host}`).origin;

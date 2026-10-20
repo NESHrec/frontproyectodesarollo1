@@ -1,0 +1,16 @@
+{$PUBLIC_DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy {$BFF_UPSTREAM:127.0.0.1:3000} {
+		# Never append to client-controlled forwarding headers. Caddy replaces
+		# them and authenticates this hop to the BFF with a private secret.
+		header_up -X-Forwarded-For
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up -X-Forwarded-Proto
+		header_up X-Forwarded-Proto {scheme}
+		header_up -X-Forwarded-Host
+		header_up X-Forwarded-Host {host}
+		header_up -X-Clinica-Proxy-Secret
+		header_up X-Clinica-Proxy-Secret {$TRUSTED_PROXY_SHARED_SECRET}
+	}
+}
