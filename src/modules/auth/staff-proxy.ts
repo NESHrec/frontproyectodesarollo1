@@ -23,6 +23,7 @@ export async function forwardStaffRequest(
   if (!token) return jsonNoStore({ ok: false, reason: "expired" }, { status: 401 });
   const response = await staffBackendFetch(path, init, token);
   if (!response) return jsonNoStore({ ok: false, reason: "service" }, { status: 503 });
+  if (response.status === 401) return jsonNoStore({ ok: false, reason: "expired" }, { status: 401 });
   if (response.status === 204) {
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   }
