@@ -20,10 +20,8 @@ export function PatientLogoutButton() {
     setBusy(false);
   }
 
-  const errorMessage = error?.status === "expired"
-    ? "La sesión ya había vencido. Recarga la página para actualizar el acceso."
-    : error?.status === "csrf"
-      ? "La protección CSRF no es válida. Recarga la página e inténtalo nuevamente."
+  const errorMessage = error?.status === "expired" || error?.status === "csrf"
+    ? "Tu sesión ha expirado. Recarga la página para continuar."
       : error
         ? "El servicio no está disponible o tardó demasiado. Inténtalo nuevamente."
         : null;
