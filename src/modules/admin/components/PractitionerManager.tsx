@@ -10,13 +10,48 @@ import { PractitionerPortrait } from "@/modules/catalogo-medico/components/Pract
 type Draft = { fullName: string; specialtyId: string; licenseNumber: string };
 const empty: Draft = { fullName: "", specialtyId: "", licenseNumber: "" };
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
-const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_PHOTO_DIMENSION = 1600;
+
+function loadImage(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new window.Image();
+    image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("PHOTO_DECODE_FAILED")); };
+    image.src = url;
+  });
+}
+
+async function normalizePhoto(file: File) {
+  const image = await loadImage(file);
+  const scale = Math.min(1, MAX_PHOTO_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight));
+  const width = Math.max(64, Math.round(image.naturalWidth * scale));
+  const height = Math.max(64, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("PHOTO_CANVAS_UNAVAILABLE");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+
+  for (const quality of [0.86, 0.76, 0.66, 0.56]) {
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/jpeg", quality));
+    if (blob && blob.size <= MAX_PHOTO_BYTES) {
+      const name = `${file.name.replace(/\.[^.]+$/, "") || "profesional"}.jpg`;
+      return new File([blob], name, { type: "image/jpeg", lastModified: Date.now() });
+    }
+  }
+  throw new Error("PHOTO_TOO_LARGE");
+}
 
 export function PractitionerManager({ specialties }: { specialties: Especialidad[] }) {
   const [items, setItems] = useState<Medico[] | null>(null);
   const [editing, setEditing] = useState<Medico | null>(null);
   const [draft, setDraft] = useState<Draft>(empty);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -31,20 +66,41 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
   const specialtyNames = useMemo(() => new Map(specialties.map(item => [item.id, item.name])), [specialties]);
 
   function select(item: Medico | null) { setEditing(item); setDraft(item ? { fullName: item.fullName, specialtyId: item.specialtyId, licenseNumber: item.licenseNumber ?? "" } : empty); setPhoto(null); setMessage(null); }
-  function selectPhoto(file: File | null) {
+  async function selectPhoto(file: File | null) {
     if (!file) { setPhoto(null); return; }
-    if (!ALLOWED_PHOTO_TYPES.has(file.type)) { setPhoto(null); setMessage("Formato no permitido. Selecciona una imagen JPEG o PNG."); return; }
-    if (file.size > MAX_PHOTO_BYTES) { setPhoto(null); setMessage("La foto supera el máximo de 2 MB."); return; }
-    setMessage(null); setPhoto(file);
+    setPhotoProcessing(true); setPhoto(null); setMessage(null);
+    try {
+      setPhoto(await normalizePhoto(file));
+    } catch (error) {
+      setMessage(error instanceof Error && error.message === "PHOTO_TOO_LARGE"
+        ? "La foto no se pudo comprimir por debajo de 2 MB. Usa una imagen más pequeña."
+        : "No se pudo leer la imagen. Selecciona una fotografía JPEG, PNG, WebP o AVIF válida.");
+    } finally { setPhotoProcessing(false); }
   }
   async function csrfHeaders(json = false) { const token = await getCsrfToken(); return { "x-csrf-token": token, ...(json ? { "Content-Type": "application/json" } : {}) }; }
   async function save(event: React.FormEvent) {
+    if (photoProcessing) return;
     event.preventDefault(); setBusy(true); setMessage(null);
     try {
       const response = await fetch(editing ? `/api/staff/practitioners/${editing.id}` : "/api/staff/practitioners", { method: editing ? "PATCH" : "POST", headers: await csrfHeaders(true), body: JSON.stringify(draft) });
       if (!response.ok) { setMessage(response.status === 409 ? "Ese número de colegiado ya está registrado." : "No se pudo guardar el profesional."); return; }
       const saved = await response.json() as Medico;
-      if (photo) { const form = new FormData(); form.set("photo", photo); const upload = await fetch(`/api/staff/practitioners/${saved.id}/photo`, { method: "PUT", headers: await csrfHeaders(), body: form }); if (!upload.ok) { setEditing(saved); setMessage("El profesional se guardó, pero la foto fue rechazada. Usa JPEG o PNG de hasta 2 MB."); await load(); return; } }
+      if (photo) {
+        const form = new FormData(); form.set("photo", photo);
+        const upload = await fetch(`/api/staff/practitioners/${saved.id}/photo`, { method: "PUT", headers: await csrfHeaders(), body: form });
+        if (!upload.ok) {
+          const detail = await upload.json().catch(() => null) as { code?: unknown } | null;
+          const code = typeof detail?.code === "string" ? detail.code : "";
+          const reason = code === "PHOTO_TOO_LARGE" || code === "PHOTO_SIZE_INVALID"
+            ? "La foto supera el máximo de 2 MB."
+            : code === "PHOTO_TYPE_INVALID"
+              ? "El archivo no contiene una imagen JPEG o PNG válida."
+              : code === "PHOTO_CONTENT_INVALID"
+                ? "La imagen no se pudo procesar. Prueba con otra fotografía."
+                : "No se pudo guardar la fotografía; revisa el formato y el tamaño.";
+          setEditing(saved); setMessage(`El profesional se guardó, pero la foto fue rechazada. ${reason}`); await load(); return;
+        }
+      }
       const successMessage = editing ? "Profesional actualizado." : "Profesional creado."; select(null); setMessage(successMessage); await load();
     } catch { setMessage("No se pudo conectar con el servicio."); } finally { setBusy(false); }
   }
@@ -63,9 +119,9 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
           <Input id="practitioner-name" label="Nombre completo" maxLength={160} onChange={e => setDraft({...draft, fullName:e.target.value})} required value={draft.fullName}/>
           <SelectField id="practitioner-specialty" label="Especialidad" onChange={e => setDraft({...draft, specialtyId:e.target.value})} required value={draft.specialtyId}><option value="">Selecciona una especialidad</option>{specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</SelectField>
           <Input id="practitioner-license" label="Número de colegiado" maxLength={50} onChange={e => setDraft({...draft, licenseNumber:e.target.value})} required value={draft.licenseNumber}/>
-          <div className="rounded-2xl border border-dashed border-[#56777A]/35 bg-[#DDF3F1]/25 p-4"><label className="block text-sm font-bold" htmlFor="practitioner-photo">Fotografía profesional</label><input accept="image/jpeg,image/png" aria-describedby="photo-help" className="mt-3 block min-h-11 w-full rounded-xl border border-[#56777A]/20 bg-white/75 p-2 text-sm text-[#334B54] file:mr-3 file:rounded-lg file:border-0 file:bg-[#DDF3F1] file:px-3 file:py-2 file:font-bold file:text-[#334B54] hover:file:bg-[#E5F1D8]" id="practitioner-photo" onChange={e => selectPhoto(e.target.files?.[0] ?? null)} type="file" /><p className="mt-2 text-xs leading-5 text-[#62727B]" id="photo-help">JPEG o PNG, máximo 2 MB. El servidor valida nuevamente contenido y tamaño.</p></div>
+          <div className="rounded-2xl border border-dashed border-[#56777A]/35 bg-[#DDF3F1]/25 p-4"><label className="block text-sm font-bold" htmlFor="practitioner-photo">Fotografía profesional</label><input accept="image/jpeg,image/png,image/webp,image/avif" aria-describedby="photo-help" className="mt-3 block min-h-11 w-full rounded-xl border border-[#56777A]/20 bg-white/75 p-2 text-sm text-[#334B54] file:mr-3 file:rounded-lg file:border-0 file:bg-[#DDF3F1] file:px-3 file:py-2 file:font-bold file:text-[#334B54] hover:file:bg-[#E5F1D8]" id="practitioner-photo" onChange={e => { void selectPhoto(e.target.files?.[0] ?? null); }} type="file" /><p className="mt-2 text-xs leading-5 text-[#62727B]" id="photo-help">JPEG, PNG, WebP o AVIF. Se convierte automáticamente a JPEG y se limita a 2 MB.</p></div>
           {preview ? <Image alt="Vista previa de la foto seleccionada" className="h-44 w-full rounded-2xl object-cover" height={176} src={preview} unoptimized width={480}/> : editing ? <PractitionerPortrait practitioner={editing}/> : null}
-          <div className="flex flex-wrap gap-2"><Button disabled={busy} type="submit">{busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
+          <div className="flex flex-wrap gap-2"><Button disabled={busy || photoProcessing} type="submit">{photoProcessing ? "Procesando foto…" : busy ? "Guardando…" : editing ? "Guardar cambios" : "Crear profesional"}</Button>{editing ? <Button onClick={() => select(null)} type="button" variant="secondary">Cancelar</Button> : null}</div>
         </form>
         {message ? <p className="mt-5 rounded-xl bg-[#F8EDD2] p-3 text-sm" role="status">{message}</p> : null}
       </Card>
