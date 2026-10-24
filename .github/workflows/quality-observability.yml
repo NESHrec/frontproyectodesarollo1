@@ -11,9 +11,6 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    env:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,7 +27,7 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
       - name: Start restricted SSH tunnel to SonarQube
-        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        if: ${{ github.event_name == 'push' }}
         env:
           SONAR_SSH_PRIVATE_KEY: ${{ secrets.SONAR_SSH_PRIVATE_KEY }}
           SONAR_SSH_KNOWN_HOSTS: ${{ secrets.SONAR_SSH_KNOWN_HOSTS }}
@@ -50,8 +47,11 @@ jobs:
           curl --fail --silent --show-error --retry 5 --retry-delay 2 \
             http://127.0.0.1:19001/api/system/status >/dev/null
       - name: SonarQube analysis
-        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        if: ${{ github.event_name == 'push' }}
         uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >-
             -Dsonar.projectKey=clinica-serena-frontend
