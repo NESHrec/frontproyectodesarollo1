@@ -11,6 +11,9 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,9 +27,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - name: SonarQube analysis
-        if: ${{ env.HAS_SONAR == 'true' }}
+        if: ${{ env.SONAR_HOST_URL != '' && env.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          HAS_SONAR: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
