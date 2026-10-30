@@ -218,3 +218,60 @@ test("la bitácora comunica denegación y permite reintentar ante error de servi
     cleanup();
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test("la vinculación ADMIN confirma una asignación sintética y refresca el estado", async () => {
+  const { cleanup, fireEvent, render } = await import("@testing-library/react");
+  const { PractitionerLinkPanel } = await import("../src/modules/admin/components/PractitionerLinkPanel");
+  const account = {
+    accountId: "account-test", email: "medical@example.test", fullName: "Cuenta médica sintética",
+    role: "MEDICO", status: "ACTIVA", practitionerLinkStatus: "PENDIENTE_VINCULACION",
+    practitionerId: null, practitionerName: null, practitionerLinkedAt: null,
+  } satisfies import("../src/modules/atencion-medica/schemas").StaffAccount;
+  const originalFetch = globalThis.fetch;
+  const calls: Array<{ url: string; method: string }> = [];
+  globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    const method = init?.method ?? "GET";
+    calls.push({ url, method });
+    if (url === "/api/session/csrf") return json({ csrfToken: "csrf-test" });
+    if (url === "/api/staff/accounts/account-test/practitioner" && method === "PUT") return json({ ok: true });
+    if (url === "/api/staff/accounts?role=MEDICO") return json([{ ...account, practitionerId: "doctor-test", practitionerName: "Profesional sintético", practitionerLinkStatus: "VINCULADA" }]);
+    throw new Error(`Ruta inesperada: ${url}`);
+  }) as typeof fetch;
+  try {
+    const screen = render(<PractitionerLinkPanel practitioners={[{ id: "doctor-test", fullName: "Profesional sintético", specialtyName: "Odontología" }]} initialAccounts={[account]} />);
+    fireEvent.change(screen.getByLabelText("Profesional"), { target: { value: "doctor-test" } });
+    fireEvent.click(screen.getByRole("button", { name: "Vincular" }));
+    assert.ok(screen.getByRole("alertdialog", { name: "Confirmar vinculación" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar" }));
+    await screen.findByText("Vinculación guardada correctamente.");
+    assert.ok(calls.some((call) => call.url.endsWith("/practitioner") && call.method === "PUT"));
+    assert.ok(screen.getByText(/Vinculada · Profesional sintético/));
+    cleanup();
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("el formulario sintético de especialidad distingue duplicado y guardado correcto", async () => {
+  const { cleanup, fireEvent, render } = await import("@testing-library/react");
+  const { SpecialtyForm } = await import("../src/modules/usuarios-accesos/components/SpecialtyForm");
+  const originalFetch = globalThis.fetch;
+  let saves = 0;
+  let savedCallbacks = 0;
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url === "/api/session/csrf") return json({ csrfToken: "csrf-test" });
+    saves += 1;
+    return saves === 1 ? json({ code: "SPECIALTY_DUPLICATE" }, 409) : json({ ok: true });
+  }) as typeof fetch;
+  try {
+    const screen = render(<SpecialtyForm onSaved={() => { savedCallbacks += 1; }} />);
+    fireEvent.change(screen.getByLabelText("Nombre"), { target: { value: "Especialidad de prueba" } });
+    fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Descripción sintética suficientemente larga." } });
+    fireEvent.click(screen.getByRole("button", { name: "Crear especialidad" }));
+    await screen.findByText("Ya existe una especialidad con ese nombre.");
+    fireEvent.click(screen.getByRole("button", { name: "Crear especialidad" }));
+    await screen.findByText(/Especialidad creada correctamente\./);
+    assert.equal(savedCallbacks, 1);
+    cleanup();
+  } finally { globalThis.fetch = originalFetch; }
+});
