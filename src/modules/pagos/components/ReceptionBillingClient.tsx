@@ -213,15 +213,15 @@ export function ReceptionBillingClient() {
       setMessage("No existe una intención activa. Puedes preparar un nuevo pago.");
       return;
     }
-    intent = recovered;
-    const response = await fetch(`/api/staff/billing/appointments/${encodeURIComponent(intent.appointmentId)}`, {
+    const recoveredIntent = recovered;
+    const response = await fetch(`/api/staff/billing/appointments/${encodeURIComponent(recoveredIntent.appointmentId)}`, {
       cache: "no-store",
     }).catch(() => null);
     if (response?.ok) {
       const current = await response.json().catch(() => null) as BillingAppointment | null;
-      if (current && paymentIntentWasPersisted(current, intent)) {
+      if (current && paymentIntentWasPersisted(current, recoveredIntent)) {
         const token = await getCsrfToken().catch(() => null);
-        if (token) await acknowledgePaymentIntent(current, intent, token);
+        if (token) await acknowledgePaymentIntent(current, recoveredIntent, token);
         return;
       }
     }

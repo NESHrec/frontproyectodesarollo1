@@ -46,7 +46,9 @@ function getApiBaseUrl(): string | null {
       return null;
     }
 
-    return url.toString().replace(/\/+$/, "");
+    let normalized = url.toString();
+    while (normalized.endsWith("/")) normalized = normalized.slice(0, -1);
+    return normalized;
   } catch {
     return null;
   }

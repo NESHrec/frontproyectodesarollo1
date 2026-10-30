@@ -45,7 +45,10 @@ export function backendApiBaseUrl() {
   if (!value) return null;
   try {
     const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:" ? url.toString().replace(/\/+$/, "") : null;
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    let normalized = url.toString();
+    while (normalized.endsWith("/")) normalized = normalized.slice(0, -1);
+    return normalized;
   } catch {
     return null;
   }
