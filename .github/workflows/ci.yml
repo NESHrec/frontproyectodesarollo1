@@ -27,16 +27,52 @@ jobs:
       - run: npm run lint
       - run: npx next typegen
       - run: npm run typecheck
-      - name: Deterministic route and UI tests
+      - name: Deterministic route and UI tests with coverage
         run: |
-          npm run test:billing-client
-          npm run test:auth-bff
-          npm run test:staff-routes
-          npm run test:audit-findings
-          npm run test:security
-          npm run test:clinical-expansions
-          npm run test:patient-link
-          npm run test:practitioner-routes
+          npx c8 --clean --all --reporter=lcovonly --reporter=text-summary --report-dir=coverage \
+            --include='src/**/*.ts' --include='src/**/*.tsx' --exclude='src/**/*.d.ts' \
+            bash -e -c '
+              npm run test:billing-client
+              npm run test:auth-bff
+              npm run test:staff-routes
+              npm run test:audit-findings
+              npm run test:security
+              npm run test:clinical-expansions
+              npm run test:patient-link
+              npm run test:practitioner-routes
+            '
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+      - name: Start restricted SSH tunnel to SonarQube
+        if: ${{ github.event_name == 'push' }}
+        env:
+          SONAR_SSH_PRIVATE_KEY: ${{ secrets.SONAR_SSH_PRIVATE_KEY }}
+          SONAR_SSH_KNOWN_HOSTS: ${{ secrets.SONAR_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SONAR_SSH_PRIVATE_KEY" > "$HOME/.ssh/sonar-ci"
+          printf '%s\n' "$SONAR_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/sonar-ci" "$HOME/.ssh/known_hosts"
+          ssh -fN -i "$HOME/.ssh/sonar-ci" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -L 127.0.0.1:19001:127.0.0.1:9001 \
+            sonar-ci@207.244.224.129
+          curl --fail --silent --show-error --retry 5 --retry-delay 2 \
+            http://127.0.0.1:19001/api/system/status >/dev/null
+      - name: SonarQube analysis and Quality Gate
+        if: ${{ github.event_name == 'push' }}
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.projectKey=clinica-serena-frontend
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
