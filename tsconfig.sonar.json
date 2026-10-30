@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": ["./src/*"],
+      "morphicons/react": ["./node_modules/morphicons/dist/react.d.ts"]
+    }
+  }
+}
