@@ -31,6 +31,26 @@ export function AdminSpecialtiesManager() {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  async function remove(specialty: Specialty) {
+    if (!window.confirm(`¿Eliminar definitivamente la especialidad ${specialty.name}? Esta acción no se puede deshacer.`)) return;
+    try {
+      const csrf = await (await import("@/modules/auth/csrf-client")).getCsrfToken();
+      const response = await fetch(`/api/staff/specialties/${encodeURIComponent(specialty.id)}/delete`, { method: "POST", headers: { "x-csrf-token": csrf } });
+      if (response.ok) {
+        await load();
+        return;
+      }
+      if (response.status === 409) {
+        const body = await response.json().catch(() => null) as { message?: unknown } | null;
+        window.alert(typeof body?.message === "string" ? body.message : "No se puede eliminar la especialidad porque tiene asociaciones activas.");
+        return;
+      }
+      setState(response.status === 401 ? "unauthorized" : response.status === 403 ? "forbidden" : "service");
+    } catch {
+      setState("service");
+    }
+  }
+
   if (state === "loading") return <LoadingState message="Cargando especialidades persistidas…" />;
   if (state === "unauthorized") return <ApiErrorState title="Tu sesión ADMIN expiró" description="Inicia sesión nuevamente para administrar el catálogo." />;
   if (state === "forbidden") return <ApiErrorState title="Acceso restringido" description="Solo una cuenta ADMIN puede administrar especialidades." />;
@@ -50,7 +70,7 @@ export function AdminSpecialtiesManager() {
             <Card className="flex min-h-56 flex-col rounded-[1.5rem] border-[#62727B]/15 shadow-[0_18px_50px_-42px_rgba(38,50,56,0.5)] transition duration-200 hover:-translate-y-0.5 hover:border-[#56777A]/35" key={specialty.id}>
               <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide">{specialty.id}</p><h2 className="mt-2 text-lg font-bold">{specialty.name}</h2></div><StatusBadge tone="pistacho">Activa</StatusBadge></div>
               <p className="mt-4 text-sm text-[#62727B]/80">{specialty.description}</p>
-              <div className="mt-5"><ModalDialog description="Conserva el identificador y las asociaciones existentes." title="Editar especialidad" triggerLabel="Editar" triggerVariant="secondary"><SpecialtyForm onSaved={() => void load()} specialty={specialty} /></ModalDialog></div>
+              <div className="mt-5 flex flex-wrap gap-2"><ModalDialog description="Conserva el identificador y las asociaciones existentes." title="Editar especialidad" triggerLabel="Editar" triggerVariant="secondary"><SpecialtyForm onSaved={() => void load()} specialty={specialty} /></ModalDialog><button className="rounded-xl border border-[#B96B7E]/35 px-4 py-2 text-sm font-bold text-[#8E3E56] transition hover:bg-[#F8E2E8]" onClick={() => void remove(specialty)} type="button">Eliminar definitivamente</button></div>
             </Card>
           ))}
         </section>

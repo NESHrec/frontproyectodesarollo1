@@ -23,6 +23,15 @@ test("edición de especialidades valida el identificador y mantiene CSRF", () =>
   assert.match(route, /method: "PATCH"/);
 });
 
+test("eliminación de especialidades valida CSRF e identificador antes de reenviar", () => {
+  const route = source("src/app/api/staff/specialties/[specialtyId]/route.ts");
+  assert.ok(route.includes("export async function DELETE"));
+  const deleteRoute = route.slice(route.indexOf("export async function DELETE"));
+  assert.ok(deleteRoute.indexOf("hasValidCsrf(request)") < deleteRoute.indexOf("forwardStaffRequest"));
+  assert.ok(route.includes("isSafeIdentifier(specialtyId)"));
+  assert.match(route, /method: "DELETE"/);
+});
+
 test("horarios BFF nunca acepta ni reenvía medicoId", () => {
   const route = source("src/app/api/staff/medico/horarios/route.ts");
   assert.ok(route.includes("export async function GET"));

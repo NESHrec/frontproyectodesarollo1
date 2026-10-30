@@ -41,6 +41,11 @@ test("cambiar estado rechaza JSON malformado por CSRF antes de contactar Spring"
   await assertRejectedBeforeBodyOrSpring(() => PATCH(request("http://localhost:3010/api/staff/practitioners/medico-1/status", "application/json", "{malformed"), context));
 });
 
+test("eliminar profesional rechaza CSRF antes de contactar Spring", async () => {
+  const { DELETE } = await import("../src/app/api/staff/practitioners/[practitionerId]/route");
+  await assertRejectedBeforeBodyOrSpring(() => DELETE(request("http://localhost:3010/api/staff/practitioners/medico-1", "application/json", ""), context));
+});
+
 test("cargar foto rechaza multipart inválido por CSRF antes de parsearlo o contactar Spring", async () => {
   const { PUT } = await import("../src/app/api/staff/practitioners/[practitionerId]/photo/route");
   await assertRejectedBeforeBodyOrSpring(() => PUT(request("http://localhost:3010/api/staff/practitioners/medico-1/photo", "multipart/form-data; boundary=missing", "--truncated"), context));

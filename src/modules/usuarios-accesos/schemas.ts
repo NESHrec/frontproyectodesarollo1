@@ -32,4 +32,5 @@ export const auditEventPageSchema = z.object({
   hasNext: z.boolean(),
 });
 
+export type AuditEventPage = z.infer<typeof auditEventPageSchema>;
 export type AuditEvent = z.infer<typeof auditEventPageSchema>["items"][number];

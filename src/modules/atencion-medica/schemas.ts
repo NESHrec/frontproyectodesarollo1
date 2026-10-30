@@ -111,6 +111,7 @@ export const staffAccountSummarySchema = z.object({
   rolesPresent: z.number().int().nonnegative(),
   pendingLinks: z.number().int().nonnegative(),
 });
+export type StaffAccountSummary = z.infer<typeof staffAccountSummarySchema>;
 export function summarizeStaffAccounts(accounts: z.infer<typeof staffAccountsSchema>) {
   return {
     total: accounts.length,

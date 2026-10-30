@@ -21,7 +21,7 @@ export default async function DoctorAgendaPage({ searchParams }: { searchParams:
         <form action="/medico/agenda" className="self-start rounded-[1.75rem] border border-[var(--serena-border)] bg-[linear-gradient(145deg,#ffffff_0%,#f6fafa_100%)] p-5 shadow-[0_22px_60px_-46px_rgba(38,50,56,0.7)] lg:sticky lg:top-24">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Vista de agenda</p>
           <h2 className="mt-2 text-xl font-black text-[#263238]">Filtrar citas</h2>
-          <div className="mt-5"><SearchFilters><SelectField defaultValue={status ?? ""} id="estado" label="Estado" name="estado"><option value="">Todos</option>{STATUSES.map((item) => <option key={item} value={item}>{appointmentStatusLabel[item]}</option>)}</SelectField><div className="flex items-end"><Button type="submit">Aplicar filtro</Button></div></SearchFilters></div>
+          <div className="mt-5"><SearchFilters contentClassName="grid gap-4"><SelectField defaultValue={status ?? ""} id="estado" label="Estado" name="estado"><option value="">Todos</option>{STATUSES.map((item) => <option key={item} value={item}>{appointmentStatusLabel[item]}</option>)}</SelectField><Button className="w-full" type="submit">Aplicar filtro</Button></SearchFilters></div>
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-[#DDF3F1]/55 px-3 py-2 text-xs font-semibold text-[#334B54]"><span aria-hidden className="size-2 rounded-full bg-[#56777A]" />Filtro activo: {status ? appointmentStatusLabel[status] : "Todas las citas"}</div>
           <p className="mt-5 border-t border-[#62727B]/15 pt-4 text-xs leading-5 text-[#62727B]">Rango operativo: 7 días atrás y 60 días adelante.</p>
         </form>

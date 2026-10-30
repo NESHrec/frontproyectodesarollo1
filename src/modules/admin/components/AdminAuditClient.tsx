@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { auditEventPageSchema, type AuditEvent } from "@/modules/usuarios-accesos/schemas";
+import { auditEventPageSchema, type AuditEvent, type AuditEventPage } from "@/modules/usuarios-accesos/schemas";
 import { Button, DataTable, EmptyState, LoadingState, type DataTableColumn } from "@/shared/components";
 
 export const actionLabels: Record<string, string> = {
@@ -37,10 +37,10 @@ const columns: DataTableColumn<AuditEvent>[] = [
   { key: "ip", label: "IP de origen", render: (item) => <span className="font-mono text-xs">{item.clientIp ?? "No disponible"}</span> },
 ];
 
-export function AdminAuditClient() {
-  const [events, setEvents] = useState<AuditEvent[] | null>(null);
-  const [page, setPage] = useState(0);
-  const [hasNext, setHasNext] = useState(false);
+export function AdminAuditClient({ initialPage }: { initialPage?: AuditEventPage | null }) {
+  const [events, setEvents] = useState<AuditEvent[] | null>(initialPage?.items ?? null);
+  const [page, setPage] = useState(initialPage?.page ?? 0);
+  const [hasNext, setHasNext] = useState(initialPage?.hasNext ?? false);
   const [error, setError] = useState<"forbidden" | "service" | null>(null);
 
   const load = useCallback(async (requestedPage: number) => {
@@ -57,9 +57,10 @@ export function AdminAuditClient() {
   }, []);
 
   useEffect(() => {
+    if (initialPage) return;
     const task = window.setTimeout(() => { void load(0); }, 0);
     return () => window.clearTimeout(task);
-  }, [load]);
+  }, [initialPage, load]);
 
   if (events === null && !error) return <LoadingState message="Consultando bitácora persistida…" />;
   if (error === "forbidden") return <section className="rounded-lg bg-[#F8E2E8] p-5" role="alert"><h2 className="font-bold">Acceso denegado</h2><p className="mt-1 text-sm">La bitácora solo está disponible para ADMIN.</p></section>;

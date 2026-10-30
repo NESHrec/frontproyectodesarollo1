@@ -3,16 +3,18 @@ import { Suspense } from "react";
 
 import { AdminAccountsSummaryClient } from "@/modules/admin/components/AdminAccountsSummaryClient";
 import { AdminCatalogSummary } from "@/modules/admin/components/AdminCatalogSummary";
+import { getStaffAccountSummary } from "@/modules/admin/server";
 import { Card, InternalPageHeader, LoadingState, buttonLinkClasses } from "@/shared/components";
 
 export const ADMIN_RESPONSIBILITY_TEXT = "Administración gestiona cuentas de personal y especialidades persistidas. No permite consultar ni editar diagnósticos, expedientes, recetas u odontogramas.";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const initialSummary = await getStaffAccountSummary();
   return (
     <div className="space-y-6 lg:space-y-7">
       <InternalPageHeader actions={<Link className={buttonLinkClasses} href="/admin/usuarios">Gestionar usuarios</Link>} description="Administración visual de cuentas y consulta de especialidades, separada del contenido clínico." eyebrow="Administración" title="Panel administrativo" />
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(16rem,0.7fr)]" aria-label="Resumen administrativo">
-        <div className="rounded-[1.75rem] border border-[#56777A]/20 bg-gradient-to-br from-[#DDF3F1]/80 via-[#FBFCFA] to-[#E5F1D8]/55 p-4 shadow-[0_16px_40px_rgba(51,75,84,0.07)] sm:p-6"><div className="mb-5 border-b border-[#56777A]/15 pb-4"><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#56777A]">Vista administrativa</p><h2 className="mt-1 text-xl font-extrabold tracking-[-0.025em] text-[#334B54] sm:text-2xl">Cuentas de personal</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-[#62727B]">Consulta los registros disponibles y continúa a las tareas existentes.</p></div><AdminAccountsSummaryClient /></div>
+        <div className="rounded-[1.75rem] border border-[#56777A]/20 bg-gradient-to-br from-[#DDF3F1]/80 via-[#FBFCFA] to-[#E5F1D8]/55 p-4 shadow-[0_16px_40px_rgba(51,75,84,0.07)] sm:p-6"><div className="mb-5 border-b border-[#56777A]/15 pb-4"><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#56777A]">Vista administrativa</p><h2 className="mt-1 text-xl font-extrabold tracking-[-0.025em] text-[#334B54] sm:text-2xl">Cuentas de personal</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-[#62727B]">Consulta los registros disponibles y continúa a las tareas existentes.</p></div><AdminAccountsSummaryClient initialSummary={initialSummary} /></div>
         <aside className="flex flex-col justify-between gap-4 rounded-[1.75rem] border border-[#62727B]/15 bg-[#FBFCFA] p-4 shadow-[0_12px_32px_rgba(51,75,84,0.05)] sm:p-5" aria-label="Catálogo publicado"><div><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#56777A]">Contexto del sistema</p><h2 className="mt-1 text-lg font-extrabold tracking-[-0.02em] text-[#334B54]">Especialidades</h2><p className="mt-1 text-sm leading-5 text-[#62727B]">Resumen del catálogo publicado, sin acciones de edición en esta vista.</p></div><Suspense fallback={<LoadingState message="Consultando catálogo de especialidades..." />}><AdminCatalogSummary /></Suspense></aside>
       </section>
       <nav aria-label="Accesos administrativos" className="grid gap-3 md:grid-cols-3">

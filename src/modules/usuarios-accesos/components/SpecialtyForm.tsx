@@ -44,7 +44,9 @@ export function SpecialtyForm({ specialty, onSaved }: SpecialtyFormProps) {
     <form className="space-y-4" onSubmit={handleSubmit(submit)}>
       <Input error={errors.name?.message} label="Nombre" {...register("name")} />
       <TextareaField error={errors.description?.message} label="Descripción" rows={3} {...register("description")} />
-      <Button disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando…" : specialty ? "Guardar cambios" : "Crear especialidad"}</Button>
+      <div className="flex justify-end border-t border-[#62727B]/12 pt-4">
+        <Button className="w-full sm:min-w-48 sm:w-auto" disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando…" : specialty ? "Guardar cambios" : "Crear especialidad"}</Button>
+      </div>
       {message ? <p aria-live="assertive" className={`rounded-lg border px-4 py-4 text-sm font-bold shadow-sm ${message.tone === "success" ? "border-[#7AA274] bg-[#E5F1D8] text-[#334B54]" : "border-[#B96B7E] bg-[#F8E2E8]"}`} role="status">{message.tone === "success" ? "✓ " : ""}{message.text}</p> : null}
     </form>
   );

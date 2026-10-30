@@ -46,8 +46,8 @@ async function normalizePhoto(file: File) {
   throw new Error("PHOTO_TOO_LARGE");
 }
 
-export function PractitionerManager({ specialties }: { specialties: Especialidad[] }) {
-  const [items, setItems] = useState<Medico[] | null>(null);
+export function PractitionerManager({ specialties, initialItems }: { specialties: Especialidad[]; initialItems?: Medico[] | null }) {
+  const [items, setItems] = useState<Medico[] | null>(initialItems ?? null);
   const [editing, setEditing] = useState<Medico | null>(null);
   const [draft, setDraft] = useState<Draft>(empty);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -60,7 +60,15 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
     if (!response.ok) { setMessage(response.status === 401 ? "Tu sesión ADMIN expiró." : response.status === 403 ? "Solo ADMIN puede consultar profesionales." : "No se pudo cargar el catálogo de profesionales."); setItems([]); return; }
     setItems(await response.json());
   }
-  useEffect(() => { let active = true; void fetch("/api/staff/practitioners", { cache: "no-store" }).then(async response => { const data = response.ok ? await response.json() : []; if (active) setItems(data); }); return () => { active = false; }; }, []);
+  useEffect(() => {
+    if (initialItems) return;
+    let active = true;
+    void fetch("/api/staff/practitioners", { cache: "no-store" }).then(async response => {
+      const data = response.ok ? await response.json() : [];
+      if (active) setItems(data);
+    });
+    return () => { active = false; };
+  }, [initialItems]);
   const preview = useMemo(() => photo ? URL.createObjectURL(photo) : null, [photo]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
   const specialtyNames = useMemo(() => new Map(specialties.map(item => [item.id, item.name])), [specialties]);
@@ -106,6 +114,17 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
   }
   async function status(item: Medico) { setBusy(true); const response = await fetch(`/api/staff/practitioners/${item.id}/status`, { method: "PATCH", headers: await csrfHeaders(true), body: JSON.stringify({ active: !item.active }) }); setMessage(response.ok ? (item.active ? "Profesional desactivado; ya no aparece públicamente." : "Profesional activado.") : "No se pudo cambiar el estado."); await load(); setBusy(false); }
   async function removePhoto(item: Medico) { setBusy(true); const response = await fetch(`/api/staff/practitioners/${item.id}/photo`, { method: "DELETE", headers: await csrfHeaders() }); setMessage(response.ok ? "Foto quitada." : "No se pudo quitar la foto."); await load(); setBusy(false); }
+  async function remove(item: Medico) {
+    if (item.active || !window.confirm(`¿Eliminar definitivamente a ${item.fullName}? Esta acción no se puede deshacer.`)) return;
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/staff/practitioners/${item.id}`, { method: "DELETE", headers: await csrfHeaders() });
+      if (response.ok) setMessage("Profesional eliminado definitivamente.");
+      else if (response.status === 409) setMessage("No se puede eliminar: conserva citas, cuentas, historial o registros clínicos.");
+      else setMessage("No se pudo eliminar el profesional.");
+      await load();
+    } catch { setMessage("No se pudo conectar con el servicio."); } finally { setBusy(false); }
+  }
 
   return (
     <div className="grid gap-7 xl:grid-cols-[22rem_1fr]">
@@ -127,7 +146,7 @@ export function PractitionerManager({ specialties }: { specialties: Especialidad
       </Card>
       <section className="min-w-0">
         <div className="mb-4 flex items-end justify-between border-b border-[#62727B]/15 pb-3"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Directorio clínico</p><h2 className="mt-1 text-2xl font-black text-[#263238]">Profesionales</h2></div><span className="text-sm font-bold text-[#62727B]">{items?.length ?? 0} registrados</span></div>
-        {items === null ? <LoadingState message="Cargando profesionales…"/> : items.length === 0 ? <EmptyState title="Sin profesionales" description="Crea el primer profesional del catálogo."/> : <div className="grid gap-4 md:grid-cols-2">{items.map(item => <article className="group overflow-hidden rounded-[1.5rem] border border-[#62727B]/15 bg-white p-5 shadow-[0_18px_50px_-42px_rgba(38,50,56,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-[#56777A]/35" key={item.id}><PractitionerPortrait practitioner={item}/><div className="mt-5 flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-lg font-black text-[#263238]">{item.fullName}</h3><p className="mt-1 text-sm text-[#62727B]">{specialtyNames.get(item.specialtyId)}</p><p className="mt-2 text-xs font-semibold uppercase tracking-wider text-[#62727B]/65">Colegiado {item.licenseNumber}</p></div><StatusBadge tone={item.active ? "pistacho" : "rosa"}>{item.active ? "Activo" : "Inactivo"}</StatusBadge></div><div className="mt-5 flex flex-wrap gap-2 border-t border-[#62727B]/12 pt-4"><Button onClick={() => select(item)} type="button" variant="secondary">Editar</Button><Button disabled={busy} onClick={() => void status(item)} type="button" variant="secondary">{item.active ? "Desactivar" : "Activar"}</Button>{item.photoUrl ? <Button disabled={busy} onClick={() => void removePhoto(item)} type="button" variant="ghost">Quitar foto</Button> : null}</div></article>)}</div>}
+        {items === null ? <LoadingState message="Cargando profesionales…"/> : items.length === 0 ? <EmptyState title="Sin profesionales" description="Crea el primer profesional del catálogo."/> : <div className="grid gap-4 md:grid-cols-2">{items.map(item => <article className="group overflow-hidden rounded-[1.5rem] border border-[#62727B]/15 bg-white p-5 shadow-[0_18px_50px_-42px_rgba(38,50,56,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-[#56777A]/35" key={item.id}><PractitionerPortrait practitioner={item}/><div className="mt-5 flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-lg font-black text-[#263238]">{item.fullName}</h3><p className="mt-1 text-sm text-[#62727B]">{specialtyNames.get(item.specialtyId)}</p><p className="mt-2 text-xs font-semibold uppercase tracking-wider text-[#62727B]/65">Colegiado {item.licenseNumber}</p></div><StatusBadge tone={item.active ? "pistacho" : "rosa"}>{item.active ? "Activo" : "Inactivo"}</StatusBadge></div><div className="mt-5 flex flex-wrap gap-2 border-t border-[#62727B]/12 pt-4"><Button onClick={() => select(item)} type="button" variant="secondary">Editar</Button><Button disabled={busy} onClick={() => void status(item)} type="button" variant="secondary">{item.active ? "Desactivar" : "Activar"}</Button>{item.photoUrl ? <Button disabled={busy} onClick={() => void removePhoto(item)} type="button" variant="ghost">Quitar foto</Button> : null}{!item.active ? <Button disabled={busy} onClick={() => void remove(item)} type="button" variant="ghost">Eliminar definitivamente</Button> : null}</div></article>)}</div>}
       </section>
     </div>
   );

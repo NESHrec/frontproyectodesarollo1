@@ -18,8 +18,8 @@ const failureMessages: Record<string, string> = {
 };
 
 /** Vinculación real entre cuentas MEDICO y profesionales; requiere una sesión ADMIN. */
-export function PractitionerLinkPanel({ practitioners }: { practitioners: Practitioner[] }) {
-  const [accounts, setAccounts] = useState<StaffAccount[] | null>(null);
+export function PractitionerLinkPanel({ practitioners, initialAccounts }: { practitioners: Practitioner[]; initialAccounts?: StaffAccount[] | null }) {
+  const [accounts, setAccounts] = useState<StaffAccount[] | null>(initialAccounts ?? null);
   const [loadError, setLoadError] = useState<LoadError>(null);
   const [selection, setSelection] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<{ accountId: string; practitionerId: string | null } | null>(null);
@@ -37,9 +37,10 @@ export function PractitionerLinkPanel({ practitioners }: { practitioners: Practi
   }, []);
 
   useEffect(() => {
+    if (initialAccounts) return;
     const task = window.setTimeout(() => { void load(); }, 0);
     return () => window.clearTimeout(task);
-  }, [load]);
+  }, [initialAccounts, load]);
 
   async function apply() {
     if (!pending) return;

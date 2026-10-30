@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { staffAccountSummarySchema } from "@/modules/atencion-medica/schemas";
+import { staffAccountSummarySchema, type StaffAccountSummary } from "@/modules/atencion-medica/schemas";
 import { EmptyState, ErrorState, LoadingState, MetricCard } from "@/shared/components";
 
 type LoadError = "forbidden" | "service" | null;
 
-export function AdminAccountsSummaryClient() {
-  const [summary, setSummary] = useState<{ total: number; active: number; rolesPresent: number; pendingLinks: number } | null>(null);
+export function AdminAccountsSummaryClient({ initialSummary }: { initialSummary?: StaffAccountSummary | null }) {
+  const [summary, setSummary] = useState<StaffAccountSummary | null>(initialSummary ?? null);
   const [error, setError] = useState<LoadError>(null);
 
   const load = useCallback(async () => {
@@ -23,9 +23,10 @@ export function AdminAccountsSummaryClient() {
   }, []);
 
   useEffect(() => {
+    if (initialSummary) return;
     const task = window.setTimeout(() => { void load(); }, 0);
     return () => window.clearTimeout(task);
-  }, [load]);
+  }, [initialSummary, load]);
 
   if (summary === null && !error) return <LoadingState message="Consultando cuentas de personal..." />;
   if (error === "forbidden") {

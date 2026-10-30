@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { getCsrfToken as csrfToken } from "@/modules/auth/csrf-client";
 import { Button, Input, SelectField } from "@/shared/components";
 
 export function StaffAccountForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "success" | "error" | "forbidden">("idle");
   const [busy, setBusy] = useState(false);
 
@@ -18,6 +20,7 @@ export function StaffAccountForm() {
         body: JSON.stringify({ email: formData.get("email"), fullName: formData.get("fullName"), role: formData.get("role"), password: formData.get("password") }),
       });
       setStatus(response.status === 403 ? "forbidden" : response.ok ? "success" : "error");
+      if (response.ok) router.refresh();
     } catch { setStatus("error"); }
     finally { setBusy(false); }
   }
