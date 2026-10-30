@@ -91,3 +91,39 @@ jobs:
           curl --fail --silent --show-error --user "$SONAR_TOKEN:" \
             "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=clinica-serena-frontend" \
             | jq '{status:.projectStatus.status, conditions:[.projectStatus.conditions[] | {metricKey,status,errorThreshold,actualValue}]}'
+
+  deploy-production:
+    needs: verify
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build commit-addressed production image
+        run: >-
+          docker build --build-arg ENABLE_HTTPS_UPGRADE=true
+          --tag "clinica-serena-frontend:${GITHUB_SHA}" .
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - name: Install restricted deployment key
+        env:
+          PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$PROD_DEPLOY_SSH_KEY" > "$HOME/.ssh/clinica-production"
+          printf '%s\n' "$PROD_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/clinica-production" "$HOME/.ssh/known_hosts"
+      - name: Deploy and verify on the VPS
+        run: |
+          set -o pipefail
+          docker save "clinica-serena-frontend:${GITHUB_SHA}" \
+            | gzip -1 \
+            | ssh -i "$HOME/.ssh/clinica-production" \
+                -o IdentitiesOnly=yes \
+                -o BatchMode=yes \
+                -o StrictHostKeyChecking=yes \
+                clinica-deploy@207.244.224.129
