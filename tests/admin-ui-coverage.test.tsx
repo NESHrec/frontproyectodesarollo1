@@ -165,3 +165,56 @@ test("las lecturas administrativas validan contratos y devuelven null ante error
   assert.equal(await getStaffPractitioners(invalid), null);
   assert.equal(await getInitialAuditEventPage(invalid), null);
 });
+
+test("la bitácora renderiza eventos sintéticos y pagina con respuesta válida", async () => {
+  const { cleanup, fireEvent, render } = await import("@testing-library/react");
+  const { AdminAuditClient } = await import("../src/modules/admin/components/AdminAuditClient");
+  const event = {
+    id: "event-1", actorAccountId: "account-test", actorType: "PERSONAL", actorRole: "ADMIN",
+    action: "UNLISTED_SYNTHETIC_ACTION", entityType: "TEST_RECORD", entityId: "record-test",
+    occurredAt: "2026-10-29T12:00:00.000Z", clientIp: null,
+  };
+  const originalFetch = globalThis.fetch;
+  let requestedUrl = "";
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    requestedUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    return json({ items: [event], page: 1, size: 50, totalElements: 2, hasNext: false });
+  }) as typeof fetch;
+  try {
+    const screen = render(<AdminAuditClient initialPage={{ items: [], page: 0, size: 50, totalElements: 2, hasNext: true }} />);
+    assert.ok(screen.getByText("Bitácora vacía"));
+    fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
+    await screen.findByText("unlisted synthetic action");
+    assert.match(requestedUrl, /audit-events\?page=1&limit=50/);
+    assert.ok(screen.getByText("No disponible"));
+    assert.ok(screen.getByText("Página 2"));
+    assert.equal(screen.getByRole("button", { name: "Página siguiente" }).hasAttribute("disabled"), true);
+    cleanup();
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("la bitácora comunica denegación y permite reintentar ante error de servicio", async () => {
+  const { cleanup, fireEvent, render } = await import("@testing-library/react");
+  const { AdminAuditClient } = await import("../src/modules/admin/components/AdminAuditClient");
+  const originalFetch = globalThis.fetch;
+  let attempt = 0;
+  globalThis.fetch = (async () => {
+    attempt += 1;
+    if (attempt === 1) return new Response(null, { status: 403 });
+    if (attempt === 2) return new Response("offline", { status: 503 });
+    return json({ items: [], page: 0, size: 50, totalElements: 0, hasNext: false });
+  }) as typeof fetch;
+  try {
+    const screen = render(<AdminAuditClient />);
+    await screen.findByText("La bitácora solo está disponible para ADMIN.");
+    assert.equal(attempt, 1);
+    cleanup();
+
+    const retryScreen = render(<AdminAuditClient />);
+    await retryScreen.findByText("El servicio no está disponible en este momento.");
+    fireEvent.click(retryScreen.getByRole("button", { name: "Intentar nuevamente" }));
+    await retryScreen.findByText("Bitácora vacía");
+    assert.equal(attempt, 3);
+    cleanup();
+  } finally { globalThis.fetch = originalFetch; }
+});
