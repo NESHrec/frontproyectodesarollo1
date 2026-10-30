@@ -3,7 +3,7 @@ name: Web release candidate CI
 on:
   pull_request:
   push:
-    branches: [codex/production-candidate-20261029]
+    branches: [main, codex/production-candidate-20261029]
   workflow_dispatch:
 
 permissions:
