@@ -13,6 +13,7 @@
     "test:staff-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-write-routes.test.ts",
     "test:staff-projections": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/staff-account-id.test.ts",
     "test:dashboard-summaries": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/dashboard-summaries.test.tsx",
+    "test:admin-coverage": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/admin-ui-coverage.test.tsx",
     "test:audit-findings": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/audit-findings-content.test.tsx",
     "test:security": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/security-headers.test.ts",
     "test:clinical-expansions": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/clinical-expansions.test.tsx",

@@ -6,31 +6,33 @@ import { auditEventPageSchema, type AuditEventPage } from "@/modules/usuarios-ac
 import { medicosResponseSchema } from "@/modules/catalogo-medico/schemas";
 import type { Medico } from "@/shared/types/catalogo-medico";
 
-async function getStaffAccounts(path = "/staff/accounts"): Promise<StaffAccount[] | null> {
-  const response = await staffBackendFetch(path);
+type AdminBackendFetch = typeof staffBackendFetch;
+
+async function getStaffAccounts(path = "/staff/accounts", backendFetch: AdminBackendFetch = staffBackendFetch): Promise<StaffAccount[] | null> {
+  const response = await backendFetch(path);
   if (!response?.ok) return null;
   const parsed = staffAccountsSchema.safeParse(await response.json().catch(() => null));
   return parsed.success ? parsed.data : null;
 }
 
-export async function getStaffAccountSummary(): Promise<StaffAccountSummary | null> {
-  const accounts = await getStaffAccounts();
+export async function getStaffAccountSummary(backendFetch: AdminBackendFetch = staffBackendFetch): Promise<StaffAccountSummary | null> {
+  const accounts = await getStaffAccounts("/staff/accounts", backendFetch);
   return accounts ? summarizeStaffAccounts(accounts) : null;
 }
 
-export function getMedicalStaffAccounts() {
-  return getStaffAccounts("/staff/accounts?role=MEDICO");
+export function getMedicalStaffAccounts(backendFetch: AdminBackendFetch = staffBackendFetch) {
+  return getStaffAccounts("/staff/accounts?role=MEDICO", backendFetch);
 }
 
-export async function getStaffPractitioners(): Promise<Medico[] | null> {
-  const response = await staffBackendFetch("/staff/medicos");
+export async function getStaffPractitioners(backendFetch: AdminBackendFetch = staffBackendFetch): Promise<Medico[] | null> {
+  const response = await backendFetch("/staff/medicos");
   if (!response?.ok) return null;
   const parsed = medicosResponseSchema.safeParse(await response.json().catch(() => null));
   return parsed.success ? parsed.data : null;
 }
 
-export async function getInitialAuditEventPage(): Promise<AuditEventPage | null> {
-  const response = await staffBackendFetch("/staff/audit-events?page=0&limit=50");
+export async function getInitialAuditEventPage(backendFetch: AdminBackendFetch = staffBackendFetch): Promise<AuditEventPage | null> {
+  const response = await backendFetch("/staff/audit-events?page=0&limit=50");
   if (!response?.ok) return null;
   const parsed = auditEventPageSchema.safeParse(await response.json().catch(() => null));
   return parsed.success ? parsed.data : null;

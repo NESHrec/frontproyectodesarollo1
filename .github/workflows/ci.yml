@@ -39,6 +39,7 @@ jobs:
               npm run test:staff-routes
               npm run test:staff-projections
               npm run test:dashboard-summaries
+              npm run test:admin-coverage
               npm run test:audit-findings
               npm run test:security
               npm run test:clinical-expansions
