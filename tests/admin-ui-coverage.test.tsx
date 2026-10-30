@@ -275,3 +275,21 @@ test("el formulario sintético de especialidad distingue duplicado y guardado co
     cleanup();
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test("el gestor de profesionales carga el catálogo inicial desde el BFF", async () => {
+  const { cleanup, render } = await import("@testing-library/react");
+  const { PractitionerManager } = await import("../src/modules/admin/components/PractitionerManager");
+  const originalFetch = globalThis.fetch;
+  let requested = "";
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    requested = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    return json([{ id: "doctor-test", fullName: "Profesional de prueba", specialtyId: "specialty-test", specialtyName: "Odontología", licenseNumber: "TEST-1", active: true }]);
+  }) as typeof fetch;
+  try {
+    const screen = render(<PractitionerManager specialties={[{ id: "specialty-test", name: "Odontología" }]} />);
+    await screen.findByText("Profesional de prueba");
+    assert.equal(requested, "/api/staff/practitioners");
+    assert.ok(screen.getByText("1 registrados"));
+    cleanup();
+  } finally { globalThis.fetch = originalFetch; }
+});
