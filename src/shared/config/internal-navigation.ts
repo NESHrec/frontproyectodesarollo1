@@ -1,0 +1,59 @@
+import type { InternalRole, NavigationGroup } from "@/shared/types/internal";
+
+export const internalNavigation: Record<InternalRole, NavigationGroup> = {
+  recepcion: {
+    role: "recepcion",
+    label: "Recepción",
+    description: "Agenda, pacientes y cobros",
+    items: [
+      { href: "/recepcion", label: "Resumen", shortLabel: "R" },
+      { href: "/recepcion/agenda", label: "Agenda general", shortLabel: "A" },
+      { href: "/recepcion/pacientes", label: "Pacientes", shortLabel: "P" },
+      { href: "/recepcion/cobros", label: "Cobros", shortLabel: "C" },
+    ],
+  },
+  medico: {
+    role: "medico",
+    label: "Médico / Odontólogo",
+    description: "Citas propias y expediente",
+    items: [
+      { href: "/medico", label: "Resumen", shortLabel: "R" },
+      { href: "/medico/agenda", label: "Mi agenda", shortLabel: "A" },
+      { href: "/medico/consultas/nueva", label: "Nueva consulta", shortLabel: "C" },
+      { href: "/medico/recetas/nueva", label: "Recetas", shortLabel: "Rx" },
+    ],
+  },
+  admin: {
+    role: "admin",
+    label: "Administración",
+    description: "Usuarios y configuración",
+    items: [
+      { href: "/admin", label: "Resumen", shortLabel: "R" },
+      { href: "/admin/usuarios", label: "Usuarios", shortLabel: "U" },
+      { href: "/admin/roles", label: "Roles y permisos", shortLabel: "P" },
+      { href: "/admin/especialidades", label: "Especialidades", shortLabel: "E" },
+      { href: "/admin/profesionales", label: "Profesionales", shortLabel: "M" },
+      { href: "/admin/bitacora", label: "Bitácora", shortLabel: "B" },
+    ],
+  },
+  paciente: {
+    role: "paciente",
+    label: "Paciente",
+    description: "Citas, recetas y seguimiento",
+    items: [
+      { href: "/paciente", label: "Inicio", shortLabel: "I" },
+      { href: "/paciente/citas", label: "Citas", shortLabel: "C" },
+      { href: "/paciente/recetas", label: "Recetas", shortLabel: "Rx" },
+      { href: "/paciente/chequeos", label: "Chequeos", shortLabel: "Ch" },
+      { href: "/paciente/expediente", label: "Mi expediente", shortLabel: "Ex" },
+      { href: "/paciente/perfil", label: "Mi perfil", shortLabel: "P" },
+    ],
+  },
+};
+
+export function getRoleFromPathname(pathname: string): InternalRole {
+  if (pathname.startsWith("/recepcion")) return "recepcion";
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/paciente")) return "paciente";
+  return "medico";
+}

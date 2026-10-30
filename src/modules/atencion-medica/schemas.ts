@@ -1,0 +1,131 @@
+import { z } from "zod";
+
+const nullableText = z.string().nullable().optional().transform((value) => value ?? null);
+const appointmentStatus = z.enum(["PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"]);
+
+export const medicalAppointmentSchema = z.object({
+  id: z.string(),
+  patientId: z.string(),
+  patientName: nullableText,
+  practitionerId: z.string(),
+  specialtyId: z.string(),
+  specialtyName: z.string(),
+  scheduledAt: z.string(),
+  status: appointmentStatus,
+  notes: nullableText,
+  arrivalAt: nullableText,
+  attentionRecorded: z.boolean(),
+  canRecordAttention: z.boolean(),
+  attentionBlockers: z.array(z.enum(["ATTENTION_ALREADY_RECORDED", "STATUS_NOT_DOCUMENTABLE", "NOT_STARTED", "ARRIVAL_NOT_REGISTERED"])),
+});
+
+export const attentionSchema = z.object({
+  id: z.string(),
+  appointmentId: z.string(),
+  appointmentScheduledAt: nullableText,
+  practitionerId: z.string(),
+  practitionerName: nullableText,
+  authorAccountId: z.string(),
+  authorName: nullableText,
+  reason: z.string(),
+  findings: nullableText,
+  diagnosis: z.string(),
+  treatmentPlan: nullableText,
+  recordedAt: z.string(),
+  prescription: z.array(z.object({
+    order: z.number(),
+    medicine: z.string(),
+    dose: z.string(),
+    frequency: z.string(),
+    duration: z.string(),
+    instructions: nullableText,
+  })),
+  addenda: z.array(z.object({
+    id: z.string(), text: z.string(), reason: z.string(), authorAccountId: z.string(),
+    authorName: nullableText, recordedAt: z.string(),
+  })).default([]),
+});
+
+export const medicalAppointmentsSchema = z.array(medicalAppointmentSchema);
+
+export const medicalAppointmentDetailSchema = z.object({
+  appointment: medicalAppointmentSchema,
+  attention: attentionSchema.nullable(),
+});
+
+export const clinicalRecordSchema = z.object({
+  patient: z.object({
+    id: z.string(),
+    fullName: nullableText,
+    status: z.string(),
+    registeredAt: z.string(),
+  }),
+  recordId: nullableText,
+  recordCreatedAt: nullableText,
+  clinicalProfile: z.object({
+    id: z.string(), allergies: nullableText, relevantConditions: nullableText,
+    currentMedications: nullableText, dentalHistory: nullableText,
+    authorAccountId: z.string(), authorName: nullableText, recordedAt: z.string(),
+  }).nullable(),
+  clinicalProfileHistory: z.array(z.object({
+    id: z.string(), allergies: nullableText, relevantConditions: nullableText,
+    currentMedications: nullableText, dentalHistory: nullableText,
+    authorAccountId: z.string(), authorName: nullableText, recordedAt: z.string(),
+  })),
+  attentions: z.array(attentionSchema),
+});
+
+function withoutAuthorAccountId<T extends { authorAccountId: string }>(value: T): Omit<T, "authorAccountId"> {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => key !== "authorAccountId")) as Omit<T, "authorAccountId">;
+}
+
+/** Patient-facing projection omits internal staff account identifiers returned for staff workflows. */
+export const patientClinicalRecordSchema = clinicalRecordSchema.transform((record) => ({
+  ...record,
+  clinicalProfile: record.clinicalProfile
+    ? withoutAuthorAccountId(record.clinicalProfile)
+    : null,
+  clinicalProfileHistory: record.clinicalProfileHistory.map(withoutAuthorAccountId),
+  attentions: record.attentions.map((attention) => ({
+    ...withoutAuthorAccountId(attention),
+    addenda: attention.addenda.map(withoutAuthorAccountId),
+  })),
+}));
+
+export const staffAccountSchema = z.object({
+  accountId: z.string(),
+  email: z.string(),
+  fullName: z.string(),
+  role: z.enum(["ADMIN", "RECEPCION", "MEDICO"]),
+  status: z.enum(["ACTIVA", "BLOQUEADA"]),
+  practitionerLinkStatus: z.enum(["VINCULADA", "PENDIENTE_VINCULACION", "NO_APLICA"]),
+  practitionerId: nullableText,
+  practitionerName: nullableText,
+  practitionerLinkedAt: nullableText,
+});
+
+export const staffAccountsSchema = z.array(staffAccountSchema);
+export const staffAccountSummarySchema = z.object({
+  total: z.number().int().nonnegative(),
+  active: z.number().int().nonnegative(),
+  rolesPresent: z.number().int().nonnegative(),
+  pendingLinks: z.number().int().nonnegative(),
+});
+export type StaffAccountSummary = z.infer<typeof staffAccountSummarySchema>;
+export function summarizeStaffAccounts(accounts: z.infer<typeof staffAccountsSchema>) {
+  return {
+    total: accounts.length,
+    active: accounts.filter((account) => account.status === "ACTIVA").length,
+    rolesPresent: new Set(accounts.map((account) => account.role)).size,
+    pendingLinks: accounts.filter((account) =>
+      account.role === "MEDICO" && account.practitionerLinkStatus === "PENDIENTE_VINCULACION"
+    ).length,
+  };
+}
+
+export type MedicalAppointment = z.infer<typeof medicalAppointmentSchema>;
+export type MedicalAppointmentDetail = z.infer<typeof medicalAppointmentDetailSchema>;
+export type Attention = z.infer<typeof attentionSchema>;
+export type ClinicalRecord = z.infer<typeof clinicalRecordSchema>;
+export type PatientClinicalRecord = z.infer<typeof patientClinicalRecordSchema>;
+export type StaffAccount = z.infer<typeof staffAccountSchema>;

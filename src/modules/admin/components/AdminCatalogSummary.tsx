@@ -1,0 +1,17 @@
+import { getEspecialidades } from "@/modules/catalogo-medico/api";
+import { ApiErrorState, EmptyState, MetricCard } from "@/shared/components";
+
+export const ADMIN_CATALOG_DETAIL = "Consulta del catálogo público mediante GET /especialidades; el alta y la edición se persisten desde la pantalla de Especialidades.";
+
+export async function AdminCatalogSummary() {
+  const specialties = await getEspecialidades();
+  if (!specialties.ok) {
+    return <ApiErrorState description="No se pudo consultar el catálogo de especialidades. Intenta nuevamente cuando el servicio esté disponible." title="Catálogo no disponible" />;
+  }
+  if (specialties.data.length === 0) {
+    return <EmptyState description="El catálogo respondió correctamente y no contiene especialidades publicadas." title="Catálogo vacío" />;
+  }
+  return <section aria-label="Indicadores de catálogo" className="grid gap-4">
+    <MetricCard detail={ADMIN_CATALOG_DETAIL} label="Especialidades publicadas" tone="crema" value={String(specialties.data.length)} />
+  </section>;
+}
