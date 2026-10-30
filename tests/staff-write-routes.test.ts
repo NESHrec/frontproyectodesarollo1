@@ -129,3 +129,33 @@ test("odontograma devuelve 400 para JSON inválido con CSRF válido", async () =
     globalThis.fetch = originalFetch;
   }
 });
+
+test("baja de especialidad exige CSRF e identifica el recurso antes de reenviar DELETE", async () => {
+  const direct = await import("../src/app/api/staff/specialties/[specialtyId]/route");
+  const legacy = await import("../src/app/api/staff/specialties/[specialtyId]/delete/route");
+  const params = { params: Promise.resolve({ specialtyId: "specialty-1" }) };
+  const originalFetch = globalThis.fetch;
+  const calls: Array<{ url: string; init?: RequestInit }> = [];
+  globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    calls.push({ url: typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, init });
+    return new Response(null, { status: 204 });
+  }) as typeof fetch;
+  try {
+    const withoutCsrf = await direct.DELETE(malformedWithoutCsrf("http://localhost:3010/api/staff/specialties/specialty-1"), params);
+    assert.equal(withoutCsrf.status, 403);
+    const invalid = await direct.DELETE(authorized("http://localhost:3010/api/staff/specialties/invalid%2Fid", {}), { params: Promise.resolve({ specialtyId: "invalid/id" }) });
+    assert.equal(invalid.status, 404);
+    assert.equal(calls.length, 0);
+
+    const directResponse = await direct.DELETE(authorized("http://localhost:3010/api/staff/specialties/specialty-1", {}), params);
+    const legacyResponse = await legacy.POST(authorized("http://localhost:3010/api/staff/specialties/specialty-1/delete", {}), params);
+    assert.equal(directResponse.status, 204);
+    assert.equal(legacyResponse.status, 204);
+    assert.equal(calls.length, 2);
+    for (const call of calls) {
+      assert.match(call.url, /\/staff\/especialidades\/specialty-1$/);
+      assert.equal(call.init?.method, "DELETE");
+      assert.equal(new Headers(call.init?.headers).get("authorization"), "Bearer opaque-staff");
+    }
+  } finally { globalThis.fetch = originalFetch; }
+});

@@ -37,6 +37,8 @@ jobs:
               npm run test:billing-client
               npm run test:auth-bff
               npm run test:staff-routes
+              npm run test:staff-projections
+              npm run test:dashboard-summaries
               npm run test:audit-findings
               npm run test:security
               npm run test:clinical-expansions
