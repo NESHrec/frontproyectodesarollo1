@@ -1,0 +1,42 @@
+name: Web release candidate CI
+
+on:
+  pull_request:
+  push:
+    branches: [codex/production-candidate-20261029]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run lint
+      - run: npx next typegen
+      - run: npm run typecheck
+      - name: Deterministic route and UI tests
+        run: |
+          npm run test:billing-client
+          npm run test:auth-bff
+          npm run test:staff-routes
+          npm run test:audit-findings
+          npm run test:security
+          npm run test:clinical-expansions
+          npm run test:patient-link
+          npm run test:practitioner-routes
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
