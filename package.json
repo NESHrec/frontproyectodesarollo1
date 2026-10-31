@@ -19,6 +19,7 @@
     "test:clinical-expansions": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/clinical-expansions.test.tsx",
     "test:patient-link": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/patient-link-route.test.ts",
     "test:practitioner-routes": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/practitioner-routes.test.ts",
+    "test:ux-regressions": "node --require=./tests/server-only-test-shim.cjs --import=tsx --test tests/reception-agenda-patient-name.test.tsx tests/clinical-record-contrast.test.ts",
     "test:browser-erik-domain": "node tests/browser-erik-domain.mjs"
   },
   "dependencies": {

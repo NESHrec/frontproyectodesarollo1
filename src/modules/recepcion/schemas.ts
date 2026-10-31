@@ -3,6 +3,7 @@ import { z } from "zod";
 export const receptionAppointmentSchema = z.object({
   id: z.string(),
   patientId: z.string(),
+  patientName: z.string().nullable().optional(),
   practitionerId: z.string(),
   specialtyId: z.string(),
   scheduledAt: z.string(),

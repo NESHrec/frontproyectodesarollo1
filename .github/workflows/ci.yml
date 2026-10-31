@@ -45,6 +45,7 @@ jobs:
               npm run test:clinical-expansions
               npm run test:patient-link
               npm run test:practitioner-routes
+              npm run test:ux-regressions
             '
       - run: npm run build
         env:
