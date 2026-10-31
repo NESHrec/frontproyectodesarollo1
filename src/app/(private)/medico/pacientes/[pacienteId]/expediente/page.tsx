@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 
 import { AttentionCard } from "@/modules/atencion-medica/components/AttentionCard";
 import { MedicalFailureNotice } from "@/modules/atencion-medica/components/MedicalFailureNotice";
+import { PatientRecordSummaryCard } from "@/modules/atencion-medica/components/PatientRecordSummaryCard";
 import { formatDateTime } from "@/modules/atencion-medica/format";
 import { getRecordForAppointment } from "@/modules/atencion-medica/server";
-import { Card, EmptyState, InternalPageHeader, StatusBadge, buttonLinkClasses } from "@/shared/components";
+import { Card, EmptyState, InternalPageHeader, buttonLinkClasses } from "@/shared/components";
 import { firstSearchParam, type PageSearchParams } from "@/shared/lib/search-params";
 import { ClinicalProfileForm } from "@/modules/expedientes/components/ClinicalProfileForm";
 
@@ -34,21 +35,15 @@ export default async function PatientRecordPage({ params, searchParams }: {
   return (
     <div className="space-y-8">
       {header(patient.fullName ?? "Paciente sin nombre registrado")}
-      <Card className="relative overflow-hidden rounded-[2rem] border border-[#62727B]/15 bg-white text-[#263238] shadow-[0_28px_75px_-42px_rgba(38,50,56,0.28)] before:pointer-events-none before:absolute before:-right-12 before:-top-24 before:size-64 before:rounded-full before:bg-[#DDF3F1]/50 before:blur-3xl">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#56777A]">Paciente</p>
-            <h2 className="mt-2 text-2xl font-black text-[#334B54]">{patient.fullName ?? "Sin nombre registrado"}</h2>
-            <p className="mt-1 text-sm text-[#62727B]">Registrado {formatDateTime(patient.registeredAt)}</p>
-          </div>
-          <StatusBadge tone={patient.status === "ACTIVO" ? "pistacho" : "rosa"}>{patient.status === "ACTIVO" ? "Activo" : "Inactivo"}</StatusBadge>
-        </div>
-        <dl className="relative mt-6 grid gap-3 border-t border-[#62727B]/15 pt-5 text-sm sm:grid-cols-2">
-          <div className="rounded-xl border border-[#62727B]/10 bg-[#FBFCFA] p-4"><dt className="text-xs font-bold uppercase tracking-wider text-[#62727B]">Expediente</dt><dd className="mt-1 font-semibold text-[#263238]">{recordId ? `Abierto ${formatDateTime(recordCreatedAt)}` : "Se abrirá con la primera atención"}</dd></div>
-          <div className="rounded-xl border border-[#62727B]/10 bg-[#FBFCFA] p-4"><dt className="text-xs font-bold uppercase tracking-wider text-[#62727B]">Atenciones</dt><dd className="mt-1 text-2xl font-black text-[#263238]">{attentions.length}</dd></div>
-        </dl>
-        <Link className="mt-5 inline-flex rounded-sm text-sm font-bold text-[#334B54] underline underline-offset-4 hover:text-[#56777A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#56777A]" href={appointmentHref}>Volver a la cita</Link>
-      </Card>
+      <PatientRecordSummaryCard
+        patientName={patient.fullName}
+        registeredAt={patient.registeredAt}
+        status={patient.status}
+        recordId={recordId}
+        recordCreatedAt={recordCreatedAt}
+        attentionCount={attentions.length}
+        appointmentHref={appointmentHref}
+      />
       <Card className="rounded-[1.75rem] border-[#62727B]/12 shadow-[0_20px_55px_-44px_rgba(38,50,56,.65)]"><div className="border-b border-[#62727B]/12 pb-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Perfil longitudinal</p><h2 className="mt-1 text-xl font-black text-[#334B54]">Información clínica declarada</h2></div><div className="mt-5"><ClinicalProfileForm appointmentId={citaId} initial={clinicalProfile}/></div>{clinicalProfileHistory.length>0?<details className="group mt-6 rounded-2xl border border-[#62727B]/12 bg-[#FBFCFA] p-4"><summary className="cursor-pointer font-bold text-[#334B54] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#56777A]">Historial de versiones ({clinicalProfileHistory.length})</summary><ol className="mt-4 space-y-3">{clinicalProfileHistory.map(version=><li className="rounded-xl border border-[#62727B]/10 bg-white p-4 text-sm leading-6" key={version.id}><p className="font-bold text-[#334B54]">{formatDateTime(version.recordedAt)} · {version.authorName??version.authorAccountId}</p><p className="mt-2"><strong>Alergias:</strong> {version.allergies??"No indicado"}</p><p><strong>Condiciones:</strong> {version.relevantConditions??"No indicado"}</p><p><strong>Medicamentos:</strong> {version.currentMedications??"No indicado"}</p><p><strong>Antecedentes odontológicos:</strong> {version.dentalHistory??"No indicado"}</p></li>)}</ol></details>:<p className="mt-4 rounded-xl bg-[#F8EDD2]/60 p-4 text-sm text-[#62727B]">Aún no se ha registrado información clínica explícita.</p>}</Card>
       <section>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#56777A]">Cronología clínica</p><h2 className="mt-1 text-2xl font-black text-[#263238]">Historial de atenciones</h2>
